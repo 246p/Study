@@ -19,7 +19,7 @@ LAVA-M data set에서 거의 모든 injected bug를 찾았고 다른 모든 fuzz
 
 *who* 프로그램에서는 두번째로 좋은 fuzzer보다 8배 많은 버그를 찾았다. 또한 LAVA 제작자가 injected 하였지만 trigger하지 못한 103개의 버그를 찾아내었다. 
 
-또한 8개의 널리 사용되는 open source program에서 Angora를 테스트하여 다음과 같은 버그를 발견하였다
+또한 8개의 널리 사용되는 open source program에서 Angora를 테스트하여 다음과 같은 버그를 발견하였다.
 
 |program name| number of bug|
 |:---:|:---:|
