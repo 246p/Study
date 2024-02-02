@@ -12,7 +12,7 @@ Angora의 목표는 symbolic execution 없이 path constraint를 해결함으로
 
 - scalable byte-level taint tracking
 - context-sensetive branch count
-- gradient descent based search
+- search based on gradient descent
 - input legnth exploration
 
 LAVA-M data set에서 거의 모든 injected bug를 찾았고 다른 모든 fuzzer보다 더 많은 bug를 찾았다.
@@ -30,13 +30,65 @@ LAVA-M data set에서 거의 모든 injected bug를 찾았고 다른 모든 fuzz
 |size|48|
 
 # 1. Introduction
+Fuzzer는 소프트웨어 버그를 찾는 인기있는 기술이다. Coverage-based fuzzer는 program state를 탐색하기 위한 input을 만드는 문제에 직면하였다.
+
+## 1.1. AFL
+몇몇 fuzzer는 symbolic execution을 사용하여 path constraint를 해결하지만 symbolic execution은 느리고 많은 종류의 constraint 를 효과적으로 해결할 수 없다. *AFL*은 symbolic execution과 같은 heavy weight program analysis를 사용하지 않음으로 이러한 문제를 피했다.
+
+프로그램을 계측하여 어떤 input이 새로운 program branch를 탐색하는지를 관측한다. 그리고 이러한 input에 muatation을 주고 seed에 추가한다. AFL은 프로그램 실행에 있어서 낮은 overhead를 갖지만 AFL이 생성하는 대부분의 input은 효과가 없다. (새로운 program state를 탐색하지 못함) 왜냐하면 program의 data flow를 고려하지 않고 input을 맹목적으로 mutate하기 때문이다.
+
+몇몇 Fuzzer들은 AFL에 heuristic을 이용하여 "magic byte"와 같은 간단한 predicates을 추가하였다.
+
+## 1.2. Angora
+우리는 symbolic execution을 사용하지 않고 path constraint를 해결하기위하여 Angora 라는 fuzzer를 설계하고 구현하였다.
+
+Angora는 탐색되지 않은 branch를 추적하고 이러한 branch의 path constraint를 해결하려고 한다. 이를 위해 다음과 같은 기술을 도입하여 현존하는 fuzzer보다 상당히 좋은 결과를 얻었다.
+
+### 1.2.1 Context-sensetive branch count
+AFL은 context-insensitive bran count를 사용한다. 우리의 실험에 의하면 context를 branch coverage에 추가하면 Angora가 더 효과적으로 프로그램을 탐색한다.
+### 1.2.2. Scalable byte-level taint tracking
+많은 path constraint는 input의 몇 byte에 의존한다. 어떠한 input byte가 path constraint에 영향을 주는지 추적하여 Angora는 이러한 byte에만 mutate를 수행한다. 이러한 방식으로 탐색할 공간을 줄인다.
+### 1.2.3. Search based on gradient descent
+Angora는 symbolic execution을 사용하지 않고input을 path constraint를 만족하도록 mutate 한다. symbolic execution은 cost가 높고 많은 종류의 constraint를 해결하지 못한다. 
+
+Angora는 ML분야의 gradient descent algorithm을 사용하여 path constraint를 해결한다.
+### 1.2.4. Type and shape inference
+input의 많은 byte는 하나의 값으로 사용 된다.
+예를 들어 4 byte의 input은 32 bit signed integer로 사용된다.
+
+검색에 gradient descent를 효율적으로 사용하기 위해서 Angora는 group의 유형을 추론한다.
+### 1.2.5. Input length exploration
+어떤 프로그램은 input의 길이가 특정 값을 초과할때에만 특정 state를 탐색할 수 있다. symbolic execution이나 gradient descent는 input의 길이를 증가시켜야 하는지 알려주지 않는다.
+
+Angora는 input의 길이가 path constraint에 영향을 미칠 수 있는 경우를 감지하고 input 길이를 증가시킨다.
+
 
 # 2. Background: American Fuzzy Lop (AFL)
+fuzzing은 bug를 찾기 위한 자동화된 테스트 기술이다. AFL은 mutation-based graybox fuzzer로 compile-time instrumentation과 genetic algorithm을 사용하여 새로운 internal state를 실행할것으로 예상되는 test  case를 자동으로 생성한다.
 
+AFL은 coverge-based fuzzer이고 다양한 path를 탐색하고 bug를 발생하기 위한 입력을 생성한다.
 ## 2.1. Branch coverage
+AFL은 branch를 기반으로 path를 측정한다. AFL은 실행중 각 branch가 몇번 실행되었는지 센다. AFL은 branch를 튜플 (l_prev,l_cur)로 나타낸다. (l_prev = 이전, l_prev = 이후의 block ID)
+
+AFL은 간단한 instrumentation을 사용하여 branch coverage정보를 얻는다. instrumentation은 compile time에 각 branch point에 삽입되고 AFL은 모든 조건문의 각 branch가 실행된 횟수를 세는 path trace table을 할당한다. table에는 분기의 hash인 h(l_prev,l_cur)이다. (h는 hash function)
+
+AFL은 global branch coverage table을 유지한다. branch가 다른 실행에서 실행된 횟수를 기록하는 8bit vector를 포함한다. 
+
+    b[0-7] = { [1], [2], [3], [4-7], [8-15], [16-31], [32-127], [128,∞)}
+
+AFL은 path trace table과 branch coverage table을 비교하여 새로운 input이 새로운 internal state를 실행하는지 heuristically하게 결정한다. 다음중 하나가 발생할때 새로운 state를 실행한다
+
+- 새로운 branch를 실행할때 : path trace table에는 있지만 branch coverage table에는 없을때
+- 이 전 실행과 다른 횟수로 실행되는 branch가 있을때
 
 ## 2.2. Mutation strategies
-
+AFL은 다음과 같은 muatation 전략을 사용한다
+- bit or byte flip
+- "intersting" byte or word or dword 사용
+- byte or word or dword에 대한 작은 정수의 덧셈 뺄셈
+- single-byte를 random 결정
+- blcok 삭제, 복제(덮어쓰기, 삽입), memset
+- random location에서 두 input file 이어붙이기 
 # 3. Design
 
 ## 3.1. Overview
