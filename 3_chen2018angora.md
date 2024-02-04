@@ -90,9 +90,54 @@ AFL은 다음과 같은 muatation 전략을 사용한다
 - blcok 삭제, 복제(덮어쓰기, 삽입), memset
 - random location에서 두 input file 이어붙이기 
 # 3. Design
-
 ## 3.1. Overview
+AFL과 유사한 fuzzer들은 branch coverage를 지표로 사용한다. branch coverage를 계산할때 context를 고려하지 않는다. 우리의 경험에 따르면 context 없이는 branch coverage와 program state를 충분히 탐색하지 못한다. 따라서 우리는 coverage의 지표로 context-sensitive branch coverage를 제안한다. 
 
+### Algorithm of Angora
+Algorithm 1은 Angora의 두 단계인 계측과 fuzzing loop를 보여준다. 
+
+![Algorithm1]
+
+fuzzing loop는 탐색되지 않은 branch를 선택하고 해당 branch를 탐색하는 input을 찾는다. input을 효율적으로 찾기 위한 기술은 다음과 같다.
+
+1. 대부분의 조건문의 경우 조건은 input의 몇 byte에 의해서만 영향을 받는다. 즉 전체 input을 mutate하는것은 비생산적이다. 분기를 탐색할때 Angora는 해당 조건문의 input bytes flow를 결정하고 이러한 byte의 muate에만 집중한다.
+
+2. muate할 input byte를 결정한 후 이 byte를 어떻게 mutate할지 결정한다. 무작위 또는 heuristic하게 결정한다면 알맞는 값을 효율적을 찾기 어렵다. 대신 우리는 path constraint를 입력에 대한 blackbox function의 constraint로 본다. 이를 gradient descent algorithm을 사용하여 해결한다.
+
+3. gradient descent를 사용할때 blackbox function의 argument에 대해서 평가한다. 예르 들어 input의 연속된 4byte가 정수로 사용될때 우리는 이 4byte를 독립적인 argument가 아닌 하나의 argument로 고려해야 한다. 이 방법을 사용하기 위하여 input의 byte의 유형과 단일 또는 공동으로 사용되는지 여부를 추론해야한다.
+
+4. 일부 버그는 input이 특정 임계값보다 길어졌을때 발생한다. 따라서 input의 byte만을 변형하는것이 아닌 길이를 변경해야 한다. 하지만 이는 딜레마를 생성한다.input이 너무 짧다면 특정 버그를 발생시키지 못할 수 있다. 반면 너무 길다면 프로그램이 느려질 수 있다. 대부분의 fuzzer는ㄴ adhoc을 사용하여 input의 길이를 변경한다. 반면 Angora는 새로운 branch를 탐색할 수 있는 더 긴 input이 필요할때를 감지하고 최소 필요 길이를 결정하는 코드로 프로그램을 계측한다.
+
+다음은 조건문을 fuzzing하는 단계의 diagram과 코드이다.
+
+![Figure1]
+
+``` C
+void foo(int i, int j) {
+    if (i * i - j * 2 > 0) {/* some code*/}
+    else{/* some code*/}
+}
+int main() {
+    char buf[1024];
+    int i = 0, j = 0;
+    if(fread(buf, sizeof(char), 1024, fp)< 1024)
+        return 1;
+    if(fread(&i, sizeof(int), 1, fp) < 1)
+        return 1;
+    if(fread(&j, sizeof(int), 1, fp) < 1)
+        return 1;
+    foo(i, j);
+}
+
+```
+다음과 같은 내용을 확인할 수 있다.
+### Byte-level taint tracking
+Angora는 2번째줄의 if문을 fuzzing할때 byte-level taint tracking을 사용하여 1024-1031번째 byte flow가 표현식을 결정함을 확인하여 이 byte들만 변형한다.
+### Search algorithm based on gradient descent
+Angora는 2번째 줄의 조건문의 두 분기를 각각 실행하는 입력을 찾아야 한다. 조건문 내 표현식을 입력 x에 대한 f(x)로 처리하고 gradient descent algorithm을 사용하여 f(x)>0, f(x')<=0인 두 input x, x'을 찾는다.
+### Shape and type inference
+
+### Input length exploration
 ## 3.2. Context-sensitive branch count
 
 ## 3.3. Byte-level taint tracking
