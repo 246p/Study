@@ -319,14 +319,46 @@ Angora는 $f(x)$의 analytic form을 생성하지 않고 오히려 프로그램�
 단순히 x의 각 요소를 조건문으로 흐르는 input의 byte로 설정할 수 있다. 하지만 이는 type mismatch로 인하여 gradient decent에서 문제를 일으킬 수 있다. 예를들어 input의 연속된 4 byte $b_3b_2b_1b_0$을 정수로 처리하고 $x_i$가 이 값응ㄹ 대표하도록 하자. 우리는 $f(x+δv_i)$를 계산할때 δ를 더해야 한다. 
 
 하지만 만약 각 byte에 대하여 $x_i$로 단수히 할당한다면 각 byte에 대하여 $f(x+δv_i)$를 계산하게된다. 프로그램에서는 byte들을 단일 값으로 결합하고 표현식에서는 결합된 값을 사용하기에 LSB를 제외한 byte에 대해서 δ를 더하는 것은 값을 크게 변경하게 되며 편미분의 의미에서 벗어난다.
+
+이 문제를 피하기위하여 (1)프로그램에서 항상 단일 값으로 함께 사용되는 input의 byte들과 (2)그 유형에 대하여 추론해야한다.
+
+(1)의 문제를 shape inference, (2)의 문제를 type inference 라고 한다. 이는 dynamic taint analysis중에 해결된다.
+
+### shape inference
+shape inference를 위하여 초기에 모든 입력을 독립적이라고 본다. taint analysis 동안 input byte를 sequence로 읽을때 Angora는 이러한 byte들을 같은 value에 포함되는것으로 tag한다. 만약 이 과정속에서 겹치는 것이 있다면 더 작은 크기를 선택한다.
+
+### type inference
+type inference를 위하여 Angora는 값에 작용하는 명령어의 semantic에 의존한다. 예를들어 명령어가 signed integer에 작용한다면 Angora는 해당 피연산자를 signed integer로 추론한다. 같은 값이 signed, unsigned로 모두 사용될 경우 Angora는 unsigned로 처리한다. 만약 이러한 type inference가 실패하더라도 gradient descent를 이용하여 solution을 찾을 수 있다. 시간이 오래 걸릴 뿐이다.
 ## 3.6. Input length exploration
+Angora는 다른 fuzzer에 비해 더 작은 input으로 fuzzing을 시작한다. 그러나 일부 branch는 input length가 특정 값보다 클때 실행된다.
 
+fuzzer가 너무 짧은 input을 사용한다면 그 분기를 탐색할 수 없다. 하지만 너무 긴 input을 사용한다면 프로그램이 느려지고 메모리 부족으로 실행이 단될 수 있다. 대부분의 fuzzer는 adhoc 방식을 사용하여 다양한 입력을 시도한다. 반면 Angora는 새로운 branch를 탐색할 수 있을때만 input의 길이를 증가시킨다.
+
+tacking을 수행하는 동안 Angora는 read-like function을 호출할대 destination memory를 input byte offset과 연결한다. 또한 read call에서 반환 값에 특별한 label을 표시한다.
+
+반환 값이 조건문에서 사용되고 constraint를 만족하지 않는 경우 Angora는 read call이 요쳥하는 모든 byte를 얻을 수 있도록 input length를 증가시킨다. 이러한 기준이 모든 경우를 포함하는것은 아니지만 프로그램이 우리가 예상하지 못한 방식으로 input을 사용하고 그 길이를 확인할 수 있지만 그것을 발견하면 Angora에 기준을 추가하는것은 쉽다.
 # 4. Implementation
-
 ## 4.1. Instrumentation
+Angora는 LLVM pass를 사용하여 프로그램을 계측함으로써 실행 파일을 생성한다. 계측은 다음 과정을 수행한다.
+
+1. 조건문의 기본 정보를 수집하고 taint analysis를 통하여 input byte offset과 연결한다. Angora는 각 입력에 대해 이 단계를 한번만 실행한다.
+2. 새로운 ipnt을 식별하기위하여 excution trace를 기록한다.
+3. runtime에 context를 사용한다.
+4. 조건문에서 표현된 값을 수집한다.
+
+이러한 계측 과정은 프로그램의 실행동안 필요한 데이터를 수집하여 Angora가 더 효과적으로  fuzzing을 수행할 수 있도록 한다.
+
+Angora는 byte-level taint tracking을 위하여 *DataFlowSanitizer (DFSan)*을 확장하여 구현하였다. FIND와 UNION 기능에도 caching 기능을 추가하여 속도를 향상시켰다.
+
+Angora는 LLVM 4.0.0 (DFSan 포함)에 기반하였다. LLVM pass은 DFSan을 제외하고 C++ 820줄 코드로 이루어져 있으며 runtime에는 taint label을 저장하기위한 data structure, input을 오염시키고 조건문을 추적하기 위한 hook을 포함하여 C++ 1950로 구현하였다.
+
+두개의 분기를 가진 if문 외에도 *LLVM IR*은 여러 branch를 도입할 수 있는 switch문도 지원한다. Angora는 switch 문을 if문을 변환한다.
+
+Angora는 조건문에서 문자열과 배열을 비교하는 libc function을 인식한다 예를들어 `strcmp(x,y)`를 `x strcmp y`로 변환한다 여기서 strcmp는 Angora가 이해하는 특별한 비교연산이다.
+
 
 ## 4.2. Fuzzer
-
+Angora를 4488줄의 Rust코드로 구현하였다. fork server, CPU binding과 같은 기술로 최적화 하였다.
 # 5. Evaluation
 
 ## 5.1. Compare Angora with other fuzzers
