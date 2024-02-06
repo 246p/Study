@@ -357,6 +357,7 @@ Angora는 LLVM 4.0.0 (DFSan 포함)에 기반하였다. LLVM pass은 DFSan을 �
 Angora는 조건문에서 문자열과 배열을 비교하는 libc function을 인식한다 예를들어 `strcmp(x,y)`를 `x strcmp y`로 변환한다 여기서 strcmp는 Angora가 이해하는 특별한 비교연산이다.
 
 
+
 ## 4.2. Fuzzer
 Angora를 4488줄의 Rust코드로 구현하였다. fork server, CPU binding과 같은 기술로 최적화 하였다.
 # 5. Evaluation
