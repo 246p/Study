@@ -462,16 +462,3 @@ Angora라는 강력한 muatint-base fuzzer를 설계하고 구현하였다. 이 
 - input length exploration
 
 Angora는 다른 최신 fuzzer보다 더 뛰어난 성능을 발휘하였다. LAVA-M 에서 다른 fuzzer보다 더 많은 버그를 찾았으며 LAVA 저자들이 trigger하지 못한 103개의 버그와 8개의 open source 프로그램에서 많은 175개의 새로운 버그를 찾았다.
-
-# 8. 관련 논문
-## 8.1.1 Penetrating conditionals
-### REDQUEEN: Fuzzing with Input-to-State Correspondence
-[Link](https://www.ndss-symposium.org/wp-content/uploads/2019/02/ndss2019_04A-2_Aschermann_paper.pdf)
-### Grey-box concolic testing on Binary Code
-[Link]()
-## 8.2 Improving the efficiency (execution speed) of fuzzing
-### Designing New Operating Primitives to Improve Fuzzing
-[Link]()
-
-### Full-speed Fuzzing: Reducing Fuzzing Overhead through
-[Link]()
