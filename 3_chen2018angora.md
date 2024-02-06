@@ -361,31 +361,104 @@ Angora는 조건문에서 문자열과 배열을 비교하는 libc function을 �
 ## 4.2. Fuzzer
 Angora를 4488줄의 Rust코드로 구현하였다. fork server, CPU binding과 같은 기술로 최적화 하였다.
 # 5. Evaluation
-
+Angora를 3단계로 평가하였다.
+- 다른 최신 fuzzer와의 성능 비교
+- test coverage와 새로운 bug를 찾는 능력
+- 중요한 새로운 기능 
+  
+Angora는 멀티코어를 지원하지만 다른 fuzzer와의 비교를 위하여 단일 코어를 사용였다. 각 실험을 5회 실행하고 평균 성능을 평가하였다.
 ## 5.1. Compare Angora with other fuzzers
+Fuzzer를 비교하는 절대적 지표는 버그를 찾는 능력이다. 좋은 test set는 실제 프로그램과 현실적인 버그를 포함해야 한다. LAVA는 프로그램 source code에 대량의 현실적인 버그를 주입하여 ground-truth corpus를 생성한다.
+
+저자는 4개의 GNU coreutils 프로그램 (uniq, base64, md5sum, who)에 버그를 주입하여 LAVA-m corpus를 생성하였다. Angora를 다음 fuzzer들과 비교하였다.
+
+- Fuzzer :coverage based fuzzer, SES :symbolic execution and SAT solving
+- VUzzer : "magic byte"전략을 사용하는 fuzzer
+- Steelix : LAVA-M에서 VUzzer보다 뛰어난 fuzzer
+- AFL 2.51b : 논문 작성 시점의 최신 AFL 버전
+
+Angora가 가장 좋았음 uniq, base64, md5sum 에서 모든 bug와 who의 대부분의 bug, 103개의 unlisted bug도 찾았다.
+
+다음같은 이유로 Angora가 좋았다.
+1. LAVA는 bug가 포함된 분위글 보호하기 위하여 "magic byte"를 사용한다. 일부 magic byte입력은 직접 복사되는것이 아닌 입력에서 계산된다. VUzzer와 Steelix의 magic byte 전략은 magic byte를 입력에 직접 복사할 수 있으므로 해당 분기를 탐색하는 입력을 생성할 수 없다.
+2. VUzzer는 "magic byte"를 맹목적으로 시도하고 Steelix는 random mutation 중 "magic byte"와 같은 byte가 존재할때 이 전략을 사용한다. 반면 Angora는 컴퓨팅 파워를 사용하여 탐색되지 않음 branch 의 path constraint를 해결하기 위하여 스케줄링 하기 때문에 더 많은 branch를 cover할 수 있어서 LAVA-M에 주입된 대부분의 버그를 빠르게 찾을 수 있다.
 
 ## 5.2. Evaluate Angora on unmodified real world programs
+LAVA에서 명시되지 않은 bug를 찾는 높은 성능을 보였다. 발견한 버그가 인위적으로 주입된 것인지 확인하기 위하여 최신의 8개의 open source 프로그램에 대해서 평가하였다. 이러한 프로그램들은 crash가 적을겉으로 예상되었지만 꽤 많은 버그를 찾을 수 있었다. AFL 또한 -cmin -C 명령을 주어 크래시 중복 제거를 주어 실행하여 비교해본 결과 branch coverage, line coverage, Unique crash 부분에서 더 좋은 성능을 확인할 수 있었다.
 
+이와같은 이유는 복잡한 조건문의 양쪽 branch를 모두 탐색할 수 있기 때문이다. 예를들어 다음과 같은 코드에서 AFL은 true branch 를 탐색할 수 없다.
+
+``` C
+// readelf.c:620
+if (namesz==10 && strcmp((char*)&nbuf[noff], "DragonFly")==0 && type == NT_DRAGONFLY_VERSION && descsz==4)
+...
+```
 ## 5.3. Context-sensitive branch count
+### 5.3.1. Performance
+3.2절에서는 context-sensetive branch에 대해서 소개하였다. 우리는 동일한 branch를 다른 function call context와 구분하는 것이 더 많은 버그를 찾을것이라고 생각하였다. 이 가설을 평가하기 위하여 context-sensetive branch count와 context-insensetive branch counter를 각각 사용하여 Angora를 실행하였다.
 
-### Performance
+결과는 context-insensetive 를 사용하여 하나의 bug도 찾지 못하였다. 하지만 sensetive 방식으로는 6개의 버그를 찾았다. 
 
-### Hash collision
+### 5.3.2. Hash collision
+Angora는 barnch count를 hash table에 저장한다. Angora가 calling context를 포함하여 branch coverage를 계산하기 때문에 더 많은 branch를 hash table에 삽입하게 된다. 따라서 hash collision rate를 낮추기 위하여 hash table의 크기를 증가시켜야 한다.
 
+AFL의 경우 2^16 bukit을 갖는 hash table이 충분하다고 생각하였지만 Angora의 경우 16배 늘린 2^20개의 bukit을 할당하였다. 
+
+AFL과는 다르게 Angora는 새로운 path를 찾기 위하여 hash table을 탐색하지 않고 input을 우선시 하기에 hash table이 크더라도 실행속도에 영향을 덜 미친다.
 ## 5.4. Search based on gradient descent
+3.4절에서 조건문의 constarint를 해결하기 위하여 gradient descent를 사용하는 방법을 설명하였다. 우리는 이 방법을 randome mutation과 magic byte 전략과 비교하여 더 많은 constraint를 해결하였음을 확인하였다.
+
 
 ## 5.5. Input length exploration
+Angora는 path constraint가 input length에 의존한다는 것을 관찰하면 input length를 증가시킨다. 반면 AFL과 같은 fuzzer는 input length를 무작위로 증가시킨다. 이 두 전략을 다음 두가지 기준으로 비교하였다.
+- 얼마나 자주 증가시키는지, 또한 생성된 input중 얼마나 많은 input이 유용한지.
+- 유용한 input의 평균 길이는 어떻게 되는지
 
+우리는 Angora와 AFL을 5시간동안 실험하여 Angora의 전략이 훨씬 더 효율적이고(더 자주 유용한 입력을 만듬) 생성된 input의 길이가 더 짧다는 사실은 확인할 수 있었다. 짧은 input은 대체로 많은 프로그램에서 더 빠르게 실행되기 때문에 Angora의 전략이 더 높은 품질의 input을 생성한다는것을 확인하였다.
 ## 5.6. Execution speed
+Angora의 taint analysis는 비용이 많이든다. 하지만 Angora는 input에 대해서 한번만 이 과정을 수행하기 때문에 일회성 비용이라고 생각할 수 있다. 이 때문에 AFL보다 살짝 낮은 속도로 실행한다. 하지만 Angora는 더 높은 품질의 input을 생성하여 더 높은 coverage와 더 많은 버그를 찾아낼 수 있다.
 
 # 6. Related work
-
 ## 6.1. Prioritize seed inputs
+mutation-based fuzzer에서 중요한 부분은 seed input을 현명하게 선택하는것이다. *Rebert*는 seed selection scheduling 문제를 고안하고 분석하였다. 그들은 *PeachFuzzer*를 기반으로 여섯가지 다른 seed selection algorithm을 설계하고 평가하였다.
 
+결과는 seed selection algorithm에 의한 heuristic이 random sampling보다 더 좋은 결과를 나타내었다.
+
+*AFLFast*는 대부분의 fuzz tsting이 동일한 몇개의 high frequency path를 탐색한다고 관찰하였다. Markov chain을 사용하여 low frequency path를 탐지해 내었고 이러한 경로를 포함하는 입력을 우선적으로 처리하였다.
+*VUzzer* 또한 path를 모델링 하기 위하여 control-flow의 특징을 사용하여 도달하기 힘든 paht에 대한 input을 먼저 처리하였다. 또한 error-handling basic block을 감지하고 이 block들을 포함하지 않는 input을 우선적으로 처리하였다. 반면 Angora는 미탐색 branch가 있는 조건문을 포함하는 path를 가진 input을 선택하였다. 이러한 전략은 더 일반적으로 high frequency path를 탐색한 이후에 자동으로 low frequency path에 집중하도록 한다.
 ## 6.2. Taint-based fuzzing
+taint analysis는 다음과 같은 더많은 용도로 사용된다.
+- malware analyzing
+- detexting and preventing information leaks
+- debugging software
+- fuzzing
+
+taint based fuzzing은 프로그램이 input을 처리하는 방식을 분석하여 input의 어떤 부분을 수정해야하는지 결정한다. 이러한 fuzzer중 일부는 보안에 민감한 코드에서 사용되는 값을 input에서 찾고 이러한 input의 해당 부분을 수정하여 crash를 일으키려고 노력한다.
+
+예를들어 *BuzzFuzz*는 taint tracking을 사용하여 "attack point"라고 정의한 것에 input byte를 찾았다. *Dowser*는 BOF로 이어질 가능성이 높은 코드를 security sensitive code로 보았다. 즉 접근 가능한 path에서 bug를 악용하려고 시도하였다. *Woo*는 exploration 과
+exploitation trade off를 언급하였다.
+
+Angora는 탐색한 path를 explotation 하기 위한 이러한 기술을 통합할 수 있다.
+
+Taintscope*는 check sum 코드를 추론하고 입력을 변조하여 이러한 check를 우회하기위해 taint analysis를 사용하였다.
+
+*VUzzer*는 taint analysis를 사용하여 "magic byte"를 찾은 다음 이를 input의 고정 위치에 할당하였다. 이는 magic byte를 찾을 수 있지만 이러한 바이트가 input에 연속적으로 나타날때만 가능하다. *Steelix*는 이를 개선하여 program state로부터 magic byte를 추론한다. 
+
+반면 Angora는 byte-level taint tracking을 이용하여 input flow의 byte offset을 얻은 다음 미탐색된 branch의 constraint를 충족시킨다. 이는 magic byte보다 더 많은 유형의 값을 효율적으로 찾을 수 있다.
+ 
+Angora는 byte offset을 tree에 저장하고 이를 taint table로 사용하여 input byte offset에 관계없이 taint table의 크기가 일정하다. 여러개의 label이 동일한 taint offset을 가질때 *VUzzer*는 각 taint lable에 반복하여 저장하지만 Angora는 Tree에 한번만 저장하므로 메모리를 절약할 수 있다.
+
+이러한 데이터 구조는 roBDD(reduced orderd binary decision digaram)과 비슷하다. Angora는 이를 처음으로 적용하였다.
 
 ## 6.3. Symbolic-assisted fuzzing
-
+dynamic smybolic execution은 프로그램에 대한 높은 분석을 제공한다. 이러한 기술은 program state를 trigger하는 방법을 알기 때문에 취약점을 직접 찾는데 사용될 수 있다. 고전적인 접근 방식은 crash를 찾기위하여 code coverage를 최대화 하기 위해 symbolic execution을 수행하였다. 하지만 path explosion과 constraint solving은 Symbolic execution을 확장하기 힘들게 하였다. *DART*나 *SAGE*는 이를 해결하여 input을 수정할때 dynamic symbolic excution을 사용하였다. *SYMFUZZ*는 execution trace에서 사용하여 bit position사이의 의존성을 감지하고 fuzzing을 위한 최적의 mutation ratio를 제공하였다. 그러나 모두 symbolic execution에서 비롯된 확장성 문제를 이어받았다. Angora는 symbolic 실행을 사용하지 않아 큰 프로그램에서 효율적으로 많은 버그를 찾을 수 있다.
 # 7. Conclusion
+Angora라는 강력한 muatint-base fuzzer를 설계하고 구현하였다. 이 fuzzer는 다음과 같은 주요 기술을 사용하여 고품질 input을 생성한다.
 
-# 8. Acknowledgment
+- scalable byte-level taint tracking
+- context-sensitive branch count
+- serach algorithm based on gradient descent
+- shape and type inference
+- input length exploration
+
+Angora는 다른 최신 fuzzer보다 더 뛰어난 성능을 발휘하였다. LAVA-M 에서 다른 fuzzer보다 더 많은 버그를 찾았으며 LAVA 저자들이 trigger하지 못한 103개의 버그와 8개의 open source 프로그램에서 많은 175개의 새로운 버그를 찾았다.
