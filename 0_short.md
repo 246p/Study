@@ -1,7 +1,7 @@
 
 # Abstract 요약
 
-## 1 Penetrating conditionals
+## Penetrating conditionals
 ### REDQUEEN: Fuzzing with Input-to-State Correspondence
 [Link](https://www.ndss-symposium.org/wp-content/uploads/2019/02/ndss2019_04A-2_Aschermann_paper.pdf)
 
