@@ -147,7 +147,17 @@ fuzz testing의 효과성에 대한 많은 연구가 진행되었다. 우리는 
 *SDF*는 seed 자체 속성을 사용하여 muation을 진행한다 대때로 grammar를 사용하기도 한다. *Chizpurfle*의 muatator는 안드로이드 시스템 서비스의 in-process fuzzing을 지원하기 위하여 java-level language construct에 대한 지식을 활용한다.
 
 ### 2.1.3. eval
+*Driller*와 *MAYHEM*은 프로그램의 conditional guards가 bruteforce guessing을 통하여 만족시키기 힘들다는 점을 확인하여 때때로 eval 단계에서 symbolic executor를 호출하여 이를 해결한다. *S2F*도 동일하다.
+
+다른 연구는 OS에 변경을 가하거나 다른 low level primitive를 사용하여 eval의 속도를 증가시킨다. *T-Fuzz*는 새로운 코드에 도달하는것을 방지하는 입력에 대한 검사를 제거하기 위하여 프로그램을 변환한다. *MEDS*는 퍼징 동안 오류를 탐지하기 위해 더 세분화된 run time analysis를 수행한다.
 ### 2.1.4. inIntersting
+대부분의 논문이 crash에 초점을 맞추지만 일부 연구는 더 긴 실행시간이나 특별한 행동을 관찰한다. 
+
+*Steelix*와 *Angora*는 조건을 만족시키는 방향으로 진행에 대한 더 셈리한 정보가 observation을 통해 나타나도록 계측한다.
+
+*Dowser*와 *VUzzer*는 static analysis를 사용하여 프로그램 포인트에 서로 다른 보상을 할당한다. 이는 그 포인트를 통과하는 것이 취약점으로 이어질 가능성에 대한 추정에 기반하거나 CFG에서 더 깊은 포인트에 도달하기 위함이다.
+### 2.1.5. choose
+여러 연구는 특정 프로그램 영역에 도달하는지 여부를 기반하여 다음 input 후보를 선택한다. 후보 seed를 선택하기 위한 다양한 알고리즘을 탐구한다.
 ## 2.2. Recent Advances in Fuzzing
 
 # 3. Overview and Experimental setup
