@@ -157,7 +157,7 @@ fuzz testing의 효과성에 대한 많은 연구가 진행되었다. 우리는 
 
 *Dowser*와 *VUzzer*는 static analysis를 사용하여 프로그램 포인트에 서로 다른 보상을 할당한다. 이는 그 포인트를 통과하는 것이 취약점으로 이어질 가능성에 대한 추정에 기반하거나 CFG에서 더 깊은 포인트에 도달하기 위함이다.
 ### 2.1.5. choose
-여러 연구는 특정 프로그램 영역에 도달하는지 여부를 기반하여 다음 input 후보를 선택한다. 후보 seed를 선택하기 위한 다양한 알고리즘을 탐구한다.
+여러 연구는 특정 프로그램 영역에 도달하는지 여부를 기반하여 다음 input 후보를 선택한다. 후보 seed를 선택하기 위한 다양한 알고리즘을 탐구한다. 
 ## 2.2. Recent Advances in Fuzzing
 
 # 3. Overview and Experimental setup
