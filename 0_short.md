@@ -1,5 +1,4 @@
-
-# Abstract 요약
+# Abstract
 
 ## Penetrating conditionals
 ### REDQUEEN: Fuzzing with Input-to-State Correspondence
@@ -26,7 +25,7 @@ white-box와 grey-box fuzzing의 장점을 결합하여 새로운 path based tes
 
 Eclipser라는 fuzzer를 구현하여 최신 grey-box fuzzer(AFLFast, LAF-intel, Stellix, VUzzer), smybolic executor(KLEE)와 비교하여 다른 도구들보다 더 높은 code coverage를 달성하고 더 많은 버그를 발견하였따.
 
-## 2.  Improving the efficiency (execution speed) of fuzzing
+## 2.  Improving the efficiency of fuzzing
 ### Designing New Operating Primitives to Improve Fuzzing
 [Link](https://cosmoss-jigu.github.io/pages/pubs/fuzzing-xu-ccs17.pdf)
 
@@ -63,3 +62,17 @@ coverage-guided tracking은 coverage를 증가시키는 testcase를 처리한 �
 실험결과 Untracer의 평균 오버헤드는 1시간동안 1%미만이고 24시간 후에는 0%에 접근한다. 반면 AFL-Clang, AFL-QEMU, AFL-Dyninst로 는 36,612,518%의 오버헤드가 발생한다.
 
 또한 우리는 Untracer를 fuzzerQSYM과 통합하여 24시간의 fuzzing에서 QSYM-Untracer가 QSYM-Clang, QSYM-QEMU보다 79,616% 더 많은 test case를 실행하였다.
+
+
+## 3. Hybrid fuzzing
+### Driller: Augmenting Fuzzing Through Selective Symbolic Execution
+
+[Link](https://sites.cs.ucsb.edu/~vigna/publications/2016_NDSS_Driller.pdf)
+
+### QSYM : A Practical Concolic Execution Engine Tailored for Hybrid Fuzzing
+
+[Link](https://www.usenix.org/system/files/conference/usenixsecurity18/sec18-yun.pdf)
+
+## 4. concolic testing
+
+[Link](http://acm.mementodepot.org/pubs/proceedings/acmconferences_3180155/3180155/3180155.3180166/3180155.3180166.pdf)
