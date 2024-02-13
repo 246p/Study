@@ -131,36 +131,69 @@ seed corpus를 선택함으로 시작된다. 이 input을 반복적으로 mutati
 
 fuzzer의 궁국적인 목표는 crash를 발생시키는 input을 생성하는 것이다. 일부 fuzzer 구성에서 *isDone*은 queue를 확인하여 crash가 발생하는지 확인하고 crash가 발생한다면 loop를 중단한다. 다른 구성에서는 가능한 많은 crash를 수집하려고 시도하므로 crash 이후에 멈추지 않는다. 예를들어 *libfuzzer*는 crash을 발견하면 멈추지만 *AFL*은 계속하여 새로운 crash를 발견하려고 시도한다. 더 긴 실행 시간과 같은 다른 유형의 관찰도 바람직하며 이는 알고리즘 복잡성 취약점(algorithm complexity vulunerabilitie)를 나타낼 수 있다. 이러한 경우에 fuzzer의 출력은 개발자가 관찰을 확인, 재현, 디버그 할 수 있도록 퍼저 외부에서 사용할 수 있는 concrete input과 configuration 이다.
 
-
-## 2.1. Fuzzing Procedure
+## 2.2. Recent Advances in Fuzzing
 fuzz testing의 효과성에 대한 많은 연구가 진행되었다. 우리는 2012~18년 사이 fuzzing algorithm을 개선한 논문 32편을 찾아 분석하였다.
 
 ![table1]()
 
 위 표는 논문을 연대순으로 나열하여 개선하려는 목표에 따라 요약하였다. 우리의 관심사는 이 논문들이 주장하는 개선을 어떻게 평가하는지에 있다.
 
-### 2.1.1. initSeedCorpus
+### 2.2.1. initSeedCorpus
 *Skyfire*, *Orthrus*는 프로그램에 대한 사전 분석을 실행하여corpus를 생성하고 mutator를 지원하기 위한 정보를 스스로 지원하는 방식으로 input seed selection을 개선하고자 제안한다. *QuickFuzz*는 유효하거나 흥미로운 입력의 구조를 지정하는 문법을 사용하여 seed selection을 지원한다. *DIFUZE*는 device driver로부터 input의 structure를 식별하기 위하여 up-front static analysis를 수행한다.
-### 2.1.2. mutate
+### 2.2.2. mutate
 *SYMFUZZ*는 symbolic executor를 사용하여 seed를 mutate할 bit 수를 결정한다. 여러 다른 연구들은 프로그램에 대한 taint level observation을 인식하도록 mutate하며 특히 프로그램이 사용하는 input을 변형한다. 여러 다른 fuzzer들이 bit flipping, rand replacemnet와 같은 pre-defined data mutation 전략을 사용하는 곳에서 *MutaGen*은 dynamical slicing을 통하여 input을 parsing하는 mutator로 이용한다.
 
 *SDF*는 seed 자체 속성을 사용하여 muation을 진행한다 대때로 grammar를 사용하기도 한다. *Chizpurfle*의 muatator는 안드로이드 시스템 서비스의 in-process fuzzing을 지원하기 위하여 java-level language construct에 대한 지식을 활용한다.
 
-### 2.1.3. eval
+### 2.2.3. eval
 *Driller*와 *MAYHEM*은 프로그램의 conditional guards가 bruteforce guessing을 통하여 만족시키기 힘들다는 점을 확인하여 때때로 eval 단계에서 symbolic executor를 호출하여 이를 해결한다. *S2F*도 동일하다.
 
 다른 연구는 OS에 변경을 가하거나 다른 low level primitive를 사용하여 eval의 속도를 증가시킨다. *T-Fuzz*는 새로운 코드에 도달하는것을 방지하는 입력에 대한 검사를 제거하기 위하여 프로그램을 변환한다. *MEDS*는 퍼징 동안 오류를 탐지하기 위해 더 세분화된 run time analysis를 수행한다.
-### 2.1.4. inIntersting
+### 2.2.4. inIntersting
 대부분의 논문이 crash에 초점을 맞추지만 일부 연구는 더 긴 실행시간이나 특별한 행동을 관찰한다. 
 
 *Steelix*와 *Angora*는 조건을 만족시키는 방향으로 진행에 대한 더 셈리한 정보가 observation을 통해 나타나도록 계측한다.
 
 *Dowser*와 *VUzzer*는 static analysis를 사용하여 프로그램 포인트에 서로 다른 보상을 할당한다. 이는 그 포인트를 통과하는 것이 취약점으로 이어질 가능성에 대한 추정에 기반하거나 CFG에서 더 깊은 포인트에 도달하기 위함이다.
-### 2.1.5. choose
+### 2.2.5. choose
 여러 연구는 특정 프로그램 영역에 도달하는지 여부를 기반하여 다음 input 후보를 선택한다. 후보 seed를 선택하기 위한 다양한 알고리즘을 탐구한다. 
-## 2.2. Recent Advances in Fuzzing
+
 
 # 3. Overview and Experimental setup
+이 논문은 fuzz testing algorithm을 평가하는 기존의 연구 관행을 평가한다. fuzz testing algorithm A를 평가하는 것은 여러 단계를 필요로 한다.
+
+- 비교 대상이 될 baseline algorithm B 선택
+- 테스트할 대표적인 프로그램 집합 선택
+- A,B의 성능을 측정하는 방법 선택
+- 시드 파일을 선택, timeout 등 algorithm paramater
+- A.B 모두 여러번 실행을 하여 그들의 성능을 통계적으로 비교
+
+fuzz testing에 대한 논문들은 이러한 단계를 수행하는 과정에 상당한 차이가 존재한다. Table1은 32개 논문에 대해서 평가한다. 각 항목은 다음과 같다.
+
+- benchmark : 테스트를 진행할 프로그램
+- baseline : 기준 fuzzer
+- trials : 시험 횟수
+- variance : 성능의 변동성 고려 하였는지
+- crash : crash가 bug로 어떻게 mapping 되어있는지
+- coverage : coverage가 측정 되었는지
+- seed : seed 파일을 어떻게 선택하였는지
+- timeout 각 시험의 timeout이 얼마인지
+
+이러한 평가들중 어떤것이 기술적 발전을 뒷받침하는 증거의 의미로 "좋은"것일까? 다음 절에서는 평가를 이론적, 경헙적으로 평가하여 부적절한 선택이 algorithm의 적합성에 대해 오해를 불러일으키거나 잘못된 결론을 내리게 할 수 있는 방법을 보여주는 실험을 수행한다. 어떤 경우에는 평가에 대한 "최선"의 선택이 열린 질문이라고 생각하지만, 특정 접근 방식이 취해져야 한다고 생각한다.(적어도 특정 방법은 취하지 않아야 한다.) 이 절은 우리 자신의 실험을 위한 설정을 설명한다.
+
+## 3.1. Fuzzer
+우리는 baseline fuzzer B 롤 AFL 2.43b를 사용하고 advanced algorithm fuzzer로 A를 선택하였다. AFLFast의 성능을 테스트 결과를 재현하려는 것이 아닌 실증적으로 fuzzer를 평가하는 접근 방식의 (무)타당성을 고려하기위하여 선택하였다. 또한 AFL은 오픈 소스이며 구축하기 쉽고 쉽게 비교할 수 있다. 또한 AFLNaive 설정을 사용하여 coverage tracking을 하지 않고 blackbox fuzzer로 사용할 수 있다.
+
+### 3.2. Benchmark programs
+우리는 다음 프로그램을 benchmark에 사용하였다.
+
+*nm*, *objdump*, *cxxfilt*, *gif2png*, *FFmpeg* 
+
+이것이 완벽한 benchmark suite는 아니다. (실제로 좋은 benchmark suite를 얻는 것은 미해결 문제라고 생각한다) 단지 이 프로그램들을 사용하여 다른 대상들에 대한 테스팅이 어떻게 다른 결론으로 이끌 수 있는지 보여주기 위하여 사용한다.
+
+### 3.3. Performance measure
+우리는 실험을 위해 특정 기간동안 fuzzer가 찾을 수 있는 "unique crash" 의 수를 측정하였다. 여기서 고유성은 AFL coverage 개념에 의해 결정된다. 특히 두 crash input은 같은 coverage profile을 가질 경우 같은 것으로 간주한다. 이 측정 방법은 흔하지 않지만 문제가 있다. [#7](#7-performance-meaasures)에서 다룬다.
+
 
 # 4. Statistically Sound Comparisons
 
