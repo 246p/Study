@@ -371,11 +371,51 @@ graybox fuzzer는 `isIntersting`함수의 일부로 coverage를 최적화 하려
 code coverage를 극대화 하는것이 bug를 직접 찾는것과 직접적으로 연결된다는 근본적인 이유는 없다. coverage guide fuzzer가 blackbox fuzzer보다 더 효과적이라는 강한 상관관계가 있지만, 특정 algorithm은 coverage가 아닌 다른 신호에 초점을 맞출 수 있다. 예를 들어 *AFLGo*는 전역적으로 coverage를 증가시키는 것을 목표로 하지 않고 오히려 프로그램내에서 특정하게, 가능성이 높은 오류 지점에 초점을 맞춘다. coverage와 버그 찾기가 상관관계가 있다고 하더라도 그 상관관계가 약할 수 있다. 따라서 coverage에서 상당한 개선이 있더라도 bug를 찾는데 있어서 미미한 개선을 가져올 수 있다. 우리는 code coverage가 보조적인 지표로서 의미가 있다고 생각하지만 발견된 버그에 따른 ground truth가 더 중요하다고 생각한다.
 
 # 8. Target Programs
+A fuzzer가 B fuzzer에 비해 더 낫다는것을 입증하고 싶다면 대게 benchmark suite에서 fuzzer를 테스트함으로 이루어진다. 어떻게 benchmark suite를 선택해야 할까?
 
+최근에 발표된 작업들은 다양한 benchmark 프로그램을 고려하였다. 대체로 실제 프로그램과 인위적인 프로그램이다. 전자로는 Google fuzzer test suite (G), 선택된 실제 프로그램 (R), 후자에는 CGC(C), LAVA-M(L), 직접 버그를 주입한 프로그램 (S)가 있다. 현재의 benchmark 선택은 만족스럽지 않아서 좋은 fuzzing benchmark를 개발하는 중요한 문제를 남겾둔다.
 ## 8.1. Real programs
+32개중 거의 모든 논문에서 실제 프로그램을 사용하였다. 실제 프로그램을 fuzzing 대상으로 사용하는 방식에는 두가지 문제가 있다.
+
+- 대표성에 대한 명확한 정당화 없이 소수의 대상 프로그램을 고려한다.
+- 소수의 논문만 동일단 버전에서 사용된다.
 
 ## 8.2. Suites of artificial programs (or bugs)
+실제 프로그램은 bug 존재 가능성이 많은 요소에 의존한다.
+개발 중인 프로그램은 bug fix만 수행하는 프로그램에 비해 더 많은 버그를 가질 수 있다. 따라서 우리는 특정한 프로그램 세트에 대해 관심이 없으면 bug가 발생할 가능성이 있는 대표적인 프로그래밍 패턴 세트에 관심이 있다. 인기적인 대표적인 예로 *CGC*와 *LAVA-M*이 있다.
 
+- CGC suite는 Cyber Grand Challenge의 일부로 생산된 296개의 bug가 있는 프로그램으로 구성된다. 
+- LAVA-M는 대규모 자동 취약점 추가 도구 (LAVA)를 이용하여 *base64* *md5sum* *uniq* *who*와 같은 4개의 core util 프로그램을 구성되어 있다. 많은 bug가 포함되어 있다.
+
+*CGC*와 *LAVA-M*은 benchmark로 인기를 얻었다. 
+*CGC* 프로그램들은 현실과 비슷한 환경을 만들기 위하여 수작업으로 설계되었다. 이는 완벽하지 않을 수 있다. CGC 프로그램에서 좋은 성능이 실제 프로그램으로 일반화되지 못할 수 있다. 
+
+*LAVA*의 저자들은 LAVA로 생성된 corpus를 실제 프로그램에서 발견되는 버그와 비슷하게 만드는것을 목표로 한다고 명시할 만큼 비교적 간단한 기술이 단순한 패턴을 따르는 모든 LAVA-M 버그를 효과적으로 찾을 수 있음을 보여주었다. 즉 이 suite가 실제, 일반적으로 간주될 수 있을 정도를 독립적으로 평가할 수 있는 연구는 알려져 있지 않다.
 ## 8.3. Toward a Fuzzing Benchmark Suite
+우리는 fuzz testing을 위한 *DaCapo* *SPEC10*과 같은 견고하고 독립적으로 정의된 benchmark suite에 대한 필요성을 강조한다. 이것은 이 논문이 아닌 커뮤니티의 노력이여야 한다. 이를 위해 몇가지 아이디어를 제안한다.
 
+1. suite가 특정 버그를 발견될때 명확한 지표를 가진 프로그램 선택을 가져야 한다. 인위적으로 도입되거나 오래전에 발견되어 ground truth에 대한 명확한 지식이 있어야 한다. 왜냐하면 동일한 버그에 해당하는 input을 과다 계산하는것을 피하고 도구의 false positive와 false negative에 대한 평가를 할 수 있어야 한다. 우리는 알려진 버그가 있는 실제 프로그램을 사용하는 것을 선호한다.
+2.suite는 전체 집단을 대표할 수 있을만큼 충분히 큰 프로그램을 포함해야한다. 몇개의 프로그램이 적절한 숫자인지는 알 수 없지만 CGC 300개, Google Fuzzer suite는 25개, 대부분의 논문은 7개를 사용하고 있다.
+3. 테스트 방법론은 overfiting에 대한 방어를 할 수 있어야 한다. 고정된 benchmark suite가 일반적으로 사용되기 시작한다면 도구는 근본적인 이점이 없지만 benchmark 프로그램에 과도하게 적용되는 heuristic 전략을 사용할 수 있다. 이러한 문제를 해결하기 위하여 고정된 표준 suite와 "변경 가능한"부분을 둘다 가지는 것이다. 후자를 지원하는 한가지 방법은 SAT solving과 같은 유사한 fuzzing 경쟁을 설정한 것이다. *Rode0day*는 이와 비슷하게 대상 프로그램이 fuzzing 연구자에 미리 알려지지 않았기 때문에 이는 일반적인 기술을 개발하는 동기가 된다.
 # 9. Conclusions and Future Work
+fuzz testing은 중요한 버그와 보안 취약점을 발견하는데 사용되는 유망한 기술이다. 많은 연구자들이 새로운 fuzz testing algorithm을 개발하고 실험적인 방법으로 증명하였다. 이러한 실험 방법론은 잘 형성되어야 하며 의미 있는 configuration parameter(seed, timout)을 사용하여 동일한 조건에서 baseline algorithm과 비교 해야 한다. 또한 무작위성이 있는 fuzzing의 특성상 통계적 검증을 통해 판단해야 한다.
+
+이 논문에서는 32개의 논문의 실험적 방법론에 대해 분석하였다. 우리가 제시한 방법론을 모두 따르는 논문은 없었다. 특히 우리는 *AFL*과 *AFLFast*를 사용하여 제시한 방법론을 따르지 않을때 발생하는 결과에 대해 보여준다. 다음과 같은 사실을 발견하였다.
+
+- 대부분의 논문이 여러번의 실행을 수행하지 않았으며 그렇게 하더라도 통계적 검정을 사용하지 않았다. 
+- 많은 논문이 unique bug를 계산하는 대신 AFL coverage 측정과 stack hash와 같은 heuristic을 사용하여 "unique crash"를 계산함으로 fuzzer의 성능을 측정하였다. 우리는 실험을 통해 heuristic이 bug의 수를 과대 계산할 수 있고 잘못 그룹화 함으로 버그를 줄일 수 있음을 보여주었다.
+- 많은 논문이 seed 선택이 algorithm에 미치는 영향을 신중히 고려하지 않았다. 우리의 실험에서 사용되는 시드에 따라 성능이 크게 변할 수 있음을 보였다. 
+- 대상 프로그램 선택에 있어서 논문은 크게 다양했다. 점점 많은 수가 CGC, LAVA-M과 같은 합성 suite를 사용하고 있다. 다른 논문들은 종종 서로 다른 프로그램 세트를 선택하여 논문간의 결과를 비교하기 어렵게 만들었다.
+
+또한 우리는 fuzz testing 평가에 다음 요소가 포함되어야 한다고 권장한다.
+
+- fuzzer 의 성능의 분포를 구별하기 위한 통계적 검증을 사용한 여러번의 실행
+- 알려진 버그를 가진 다양한 benchmark 프로그램
+- AFL coverage profile이나 stack hash에 기반한 heuristic이 아닌 알려진 버그 측면에서 성능 측정
+- empty seed를 포함환 다양한 seed 선택 고려
+- 최소 24시간 또는 그보다 적을 경우 이유를 제시한 timeout, 시간에 따른 성능 그래프
+
+우리는 적어도 3가지 중요한 미래 연구 방향을 보고 있다.
+1. 잘 설계되고 잘 평가된 benchmark suite의 절박한 필요성
+2. 현실적인 fuzzing 실행 결과에 대한 crash de-duplicate 방법에 대한연구와 ground truth가 알려지지 않았을때 분류 방법
+3. 단일 fuzzing 실행이 *cxxfilt*의 모든 버그를 찾지 못했다는 점에서 영감 받은 fuzzing algorithm의 개선 (SAT solve "재시작"과 같은 다른 search algorithm)
