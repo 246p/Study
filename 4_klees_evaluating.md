@@ -348,7 +348,27 @@ ground truth에 대한 평가. 우리는 이 실험에서 식별되 bug에 대�
 
 Stack hashing은 AFL coverage profile보다 버그를 과장하지 않지만 hash가 고유하지 않는다는 문제가 있다. 전반적으로 16%의 hash가 고유하지 않았다. stack hashing base de-duplicate는 이러한 버그들을 버렸을 것이다.
 
+이 장에서 중요한 질문은 *cxxfilt*에서 관찰한 추세가 일반화 될 수 있는지 여부이다. 이를 위해선 "ground truth"분석이 필요할 것이다. 이러한 추세가 유지된다고 가정할때 두가지 잠정적 결론을 내릴 수 있다.
+
+1. heuristic의 문제를 강화한다.
+2. SAT solver가 사용하는 알고리즘이 도움이 될 수 있다.
+
+
+    Related Work
+
+*van Tonder*는 stack hashing과 coverage profile의 효과를 ground truth에 대해 실험적으로 평가하였다. 이 논문의 연구와 비슷하지만 crash input set은 초기에 알려진 crash input의 mutation을 통하여 생성하였다.
+
+*Pharm*은 N=1, N=INF에 대한 stack hash가 symbolic execution을 통해 bug를 과소/과대 평가 할 수 있는 방법을 연구하였다. 
+
 ## 7.4. Code Coverage
+fuzzer를 평가할때 발견한 bug의 수는 중요한 지표이지만 효율성에 대한 전체를 대변하지는 못한다. fuzzing algorithm은 탄탄하지만 찾을 수 있는 bug가 없을 수 있다.
+
+이를 해결하기 위하여 code coverage를 얼마나 개선했느지 측정하는 것이다.
+
+graybox fuzzer는 `isIntersting`함수의 일부로 coverage를 최적화 하려고 하므로 개선된 code coverage를 보여주는 것은 fuzzing의 개선을 의미할 것이다. 프로그램의 특정 지점에서 crash를 찾으려면 해당 지점이 실행되어야 한다. 이전 연구들도 더 높은 coverage가 bug를 찾는것과 상관관계가 있음을 주장한다. 32편의 논문중 거의 절반은 code coverage를 측정하였다.
+
+
+code coverage를 극대화 하는것이 bug를 직접 찾는것과 직접적으로 연결된다는 근본적인 이유는 없다. coverage guide fuzzer가 blackbox fuzzer보다 더 효과적이라는 강한 상관관계가 있지만, 특정 algorithm은 coverage가 아닌 다른 신호에 초점을 맞출 수 있다. 예를 들어 *AFLGo*는 전역적으로 coverage를 증가시키는 것을 목표로 하지 않고 오히려 프로그램내에서 특정하게, 가능성이 높은 오류 지점에 초점을 맞춘다. coverage와 버그 찾기가 상관관계가 있다고 하더라도 그 상관관계가 약할 수 있다. 따라서 coverage에서 상당한 개선이 있더라도 bug를 찾는데 있어서 미미한 개선을 가져올 수 있다. 우리는 code coverage가 보조적인 지표로서 의미가 있다고 생각하지만 발견된 버그에 따른 ground truth가 더 중요하다고 생각한다.
 
 # 8. Target Programs
 
