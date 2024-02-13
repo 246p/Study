@@ -269,10 +269,84 @@ fuzzer의 궁국적인 목표는 distinct bug의 수이다. fuzzer A가 일반�
 
     What is distinc bug?
 
-이는 쉽게 답할 수 없는 주관적인 질문이다. 개발자가 crash input을 사용하여 대상 프로그램을 디버그하고 수정하여 crash가 더이상 발생하지 않도록 할것이다. 그 수정은 input에 특정하지 않고 일반화 할것이다. 예를들어 buffer overun을 멈추기 위해 길이 검사를 수행할 수 있다. 결과적으로 대상 p가 입력 I를 받을때 crash가 발생하지만 버그 수정이 적용되어 더이상 crash가 발생하지 않는다면 우리는 I를 해결된 bug와 연관시킬 수 있다. 더욱이 입력 l1, l2 모두 p에서 crash를 유발하지만 버그 수정이 적용된 후에는 둘다 그렇지 않는다면 우리는 두 input 모두 
+이는 쉽게 답할 수 없는 주관적인 질문이다. 개발자가 crash input을 사용하여 대상 프로그램을 디버그하고 수정하여 crash가 더이상 발생하지 않도록 할것이다. 그 수정은 input에 특정하지 않고 일반화 할것이다. 예를들어 buffer overun을 멈추기 위해 길이 검사를 수행할 수 있다. 결과적으로 대상 p가 입력 I를 받을때 crash가 발생하지만 버그 수정이 적용되어 더이상 crash가 발생하지 않는다면 우리는 I를 해결된 bug와 연관시킬 수 있다. 더욱이 입력 l1, l2 모두 p에서 crash를 유발하지만 버그 수정이 적용된 후에는 둘다 그렇지 않는다면 우리는 두 input 모두 동일한 bug일 것이다.
+
+알려진 버그를 가진 프로그램에 실행할때 우리는 ground truth를 직접적으로 알 수 있다. 이미 수정된 버그일 수도 있고 인위적으로 도입된 버그를 가진 프로그램일 수 있다.
+
+전자의 경우 오래된 프로그램과 해당 수정 사항을 사용하여 crash를 root cause에 따라 분류하는 방법은 존재하지 않는다.
+
+후자의 경우 9편의 논문이 root cause를 결정하기 위하여 합성된 suite를 사용한다. 가장 인기있는 것은 *CGC*, *LAVA-M*이다. 
+
 ## 7.2. AFL Coverage Profile
+ground truth를 사용할 수 없을때 crash input을 de-duplicate 하기 위하여 heuristic을 사용한다. *AFL*의 접근 방법은 같은 code coverage profile을 가진 input을 동등하게 간주한다. *AFL*은 crash의 edge coverage가 어떤 crash에도 나타나지 않은 edge를 포함하거나 이전에 관찰된 모든 crash에 있는 edge가 누락된 경우에 "unique" 하다고 간주한다.
+
+coverage profile based input clayssifying은 의미가 있다.
+
+우가지 다른 bug는 다른 coverage를 갖는것이 타당해 보인다. 반면 다른 coverage profile로 실행될때 유발도리 수 있는 단일 bug를 상상하기 쉽다. 예를들어 아래 코드가 무조건 segfault를 발생시킬것이라고 가정해보자. 프로그램에 단 하나의 bug가 있음에도 'a'로 시작된 input과 그렇지 않은 input이 구분될 것이다.
+
+``` C
+int main (int argc, char * argv []){
+    if (argc>=2) {
+        char b = argv [1][0];
+        if (b=='a') 
+            crash ();
+        else 
+            crash ();
+    }
+    return 0;
+}
+```
+*AFL*, *AFLFast*를 사용하여 *cxxfilt*에 서 crash input을 생성하였다. 대부분의 crash는 패치되었기 때문에 우리는 *cxxfilt*를 컴파일 하는데 사용된 소스파일을 변경하는 commit을 식별하기 위하여 *git*을 사용하였다. 812개의 모든 버전을 빌드하였고 모든 crash input (57142개)를 각기 다른 버전에서 실행하였고 crash 여부를 기록하였다.
+
+분류 결과의 신뢰성을 위하여 두가지 조치를 취하였다.
+1. crash 하지 않는 동작이 우연이 아님을 보장
+2. 각 bug fix commit이 여러개의 bug fix가 아닌 단일 bugfix에 해당하는지 확인하였다.
+
+최종적으로 9개의 구분된 bug fix commit을 생성하였다. figure 6는 이러한 결과를 정리하였다. *AFL* 또는 *AFLFast*에 의해 수행된 24시간 fuzzing을 나타낸다. y축의 막대의 크기는 coverage profile에 따른 "unique crash input"의 총 수이며 막대는 ground truth 분석에 의해 발견된 버그 수정과 그룹화 되는지에 따라 세분화 된다. 각 막대 위에는 해당 실행에서 발견된 버그의 총 수가 나타나 있다.
+
+![Figure 6]()
+
+실행동안 발견되 bug의 수와 crash input 사이에는 최선의 경우 약한 상관관계만 존재한다는것을 볼 수 있다. 이러한 상관관계는 왼쪾에서 오른쪾으로 이동할때 crash 수의 강한 상승 추세를 의미한다.
+
+*AFLFast*가 일반적으로 *AFL*보다 더 많은 "unique" crash input을 찾았지만 실행당 발견된 bug의 수는 약간 높을 뿐이다. "Mann Shitney"에 의하면 crash의 차이가 통계적으로 유의미하다는 것을 발견하였지만 bug 차이는 유의미 하지 않다.
+
 
 ## 7.3. Stack Hashes
+또 다른 일반적인 heuristic de-duplicate 기술은 *stack hashing*이다. 우리가 고려한 7편의 논문이 이 기술을 사용한다.
+
+만약 buffer overrun bug가 더 큰 프로그램 내부의 깊은 함수에 있고 overrun이 즉시 segfault를 유발한다고 가정하자.
+이때 crash는 항상 동일안 위치에서 발생한다. 좀더 일반적으로 crash는 일부 추가 프로그램 context에 따라 달라질 수 있다. 그 경우 우리는 충돌을 특정 버그에 mapping 하기위해 PC 뿐만아니라 call stack을 살펴봐야 한다. 변동을 무시하기 위해 source code로 정규화된 return address에 초점을 맞춘다.
+
+stack의 가장 위에 있는 부분이 가장 관련이 있기에 bug의 유발과 가장 최근의 N개의 stack frame만 연관시킬 수 있다. (일반적으로 3~5개) 이러한 stack frame을 hashing 하는것이 stack hashing 이다.
+
+stack hashing은 관련된 context가 unique하고 crash 시점에 여전히 stack에 있을때 작동한다. 하지만 이것을 유지하지 않는 상황을 쉽게 볼 수 있다. stack hashing은 실제 버그를 과소/과대 평가할 수 있다. 아래의 code를 살펴보자.
+
+``` C
+void f(){ ... format(s1); ... }
+void g(){ ... format(s2); ... }
+void format(char *s){
+    // bug: corrupt s
+    prepare(s);
+}
+void prepare(char *s){
+    output(s);
+}
+void output(char *s){
+    // failure manifests
+}
+```
+
+아래 코드는 문자열 s를 손상시키는 `format` 함수에 bug가 있으며 결국 `output` 함수가 충돌하게 만든다. `format` 함수는 `f`, `g`에서 개별적으로 호출된다.
+
+이 프로그램을 fuzzing하여 `f`, `g`로 시작하는 두 crash input을 생성했다고 가정하자. 만약 N=3인 경우
+`format -> prepare -> output` 이기 때문에 두 input은 동일하다고 판단할 것이다. 반면 n이 4이상이라면 `f`, `g` 가 각각 stack에 들어 있기에 input을 다른 crash로 처리할 것이다. 또한 이 프로그램에 `prepare`로 전달하기 전에 `s`를 손상 시키는 다른 버그가 있다고 가정해보자. N=2일때 stack의 마지막 두 함수만 고려할 것이므로 format으로 유발된 bug와 부적절하게 혼합될 것이다.
+
+
+ground truth에 대한 평가. 우리는 이 실험에서 식별되 bug에 대한 label과 비교하여 stack hashing의 효과를 측정함으로 이를 평가하였다. stack hashing의 구현은 *Address Sanitizer*를 사용하여 *cxxfilt*의 crash input에 대한 stack tacking을 생성하고 hashing을 위하여 N=3으로 설정하였다.
+
+우리의 분석은 stack hashing이 coverage profile보다 input de-duplicate에 훨씬 더 효과적이지만 여전히 발견된 bug의 수를 과장한다는 것을 발견하였다.
+
+Stack hashing은 AFL coverage profile보다 버그를 과장하지 않지만 hash가 고유하지 않는다는 문제가 있다. 전반적으로 16%의 hash가 고유하지 않았다. stack hashing base de-duplicate는 이러한 버그들을 버렸을 것이다.
 
 ## 7.4. Code Coverage
 
