@@ -220,8 +220,32 @@ Fuzzer A의 중앙값이 Fuzzer B보다 놓다는 것을 경정하는것도 중�
 
 
 # 5. Seed Selection
+[위 코드](#21-fuzzing-procedure)를 다시 보자. input을 순환하여 선택하고 테스트 하기 전에 fuzzer는 input seed corpus를 결정해야 한다. 대부분의 논문 (27/32)은 main fuzzing loop를 개선하는데 초점을 맞춘다.
+
+table 1의 seed 에서 확인할 수 있듯이 30/32의 논문은 non-empty see corpus를 사용한다. 일반적인 견해는 seed가 잘 형성되어야 하며 작아야 한다는 것이다. 이러한 시드를 이용해야 프로그램이 parsing/well-formedness test 에서 종료되기 보단 의도된 로직의 더 많은 부분을 빠르게 실행할 수 있다.
+
+initial seed corpus의 세부 사항이 중요하지 않을 수도 있다. 예를 들어 어떤 시드를 사용하든 알고리즘 개선이 반영된다. 하지만 시드의 형식과 알고리즘 선택 사이에 강력한 상관관계가 있을 수 있으며 이는 결과에 영향을 줄 수 있다. 실제로 우리는 이러한 결과를 도출하였다.
+
+우리는 empty seed, sampled seed, randomly generated seed 를 포함한 다양한 seed를 이용하여 *FFmpeg*를 테스트 하였다.
+
+FFmpeg에 대해 다양한 seed selection을 통하여 얻은 결과에서 하나의 명확한 추세는 *AFL* *AFLFast*의 경우 empty seed가 non-empty seed 보다 훨씬 더 많은 crash input을 생성한다. 반면 *AFLNaive*의 경우 추세는 반대이다.
+
+fuzzer의 성능이 seed에 따라 많이 다를 수 있음이 분명하다. 따라서 알고리즘을 평가할때 다양한 seed를 고려하는것에 신중해야 한다. 논문은 seed가 어떻게 수집되었는지 구체적이며 실제 사용된 seed를 제공하는것이 좋다. 특히 empty seed를 고려해야 한다는 사실은 전통적인 지혜와 어긋난다. 어떤 의미에서 empty filedms 어떤 input으로도 사용 될 수 있기에 가장 일반적인 선택이다.
 
 # 6. Timeouts
+fuzzer를 얼마나 오래 실행하는지도 중요한 질문이다. timeout은 일반적으로 1시간부터 몇일이나 몇주까지 다양하다. 일반적인 선택은 24시간 (10편), 5~6시간(7편)이다. 우리는 benchmark suite로 *LAVA*를 사용한 논문들이 timeout을  5시간으로 선택한 것을 관찰 할 수 있었다. 이는 원래 LAVA 논문이 같은 선택을 하였기 때문이다.
+
+대부분의 논문들에서 timeout 선택에 대한 근거를 제시하지 않았다. 특정 임계값을 넘어서면 더 많은 실행 시간이 필요하지 않으며 알고리즘 간의 차이가 명확해질 것을 가정한다. 그러나 우리는 알고리즘 간의 상대적 성능이 시간에 따라 변할 수 있으며 실험을 너무 빨리 종료하면 불완전한 결과를 얻을 수 있다. bug가 종봉 프로그램의 특정 부분에 존재하기 때문에 이 부분이 탐색될때만 fuzzing이 bug를 감지한다. 
+
+짧은 timeout은 실용적인 관점에서 편리하다. 전반적으로 적은 하드웨어 자원을 요구하기 때문이다. 짧은 시간은 특정 실제 상황에서 더 유용할 수 있다. 반면 긴 시간은 더 나은 성능을 보일 수 있다. 
+
+우리는 평가에 시간에 따른 성능을 제시해야 한다고 생각한다. 또한 최소한 24시간의 timeout을 고려해야 한다고 생각한다. 더 짧은 시간동안의 성능은 더 긴 실행에서 쉽게 추출될 수 있다.
+
+> Discussion
+
+특정 시간에서 crash 횟수와 같은 성능을 기록하는것 외에도 *areaunder curve* (AUC)를 성능 측정으로 보고할 수 있다. 예를들어 5초동안 초당 1개의 crash를 찾은 fuzzer는 12.5 crash-sec 의 AUC를 갖게 되며 4~5초 사이에만 5건의 crash를 찾은 fuzzer는 2.5 crash-sec의 AUC를 갖는다. 이러한 측정은 crash가 일찍 찾는 것이 더 좋다는 것을 직관적으로 반영할 수 있다.
+
+하지만 꾸준히 5개를 찾는 fuzzer가 마지막 순간에 10개를 찾는 fuzzer보다 더 좋다고 판단한다. 따라서 AUC는 time-based performance plot을 대체할 수 없다.
 
 # 7. Performance Meaasures
 
