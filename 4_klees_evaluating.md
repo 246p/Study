@@ -248,9 +248,28 @@ fuzzer를 얼마나 오래 실행하는지도 중요한 질문이다. timeout은
 하지만 꾸준히 5개를 찾는 fuzzer가 마지막 순간에 10개를 찾는 fuzzer보다 더 좋다고 판단한다. 따라서 AUC는 time-based performance plot을 대체할 수 없다.
 
 # 7. Performance Meaasures
+지금까지 "unique" crash를 발생시키는 input을 찾는것이 fuzzer의 성능을 측정하는데 초점을 맞췄다. 
+
+하지만 bug와 crash input은 같은 것이 아니다. 서로 다른 많은 input들이 동일한 bug를 발생시킬 수 있다. 예를 들어 buffer overrun의 경우 입력 데이터의 크기가 buffer의 길이를 초과하는 한 무엇이든 상관없이 crash를 유발할 가능성이 높다. 따라서 단순히 crash input을 성능의 척도로 사용하는것은 오해의 소지가 있다. 
+
+이러한 이유로 많은 논문들이 crash를 고유한 bug로 mapping하기 위한 de-duplicate heuristic을 사용한다. 이를 위한 두가지 인기있는 방법은 다음과 같다.
+
+- AFL coverage profile
+- stack hash
+
+이 외에도 *VUzzer*의 *!Exploitable*과 같은 도구를 추가로 사용할 수 있다.
+
+하지만 실험적으로 보여주듯이 de-duplicate heuristic은 crash input을 root cause와 mapping하는데 있어서 효과가 떨어진다.
+여러 논문은 다양한 ground truth를 고려한다. 여섯편의 논문은 이것을 주요 성능 측정 기준을 사용한다. (table 1의 G) benchmark 프로그램의 선택에 의해 crash input을 root cause에 완벽하게 mapping할 수 있다. 반면 G*으로 표시된 8개의 논문은 충돌을 분류하여 root cause을 식별하려는 노력을 하지만 완벽하게 수행하지 못한다. 일반적으로 이러한 분류는 'case study'로 수행되며 완전하지 않다.
+
+다음 3개의 하위 섹션에서 우리는 성능 측정에 대해 논의하며 root cause 대신 heuristic을 사용하여 fuzzer의 성능을 비교하는것이 오해를 불러일으키거나 잘못된 결론으로 이끌 수 있는 이유를 보여준다. 32개의 논문중 절반 이상은 bug를 직접 측정하는것이 아닌 프로그램의 중요 부분을 cover 하는 능력을 고려한다. 이러한 측정은 bug 수보다 일반화 할 수 있을 가능성은 크지만 그것을 대체하진 못한다.
 
 ## 7.1. Ground Truth: Bug founds
+fuzzer의 궁국적인 목표는 distinct bug의 수이다. fuzzer A가 일반적으로 baseline B 보다 더 많은 bug를 찾으면 우리는 그것을 효과적이라고 볼 수 있다.
 
+    What is distinc bug?
+
+이는 쉽게 답할 수 없는 주관적인 질문이다. 개발자가 crash input을 사용하여 대상 프로그램을 디버그하고 수정하여 crash가 더이상 발생하지 않도록 할것이다. 그 수정은 input에 특정하지 않고 일반화 할것이다. 예를들어 buffer overun을 멈추기 위해 길이 검사를 수행할 수 있다. 결과적으로 대상 p가 입력 I를 받을때 crash가 발생하지만 버그 수정이 적용되어 더이상 crash가 발생하지 않는다면 우리는 I를 해결된 bug와 연관시킬 수 있다. 더욱이 입력 l1, l2 모두 p에서 crash를 유발하지만 버그 수정이 적용된 후에는 둘다 그렇지 않는다면 우리는 두 input 모두 
 ## 7.2. AFL Coverage Profile
 
 ## 7.3. Stack Hashes
