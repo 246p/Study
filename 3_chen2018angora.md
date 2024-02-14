@@ -462,3 +462,17 @@ Angora라는 강력한 muatint-base fuzzer를 설계하고 구현하였다. 이 
 - input length exploration
 
 Angora는 다른 최신 fuzzer보다 더 뛰어난 성능을 발휘하였다. LAVA-M 에서 다른 fuzzer보다 더 많은 버그를 찾았으며 LAVA 저자들이 trigger하지 못한 103개의 버그와 8개의 open source 프로그램에서 많은 175개의 새로운 버그를 찾았다.
+
+
+# 8. 논문의 문제점
+[link](https://andreas-zeller.blogspot.com/2019/10/when-results-are-all-that-matters-case.html)에서 비판한 내용
+
+## 8.1. 비정상적인 성능
+Angora는 1초에 1000회 정도 실행을 함. LAVA-M 의 테스트 결과는 100회당 하나의 crash를 찾는다는 의미
+이 성능이 비정상적으로 좋음 실제로 확인해본 결과 gradient descent 만을 이용한 것이 아닌 magic byte 추출로 LAVA benchmark의 주입된 버그를 해결해 나감
+
+특히 코드에는 논문에서 다루지 않은 많은 최적화 동작이 이루어져 있음 
+
+## 8.2. 비교
+
+gradient descent의 성능을 평가한 TABLE 8 을 보면 이 실험은 AFL fuzzer로 만들어진 seed(이미 random 하게 탐색을 함)을 기반으로 시작하여 테스트를 하였기 때문에 random의 성능이 낮게 나올 수 밖에 없음
