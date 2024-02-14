@@ -69,7 +69,21 @@ Heartbleed (CVE-2014-0160)은 명빅히 안전한 protcol (SSL/TLS)을 통해 �
 2011 새해 첫날 새로운 기능을 구현한 commit 4817504d에 의해 도입되엇다. 변경된 문장들을 대상 위치로 삼는 DF가 이를 발견하였다면 광범위한 확산을 막을 수 있었을 것이다. 현재 *OpenSS*L은 50만줄의 코드로 이루어져 있다. 해당 commit은 500줄 이상의 코드를 추가하였다. 실제로 최근 변경사항만이 오류를 발생하기 쉬운 것으로 간주되는 상황에서 OpenSSL 전체를 undirected fuzzing을 수행하는것은 어려울 것이다. DF는 이러한 변경사항을 훨씬 더 효율적으로 실행할 것이다. 대부분의 patch testing tool (*Katch*, *PRV*, *MATRIX*, *CIE*, *DiSE*, *Qietal.`s*)등은 SE를 기반으로 한다. 이중 *Katch*를 대표로 비교하였다.
 
 ## 2.2.  Fuzzing the Heartbleed-Introducing Source Code Commit
-*Katch*는 *Klee* 위에서 구현된 patch testing tool이자 DSE engine 이다. 먼저 *OpenSSL*은 *LLVM 2.9*로 컴파일 되어야 한다. 
+### 2.2.1. Katch
+*Katch*는 *Klee* 위에서 구현된 patch testing tool이자 DSE engine 이다. 먼저 *OpenSSL*은 *LLVM 2.9*로 컴파일 되어야 한다. *Katch*는 한번에 변경된 basic block 하나를 처리한다. 우리의 regression test suite에 의해 cover되지 않은 도달 가능한 대상위치로 11개의 변경된 basic block을 식별한다. 각 대상 `t`에 대해 *Katch*는 다음과 같은 *greedy search*를 수행한다. 
+1. *Katch*는 regression test suite에서 `t`에 가장 가까운 seed `s`를 식별한다.
+2. program analysis를 사용하여 `t`에서 가장 가까운 실행 분기 `b_i` 를 식별하고 `s`가 실행하는 모든 분기 조건의 연속인 path constraint `Π(s) = φ(b0)∧φ(b1)∧..∧φ(bi)∧...` 를 구성한다.
+3. `b_i`를 부정하기 위해 수정해야 하는 `s`의 구체적인 input byte를 식별한다.
+4. `b_i`의 조건을 부정하는 `Π'(s) = φ(b0)∧φ(b1)∧..∧¬φ(bi)`을 도출하고 이를 *Z3*(SMT solver)를 이용하여 concrete 한 input byte를 계산한다.
+
+
+### 2.2.2. Challenge
+
+DSE 기반 WF는 효과적이지만 비용이 매우 많이 든다. 우리의 실험해서 *Katch*는 24시간 동안 heartbleed를 탐지하지 못하였다. 탐색의 모든 새로운 path에 대해 distance가 runtime에 다시 계산된다.interpreter가 모든 byte code를 지원하지 않고 path constraint가 floating point arithmetic과 같은 모든 언어 기능을 지원하지 않을 수 있기에 검색이 불완전할 수 있다.
+
+sequential search로 인하여 매 대상마다 검색이 새로 시작된다.
+
+
 # 3. Technique
 
 ## 3.1. Greybox Fuzzing
