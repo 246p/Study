@@ -76,16 +76,42 @@ Heartbleed (CVE-2014-0160)은 명빅히 안전한 protcol (SSL/TLS)을 통해 �
 3. `b_i`를 부정하기 위해 수정해야 하는 `s`의 구체적인 input byte를 식별한다.
 4. `b_i`의 조건을 부정하는 `Π'(s) = φ(b0)∧φ(b1)∧..∧¬φ(bi)`을 도출하고 이를 *Z3*(SMT solver)를 이용하여 concrete 한 input byte를 계산한다.
 
+![figure2]()
 
 ### 2.2.2. Challenge
 
 DSE 기반 WF는 효과적이지만 비용이 매우 많이 든다. 우리의 실험해서 *Katch*는 24시간 동안 heartbleed를 탐지하지 못하였다. 탐색의 모든 새로운 path에 대해 distance가 runtime에 다시 계산된다.interpreter가 모든 byte code를 지원하지 않고 path constraint가 floating point arithmetic과 같은 모든 언어 기능을 지원하지 않을 수 있기에 검색이 불완전할 수 있다. 왜냐하면 sequential search로 인하여 매 대상마다 검색이 새로 시작된다.
 
 ### 2.2.3. Opportunities
+*AFLGo*는 매우 효율적인 DGF이다. 초당 수천개의 입력을 생성하고 실행하여 Heartbleed를 20분 내에 발견한다. 또한 runtime에 program analysis가 사실상 필요 없고 compile/instrumentation time에 가벼운 program analysis를 수행한다. 또한 simulated annealing에 기반한 grobal search를 수행한다. 이를 통해 global optimum에 접근하여 대상 위치에 도달할 수 있다. 검색이 빠르게 global optimum에 도달하는것이 중요하다. 
+
+*AFLGo*는 모든 대상을 동시에 검삭하는 parallel search를 이용한다. seed `s`가 더 많은 대상을 실행할수록 `s`의 적합도를 더 높게 평가한다.
+
+먼저 `AFLGo`는 *OpenSSL*을 계측한다. *Clang*에 대한 추가 compiler pass는 컴파일된 바이너리에 *classic AFL*및 *AFLGo*계측을 추가한다. *AFL* 계측은 code coverage 증가에 대해 알리고 *AFLGo*계측은 fuzzer에 주어진 대상과 실행된 seed의 거리를 알린다. 새로운 거리 계산은 [3.2절](#32-a-measure-of-distance-between-a-seed-input-and-multiple-target-locations)에서 논의되며 *Katch*보다 훨씬 복잡하다. 왜냐하면 모든 대상을 동시에 고려하여 compile time동안 설정되어 runtime의 overhead를 줄인다.
+
+이후 *AFLGo*는 simulated annealing을 사용하여 *OpenSSL*을 fuzzing한다. 처음에 *AFLGo*는 exploration 단계에 들어가서 *AFL*과 동일하게 작동한다. exploration 단계에서 제공된 seed들 무작위로 mutation하여 많은 새로운 input을 생성한다. 만약 새로운 input이 code coverage를 증가시키면 seed set에 추가되고 그렇지 않으면 버려진다. 제공된 seed와 생성된 seed는 continuous loop에서 fuzzing된다. 예를 들어 Figure 2 에서 branch $(b_0,b')$을 실행하는 $s_0$과 $(b,b_1,b'')$을 실행하는 $s_1$인 $s_0, s_1$을 두 seed로 시작한다 하자. 시작할때 같은 수의 새 input이 각 seed에서 생성될것이다. 여기서 $s_0$이 t와 더 가깝지만 $s_1$의 자식들이 도달할 확률이 더 높을 것이다.
+
+*AFLGo*가 exploitation 단계에 들어가는 시간은 사용자에 의해 정해진다. 우리는 실험을 위해 24시간의 timeout중 20시간을 설정하였다. *AFLGo*는 대상에 더 가까운 seed에서 더 많은 input을 생성한다. 너무 멀리 떨어진 seed를 fuzzing 하는 시간을 낭비하지 않는 것이다. 이 시점에서 branch $(b_0, b_1, b_i, b_{i+1}$ 을 실행하는 seed $s_2$를 생성했다고 해보자. explolation 단계에서 대부분은 시간은 t와 가까운 $s_2$를 fuzzing 하는데 사용된다. *AFLGo*는 simulated annealing function으로 구현된 power schedule에 따라 explolation 단계에서 exploitation 단계로 전환된다.
 
 # 3. Technique
+우리는 사용자가 정의한 위치에 중점을 둔 취약점 탐지 기술인 DGF를 개발한다. DGF는 모든 program analysis가 compile time에 수행되기 때문에 runtime중 어떤 프로그램 분석도 수행하지 않아 graybox fuzzing의 효율성을 유지한다. DGF는 필요할때 더 많은 computing power을 사용할 수 있도록 parallelizable하다. 
+
+DGF는 여러 대상 위치를 지정할 수 있다. 우리는 instrumentation-time에 완전히 결정되어 runtime에 효율적으로 계산될 수 있는 *inter-procedural measure*을 정의하였다.
+
+이이 측정은 실제 call graph(CG)와 control-flow-graphs(CFGs)를 기반으로 한 intra-procedural analysis이다. CG와 CFGs는 *LLVM compiler* 에서 쉽게 사용할 수 있다. 
+
+이 새로운 거리 측정을 사용하여 가장 인기있는 annealing function인 exponential cooling schedule을 통합하는 새로운 power schedule을 정의한다. annealing-based power schedule은 거리 측정에 따라 대상 위치에 더 가까운 시드에 점차적으로 더 많은 에너지를 할당한다.
 
 ## 3.1. Greybox Fuzzing
+오늘날 우리는 fuzzer를 program analysis 정도에 기반한 3가지로 구분한다.
+- BF : 프로그램은 실행만 가능
+- WF : SE기반으로 무거운 program analysis와 constraint solving을 요구
+- GF : WF, BF사이에서 프로그램 구조의 일부를 얻기 위하여 경량 계측을 사용
+
+*AFL*과 *LibFuzzer*와 같은 coverage-based GF(CGF)는 경량 계측을 사용하여 coverage 정보를 얻는다. 예를들어 *AFL*은 basic block transition과 함께 대략적인 분기 취득 횟수를 포착한다. *CGF*는 생성된 input중 어떤 것을 얼마나 오랫동안 fuzzing할지 결정할때 coverage 정보를 사용한다. 
+
+우리는 이 계측을 확장하여 선택된 seed가 주어진 위치까지 거리를 고려하도록 한다. 거리 계산은 CG, CFGs에서 대상 노드까지의 최단 경로를 찾는것을 요구하면 이는 *LLVM*을 이용하여 *Dijkstra`s algorithm*을 사용한다.
+
 
 ## 3.2. A Measure of Distance between a Seed Input and Multiple Target Locations
 
