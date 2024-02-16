@@ -79,10 +79,9 @@ Heartbleed (CVE-2014-0160)은 명빅히 안전한 protcol (SSL/TLS)을 통해 �
 
 ### 2.2.2. Challenge
 
-DSE 기반 WF는 효과적이지만 비용이 매우 많이 든다. 우리의 실험해서 *Katch*는 24시간 동안 heartbleed를 탐지하지 못하였다. 탐색의 모든 새로운 path에 대해 distance가 runtime에 다시 계산된다.interpreter가 모든 byte code를 지원하지 않고 path constraint가 floating point arithmetic과 같은 모든 언어 기능을 지원하지 않을 수 있기에 검색이 불완전할 수 있다.
+DSE 기반 WF는 효과적이지만 비용이 매우 많이 든다. 우리의 실험해서 *Katch*는 24시간 동안 heartbleed를 탐지하지 못하였다. 탐색의 모든 새로운 path에 대해 distance가 runtime에 다시 계산된다.interpreter가 모든 byte code를 지원하지 않고 path constraint가 floating point arithmetic과 같은 모든 언어 기능을 지원하지 않을 수 있기에 검색이 불완전할 수 있다. 왜냐하면 sequential search로 인하여 매 대상마다 검색이 새로 시작된다.
 
-sequential search로 인하여 매 대상마다 검색이 새로 시작된다.
-
+### 2.2.3. Opportunities
 
 # 3. Technique
 
