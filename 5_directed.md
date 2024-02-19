@@ -127,10 +127,34 @@ fuzzer는 seed input set `S`를 제공받아 timeout에 도달하거나 fuzzing�
 ## 3.2. A Measure of Distance between a Seed Input and Multiple Target Locations
 함수간의 거리르 계산하기 위해 function level의 CG와 node와 basic block level의 CFGs에 값을 할당한다.
 
-taget function $T_f$, taget block $T_b$은 주어진 소스 코드에서 신속하게 식별할 수 있다. function-level target distance는 CG내 
+taget function $T_f$, taget block $T_b$은 주어진 소스 코드에서 신속하게 식별할 수 있다. function-level target distance는 CG내 두 function의 거리를 결정한다. 우리는 함수거리 $d_f(n,n')$ 를 CG내의 function $n, n'$사이의 최단 경로에 따른 edge의 수로 정의한다.
 
 
-https://chat.openai.com/c/b8be5f66-780d-4560-a966-ecddb6f26c8a
+### 3.2.1. function
+function n과 target function $T_f$사이의 `function-level target distance` $d_f(n,T_f)$를 도달 가능한 모든 target function $t_f ∈ T_f$의 조화평균으로 정의한다.
+
+![expression1]()
+
+$R(n,T_f)$가 CG에서 n에서 도달가능한 모든 target function의 집합일때 아래와 그램과 같은 이유로 조화평균을 사용한다.
+
+![figure4]()
+
+
+### 3.2.2. basic block
+`basic-block-level target distance`는 basic block에서 함수를 호출하는 다른 모든 basic block 까지의 거리를 결정하며, 호출된 함수에 대해 function-level target distance의 곱을 고려한다.
+
+직관적으로 target으로 향하는 call chain에서 함수를 call 하는 다른 basic block 까지의 평균 거리를 기반으로 한다. 또한 call chain이 짧다면 할당된 distance가 더 작다. 
+우리는 BB거리 $d_b(m_1,m_2)$를 CFG $G_i$ 내의 basic block $m_1, m_2$ 사이의 최단 경로의 edge 수로 정의한다.
+
+N(m)은 basic block m이 호출하는 함수의 집합으로 정의한다. 이때 $∀n ∈ N(m).R(n, T_f) \not = ∅$, $∀m ∈ T.N(m)  \not= ∅$ 이다. 따라서 다음과 같이 basic-block-level target distance를 정의한다.
+
+![expression2]()
+
+### 3.2.3. seed
+시드 s 에서 target set $T_b$까지의 거리인 `normalized seed distance`
+
+
+
 
 ## 3.3. Annealing-based Power Schedules
 
