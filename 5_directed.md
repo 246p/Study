@@ -151,25 +151,135 @@ N(m)은 basic block m이 호출하는 함수의 집합으로 정의한다. 이�
 ![expression2]()
 
 ### 3.2.3. seed
-시드 s 에서 target set $T_b$까지의 거리인 `normalized seed distance`
+seed s 에서 target set $T_b$까지의 거리인 `seed distance` 를 다음과 같이 정의한다.
+
+![expression3]()
+
+여기서 `ξ(s)`는 seed s 의 execution trace 이다. 이는 실행된 basic block을 포함한다. 우리는 `normalized seed distance` = $bar{d}(s,T_b)$를 s에서 $T_b$까지의 거리의 차이로 다음과 같이 정의한다. 
+
+![expression3_6]()
 
 
+$bar{d}$는 [0,1] 범위에 있다. (normalized) 또한 다음과 같이 거리를 계산할때 필요한 heavy-weight program analysis를 instrumentation-time으로 옮겨 runtime 에서의 overhead를 줄이다.
 
+1. CG와 CGFs를 추출한다. (compiler, bit code translation)
+2. target이 주어진다면 function-level, basic-block-level target distance는 instrumentation-time에 계산된다.
+3. normalized seed distance는 runtime에 계산된다.
 
 ## 3.3. Annealing-based Power Schedules
+우리는 APS(Annealing-based Power Schedules)를 개발하였다. 기존 연구에서 GF를 power schedule을 통하여 Markov cahin으로 볼 수 있음을 보여주었다. 우리는 MCMC(Markov Chain Monte Carlo) optimization technique (ex Simulated Annealing)을 사용하여 더 가까운 seed에 더 많은 에너지를 할당하며 이 에너지의 차이는 시간이 지남에 따라 증가한다.
+### 3.3.1. Simulated Annealing
+SA algorithm은 점진적으로 global optimal solution set에 수렴한다. 우리의 경우 이 set은 최대 수의 대상 위치를 실행하는 seed의 집합니다. SA는 큰 이산적인 검색 공간에서 global optimal solution을 찾는 MCMC이다. SA의 특징은 더 나은 solution을 수용할 수 있지만 때로 더 나쁜 해결책을 수용할 수 있다는 점이다.*temperature*는 SA alogorithm의 매개 변수로 더 나쁜 해결책의 수용을 cooling schedule에 따라 감소한다.
+
+cooling schedule은 수렴률을 제어한다. 초기온도 $T_0=1$과 온도 사이클 k의 함수이다. temperature는 모든 seed의 속성으로 작용하며 다음은 가장 인기있는 exponential cooling schedule이다.
+
+![expression7]()
+
+### 3.3.2. Annealing-based power schedule
+취약점 탐지에는 timeout이 존재하기에 충분한 `exploitation` 후 `exploration` 단계에 들어가는 시간 $t_x$를 지정하고 싶다. 직관적으로 이 시간은 고전적인 gradient descent algorithm을 사용할 수 있지만 우리는 simulated annealing을 사용하였다. 
+
+우리는 다음과 같이 $T_k <0.05$일때 exploration 단계에 들어가도록 하였다.
+
+![expression8_11]()
+
+또한 expontential cooling schedule을 이용하여 APS를 정의하였다. seed s와 target $T_b$가 주어졌을때 APS는 energy p 를 다음과 같이 할당한다.
+
+![expression12]()
+
+다음 그림과 같이 검색을 시작할때 가까운 곳과 먼곳에 동일한 에너지를 할당한다. 시간이 진행됨에 따라 가까운 시드에 더 맣ㄴ은 에너지를 할당한다.
+
+![figure5]()
+
+### 3.3.3. Practical Integration
+*AFL*은 이미 실행 시간, 입력 크기, 발견된 시점, 가진 조상의 수에 기반하여 에너지를 할당한다. AFL의 기존 power schdule을 우리의 APS와 통합하여 정의하려고 한다. $p_{afl}(s)$가 일반적으로 seed s에 할당하는 에너지라고 하자. 우리는 통합된 APS $\hat{p}(s,T_b)$를 다음과 같이 계산한다.
+
+![expression13]()
+
+`annealing-based power factor` $f=2^{10(p(s,T_b)-0.5)}$는 AFL의 PS에 의해 할당된 에너지의 증가 또는 감소를 조절한다. figure 6에서 annealing-based power factor의 동작을 NSD $\bar{d}(s,T_b)$의 두 극단적인 경우에 따라 확인할 수 있다.
+
+![figure6]()
+
+
+> $\bar{d}(s,T_b)=1$ : 먼 seed
+
+t=0일때 $f=1$이므로 AFL과 동일한 에너지를 할당 받는다. ($\hat{p}(s,T_b)=p_{afl}$)
+
+하지만 10분이 지나면 원래 에너지의 15%만 할당 받는다. 
+
+![expression14]()
+
+위와 같이 target이 도달하기에 매우 멀리 있는 seed는 점점 적은 에너지가 할당되어 원래 에너지 $p_{afl}$의 1/32만 할당받게 된다.
+
+> $\bar{d}(s,T_b)=0$ : 가까운 seed
+
+이때도 마찬가지로 t=0일때 최대 거리를 가진 시드와 동일한 에너지를 할당받는다.
+
+![expression15]()
+
+대상 위치와 가까운 시드는 $p_{afl}$의 32배까지 점점 더 많은 에너지를 할당받는다.
+
 
 ## 3.4. Scalability of Directed Greybox Fuzzing
+GF의 이점은 program analysis가 없기에 효율성이 좋다는 것이다. 이로 인해 짧은 시간에 매우 많은 input을 생성하고 실행한다. DGF는 일부 program analyiss를 수행한다. DGF의 scale에 대해 생각해보자.
 
+우리의 distance measure는 inter-procedural이지만 program analysis는 intra-procedural이다. 이는 절약을 제공한다. inter-procedural에 대한 경험은 다음과 같다.
+
+초기의 경우 *AFLGo*는 하나의 함수의 모든 호출 위치를 basic block과 연결하여 iCGF(inter-procedural CGF)를 먼저 구성한다. (몇시간 걸림), iCGF가 완성되면 모든 basic block에서 target까지의 평균 최단 경로 길이로 target distance를 계산한다. (node가 많기에 몇시간 걸림)
+  
+지금의 *AFLGo*는 iCFG 계산을 생략하고 CG에서 function-level target distance를 계산하고 basic-block level target distance를 call site에 대해서만 계산한 후 intra-precedural CFG를 계산한다. call site에서 function-level target distance는 target까지의 나머지 path에 대한 근사치로 사용된다.
+
+중요한 것은 BB수준 target distance는 Djikstra algorithm에 의존하여 $O(V^2)$ 이다. 평균 m 노드를 가진 n개의 iCFG의 경우 $O(n^2m^2)$이다. 반면에 CG와 iCFG의 경우 우리의 계산은 $O(n^2+nm^2)$이다.
+
+또한 대부분의 무거운 분석을 compile time(instrumentation time)으로 옮길 수 있도록 DGF를 설계하였기 때문에 runtime에서의 효율성을 유지한다.
+
+1. compile time
+
+AFLGo는 각 함수의 모든 basic-block에 대한 basic-block-level target distance가 계산된다. AFL trampoline은 BB에 BBTD를 추가한다. trampoline은 instrumentation을 구현하는 일련의 명령어이다. instrumentation framwork (LLVM)은 대규모 프로그램에 대한 static analyiss를 효율적으로 처리할 수 있다.
+   
+2. run time
+AFLGo는 AFL과 동일하게 확장 가능하다. (*Firefox, PHP, Acrobat Reader*) AFLGo trampoline은 BBLTD 값과 실행된 BB를 집계하여 기존 AFL trampoline 대비 몇개의 명령만 추가하였다. ASP는 fuzzer에 구현하였기 때문에 AFL과 동일하게 확장 가능한것은 당연하다.
+
+요약하자면 우리는 program analysis를 instrumentation time으로 옮겨 runtime의 효율성을 유지한다. 이동안 intra-procedural measure를 통하여 경량화 하였다. 
+
+
+※ intra = 함수 내 분석, inter = 함수 간 분석
 # 4. Evaluation Setup
+DGF의 효율성과 유용성을 평가하기 위하여 여러 실험을 수행하였다. DGF를 기존의 undirected GF인 *AFL*에 구현하여 *AFLGo*라 명명하고 두가지 다른 문제 영역인 path testing과 crash reproduction에 적용하고 *OSS-Fuzz*와 통합하였다.
 
 ## 4.1. Implementation
+AFLGo는 4가지 구성요소로 구현된다. Graph Extracgtor, Distance Calculator, Instrumentor, Fuzzer
 
+*OSS-Fuzz*와 통합하기 위하여 이러한 구성 요소들이 원래의 빌드 환경 (make or ninja)에서 원할하게 통합될 수 있음을 보여준다 전체 아키텍쳐는 다음과 같다.
+
+![figure7]()
+
+
+### 4.1.1. Graph Extracgtor (GE)
+CG와 CFGs를 생성한다. CG node는 function signature로 구분되며 CFG는 해당 basic block에 해당하는 source code의 첫 statement 로 구분된다. GE는 compiler(*afl-clang-fast*)에 의해 확장되는 *AFL LLVM Pass*의 확장으로 구현되어 있다.
+
+### 4.1.2. Distance Calculator (DC)
+CG와 intra-procedural control-flow를 사용하여 BB의 inter-procedural distance를 계산한다. DC는 *networkx*를 사용하여 garph를 parsing하고 Djikstra algorithm에 따른 최단 거리 계산을 수행하는 python script로 구현된다. DC는 BB-distance file을 생성한다.
+### 4.1.3. Instrumentor
+BB-distance file을 가져와 대상 binary의 각 BB를 instrument한다. 구쳊거으로 각BB에 대해 BBLTD를 결정하고 확장 trampoline을 주입한다.
+
+trampoline은 jump 명령 후에 실행되는 assembly code 조각으로 cover된 control flow edge를 추적하는데 사용된다. edge는 64kb shared memory로 식별된다.
+
+64bit architecture에서 우리의 확장은 shared memory의 추가적인 16byte를 사용한다. (dsdistance를 누적하기위한 8 + BB의 수를 기록하기 위한 8)
+
+각 BB에 대해서 AFLGo Instrumentor 다음 코드를 추가한다.
+1. 현재 누적된 거리를 로드하고 BB의 target distance를 추가하는 코드
+2. 수행된 BB 수를 로드하고 증가시키는 코드
+3. 두 값을 shared memory에 저장하는 코드
+
+이는 *AFL LLVM pass*의 확장으로 구현되며 compiler는 *afl-clang-fast*로 설정되며 BB-distance file을 참조하여 ASAN(AddressSanitizer)과 함께 빌드된다. 
+### 4.1.4. Fuzzer
+AFLGo는 AFL 2.40b(AFLFast의 explore schedule을 사용)에 구현되어 있으며 이는 우리의 APS에 따라 instrumente된 binary code를 fuzzing 한다.
 ## 4.2. Infrastructure
-
+22코어를 사용, 다른 fuzzer와 동일한 seed corpus(없는 경우 empty file)을 사용하여 실험
 # 5. Application 1 : Path Testing
-
+path testing에서 DGF의 적용을 보여주고 최신 path testing tool (*Katch*)와 *AFLGo*를 비교한다. 
 ## 5.1. Patch Coverage
-
+이 실험에서 우리는 patch coverage와 vulnerability detection 측면에서 비교하였다. *Katch*의 저자들과 동일한 대상, 실험 파라미터, 인프라를 사용한다. 하지만 임의의 명령을 실행하고 임의의 파일을 삭제할 수 있는 findutils는 제외하였다. 그러나 이러한 도구르 비교할때 실증적 평가는 두가지 개념의 구현을 비교하는 것이지 개념 자체를 비교하는 것이 아니다. 효율성을 개선하거나 검색 공간을 확장하는것은 개념과 무관한 "engineering effort"의 문제일 수 있다. 우리는 관찰된 현상을 설명하고 개념적 기원과 기술적 기원을 구분하기 위해 노력을 하였다. 
 ## 5.2. Vulnerability Detection
 
 # 6. Application 2 : Continuous Fuzzing
