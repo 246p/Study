@@ -76,3 +76,9 @@ coverage-guided tracking은 coverage를 증가시키는 testcase를 처리한 �
 ## 4. concolic testing
 
 [Link](http://acm.mementodepot.org/pubs/proceedings/acmconferences_3180155/3180155/3180155.3180166/3180155.3180166.pdf)
+
+## 5. Kernel fuzzing
+### IMF: Inferred Model-based Fuzzer (MacOS)
+[Link](https://acmccs.github.io/papers/p2345-hanA.pdf)
+### DIFUZE: Interface Aware Fuzzing for Kernel Drivers (Linux)
+[Link](https://acmccs.github.io/papers/p2123-corinaA.pdf)

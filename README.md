@@ -6,7 +6,6 @@
 ## Whitebox fuzz testing
 [Automated Whitebox Fuzz Testing](./2_ndss2008.md)
 
-
 ## Graybox Fuzz testing
 [Angora: Efficient Fuzzing by Principled Search](./3_chen2018angora.md)
 
@@ -16,4 +15,6 @@
 ## Directed Graybox Fuzzing
 [Directed Graybox Fuzzing](./5_directed.md)
 
+## Smart contract fuzzing
+[Smartian: Enhancing Smart Contract Fuzzing with Static and Dynamic Data-Flow Analyses](./6_smartian.md)
 ## [Abstrac만 읽은 논문](./0_short.md)
