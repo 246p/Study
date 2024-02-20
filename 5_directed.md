@@ -326,15 +326,69 @@ SE는 다른방식으로 접근하기 어려운 구역에 들어가기 위한 �
 *LibMing*은 .swf 파일을 읽고 생성하기 위해 널리 사용되는 라이브러리로 *PHP v5.3.0*까지 PHP와 함꼐 번들로 제공되었다. 이것 역시 가장 최근의 50개 commit을 fuzzing함으로 *AFLGo*는 불완전한 수정을 발견하였다. 이 버그는 최근 다른 보안 연구자에 의해 발견되었고 CVE-ID를 받았다. 하지만 *AFLGo*는 정확히 동일한 stack trace를 생성할 수 있는 다른 crash input을 생성할 수 있었다. 즉 patch가 불완전한 것이다. 우리는 자세한 분석과 patch를 포함한 bug report를 제출하여 CVE-ID가 할당되었다. 
 
 # 7. Application 3 : Crash Reproduction
+DGF는 crash reproduction에도 관련이 있다 잘 알려진 상업 소프트웨어를 제작하는 많은 회사에서 자동화된 bug report 시설을 갖추고 있다. 사용자는 버그가 발생하였을떄 개발자에게 버튼을 눌러 버그를 보고할 수 있다. 하지만 사용자의 개인 정보에 대한 우려로 인하여 input을 전송하지 않는 대신 stack trace와 몇가지 environmental parameter만 전송한다. 잠재적으로 보안에 중요한 취약점을 reproduction 하는 것은 내부 개발팀의 역할이다.
+
+DGF이 실제로 direction인지 평가하기위해 basic AFL과 AFLGo를 비교하여 평가하였다. crash reproduction의 성능이 최신 기술을 능가하는지 확인하기 위하여 *BugRedux*와 비교하였다. *BugRedux*는 crash의 stack stace에서의 method call과 같은 일련의 call target을 입력으로 받아 주어진 순서대로 target을 실행하고 crash를 목표로 하는 입력을 생성하는 *Klee*기반의 DSEWF이다. 
 
 ## 7.1. Is DGF Really Directed?
+우리의 실험해서 DGF인 *AFLGo*를 사용하여 stack trace의 method call을 target으로 지정하여 내부 개발팀이 얼마나 빠르게 crash를 재현할 수 있는지 평가하였다. 우리는 undirected GF인 *AFL*과 비교하였다. 비교를 위하여 이전 연구에서 보고된 *Binutils*의 취약점을 선택하였다. 잠재적인 시험자 편향을 완화하기 위하여 *LibPNG*에 대해 최근에 보고된 10개의 취약점중 재현 가능한것을 선택하였다. 우리는 8시간의 timeout을 설정하여 time-to-exploitation을 7시간으로 설정하여 20회 반복하였다.
+
+fuzzing의 효율성과 성능 향상을 측정하기위하여 TTE (Time-to-Exposure) 즉 주어진 오류를 발생시키는 첫 input이 생성될때까지의 시간을 지표로 사용한다.
+
+AFL의 평균 TTE를 AFLGo의 평균 TTE로 나눈 값으로 성능 향상을 측정한다. 이 factor의 값이 1보다 크다면 AFLGo가 AFL보다 우수함을 나타낸다. 또한 *Vargha-Delaney* 통계 $\hat{A}_{12}$은 비모수적 측정값이며 무작위 알고리즘 평가를 위한 표준 측정값이다. AFLGo를 사용하여 AFL을 실행하는 것 보다 더 높은 TTE를 얻을 확률을 측정한다. 우리는 성능 향상의 통계적 유의성을 측정하기 위하여 *Mann-Whitney U*검정을 사용한다.
+
+*LibPNG*에서 CVE를 재현할때 3~11배 빠르다. *Binutils*에서 CVE를 재현할때 1.5~2배 더 빠르다.
+
+AFLGo의 지향성은 효과적이다. 제공된 target으로 성공적으로 지향될 수 있다. 또한 효과적인 crash reproduction tool 이다.
+
 
 ## 7.2. Does DGF Outperform the Symbolic Execution-based State of the Art?
+이 실험해서 *BugRedux*의 자체 dataset, 동일한 실험 설정, 시작 구성, timeout을 사용하여 *AFLGo*와 비교하였다. stack trace만 주어진 상황에서 실햄을 진행하였다.
+
+AFLGo가 재현할 수 없는 유일한 충돌은 단순한 엔지니어링 문제이다. AFLGo는 하나의 파일만 생성할 수 있다. AFLGo는 6개의 crash중 4개를 10분 미만에 재현하고 나머지 두개는 약 4시간에 재현하여 24시간의 timeout보다 훨씬 적은 시간을 소모하였다.
+
+![Table6]()
+
 
 # 8. Threats to Validity
+## 8.1. external validity and notably generality
+우리의 결과가 우리가 테스트 하지 않은 대상에 대해 유효하지 않을 수 있다. 그러나 우리는 보안에 중요한 취약점을 가진 가장 큰 소프트웨어 클래스를 구성하는 다양한 open-source C project에서 실험을 수행하였다.
 
+*Katch*, *BugRedux*외의 다른 DWF와의 비교느 ㄴ다르게 나타날 수 있다. 하지만 이 두개는 가장 최신의 DF로 널리 사용되고 있다. 또한 우리는 저자들이 논문에서 사용한 동일한 벤치마크를 재사용하였다.
+
+## 8.2. internal validity
+fuzzer 실험에서 internal validity를 위협하는 것은 initial seed 선택이다. 그러나 우리의 실험에서 항상 사용 가능한 corpus를 사용하였다. 
+
+## 8.3. construct validity
+테스트가 측정하고자 하는 것을 실제로 얼마나 측정하는지를 알아야 한다. tool을 비교할때 결과를 주의 깊게 받아들어야 한다. 경험적 평가는 항상 두 개념의 구현만 비교하며 그 개념 자체를 비교하지 않는다. fuzzer의 효율성을 개선하거나 검색공간을 확장하는것은 개념과 무관한 "engineering effor"일 수 있다. 그러나 우리는 관찰된 현상을 설명하고 개념적인것과 기술적인것을 구분하기 위하여 노력을 하였다. 우리는 실제로 이러한 도구를 다루고 있는 보안 연구자의 관점을 고려하도록 하였다.
 # 9. Related Work
+DF에서 기존 접근 방식과 전형적인 응용 프로그램에 대한 조사로 시작한다. 최대한 code coverage를 달성할 수 있는 input을 생성하는것이 coverage-based fuzzing에 대한 목표이다. 또한 주어진 위치에서 특정 값을 달성하기 위한 seed의 특정 input byte를 식별하고 fuzzing하는것이 모표인 taint-based directed fuzzer에 대해 논의한다.
 
+DF는 *Klee*와 같은 SE에 구현되어 있다. DSE는 SE, program analysis, constraint solve 복잡한 기계를 사용하여 실행가능한 path의 상태 공간을 체계적이고 효율적으로 탐색한다. 목표에 실제로 도달할 수 있는 실행 가능한 path가 식별되면 해당 path constraint의 해로 `posteriori`가 생성된다. DSE는 위험한 프로그램 위치(ex system call), patch의 변경사항 cover , coverage 증가, static analysis report 검증, mutate testing, crash reproduction에 사용되었다.  
+
+DGF는 SE, program analysis, constraint solver를 사용하지 않는다. 우리의 실험은 DGF가 DWF를 능가할 수 있으며 두 기술을 함께 사용하는것이 각 기술을 개별적으로 사용하는것보다 더 효과적임을 보여준다.
+
+coverage-based fuzzing은 어떤 방식이든 seed corpus의 code coverage를 증가시키려고 한다. 희망은 프로그램 요소 `e`를 실행하지 않는 seed corpus가 `e`에서 발생하는 취약점을 발견할 수 없을것이라는 것이다.
+
+coverage-based fuzzer는 runtime 동안 coverage 정보를 수집하기 위해 경량의 instrumentation을 사용한다. 다음과 같은 여러가지 기술이 있다.
+
+- *AFLFast*는 더 많은 path를 실행하기 위해 저빈도 path에 fuzzing을 집중한다.
+- *Vuzzer*는 오류 처리 코드와 같은 특정 기본 BB에 가중치를 할당하여 취약점을 드러낼 가능성이 더 높은 경로를 웟ㄴ시한다.
+- *Sparks*는 고정 크기의 seed corpus와 input grammar를 진화시켜 control flow logic을 더 깊이 침투시키기 위한 genetic algorithm을 사용한다.
+
+coverage-based WF는 SE를 사용하여 coverage를 증가시킨다.
+- *Klee*는 cover되지 않은 BB에 더 가까운 path를 우선시 하는 검색 전략을 가지고 있다.
+  
+반면 DGF는 최대 code coverage를 달성하기 위하여 모든 프로그램 요소를 target으로 간주한다. 그러나 특정 target set에 도달하는 것이 실제 목표일 경우 관련없는 요소를 강조하는 것은 자원의 낭비이다.
+
+
+taint-based WF는 고전적 taint analysis를 사용하여 input seed의 특정 부분을 우선적으로 fuzzing하여 target에서 취약점을 관찰할때 필요한 값을 생성할 확률을 높인다. 이는 검색 공간을 극적으로 줄일 수 있다.
+- *BuzzFuzz*는 실행된 모든 중요 systemcall 인자를 제어하는 seed의 일부분을 fuzzing 가능한것으로 표시한다. 
+- *Vuzzer*는 다른 방식으로 접근하기 어려운 코드를 실행하기 위하여 taint를 사용한다.
+
+DSE와 달리 taint based WF는 SE와 constraint solver를 요구하지 않는다. 그러나 사용자가 target으로 도달할 수 있는 input을 입력으로 제공해야 한다. 하지만 우리의 실험에서 *AFLGo*는 empty seed를 통해서 시작할 수 있다. 향후 작업에서 *Vuzzer*에서 구현된 유사한 taint-based 접근 방식이 DGF에 어떤 이점을 가져올 수 있는지 연구할 수 있다.
+
+runtime에서 분석은 거리를 줄이기 위해 부정해야 하는 주건문을 식별한 다음 fuzzing중 이러한 문자들이 실제로 부정할 확률을 높이기 위해 taint를 사용한다. 그러나 우리의 직관은 취약점 탐지에서 GF이 최신 기술이 되는 주요 요인은 효율성 (초당 많은 입력을 생성하고 실행하는 능력)이라는 것이다. 이러한 철학을 유지하며 DGF를 설계하면 모든 heavy-wegiht analysis를 compile-time에 수행하여 runtime의 효율성을 높이다.
 # 10. Conclusion
 *AFL*과 같은 Coverage-based GF는 프로그램 analysis의 부담 없이 많은 path를 cover하려고 한다. *Klee*, *Katch*와 같은 SE 기반 WF는 필요할때 symblic program analysis와 constraint solving을 사용하여 검색을 정확하게 지시한다.
 
