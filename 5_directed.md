@@ -278,8 +278,24 @@ AFLGo는 AFL 2.40b(AFLFast의 explore schedule을 사용)에 구현되어 있으
 22코어를 사용, 다른 fuzzer와 동일한 seed corpus(없는 경우 empty file)을 사용하여 실험
 # 5. Application 1 : Path Testing
 path testing에서 DGF의 적용을 보여주고 최신 path testing tool (*Katch*)와 *AFLGo*를 비교한다. 
+이 실험에서 우리는 patch coverage와 vulnerability detection 측면에서 비교하였다. *Katch*의 저자들과 동일한 대상, 실험 파라미터, 인프라를 사용한다. 하지만 임의의 명령을 실행하고 임의의 파일을 삭제할 수 있는 findutils는 제외하였다. 그러나 이러한 도구를 비교할때 실증적 평가는 두가지 개념의 구현을 비교하는 것이지 개념 자체를 비교하는 것이 아니다. 효율성을 개선하거나 검색 공간을 확장하는것은 개념과 무관한 "engineering effort"의 문제일 수 있다. 우리는 관찰된 현상을 설명하고 개념적 기원과 기술적 기원을 구분하기 위해 노력을 하였다. 
 ## 5.1. Patch Coverage
-이 실험에서 우리는 patch coverage와 vulnerability detection 측면에서 비교하였다. *Katch*의 저자들과 동일한 대상, 실험 파라미터, 인프라를 사용한다. 하지만 임의의 명령을 실행하고 임의의 파일을 삭제할 수 있는 findutils는 제외하였다. 그러나 이러한 도구르 비교할때 실증적 평가는 두가지 개념의 구현을 비교하는 것이지 개념 자체를 비교하는 것이 아니다. 효율성을 개선하거나 검색 공간을 확장하는것은 개념과 무관한 "engineering effort"의 문제일 수 있다. 우리는 관찰된 현상을 설명하고 개념적 기원과 기술적 기원을 구분하기 위해 노력을 하였다. 
+우리는 *Katch*와 *AFLGo*모두가 달성한 patch coverage를 분석한다. 이는 각각 patch에서 변경된 이전에 cover 되지 않은 BB의 수로 측정된다. patch coverage는 새로운 또는 수정된 코드 영역이 테스트 과정에서 얼마나 자주 실행되는지를 나타내며 이는 새로운 취약점이나 문제점을 발견할 가능성을 높일 수 있다. 높은 patch coverage는 fuzzer가 효과적으로 patch된 code를 탐색하고 있음을 의미한다. *AFLGo*는 *Katch*보다 13% 많은 BB를 cover한다. 
+
+cover되지 않은 target에 대해 분석한 결과 변경된 BB 절반 이상이 레지스터 간접 호출이나 점프 (function pointer)를 통해서만 접근 할 수 있었다. 이러한 호출이나 점프는 CG나 CFGs에서 edge로 나타나지 않는다. 또한 SE와 GF 모두 프로그램의 복잡한 입력 구조를 요구할때 큰 검색공간으로 인한 어려움을 겪는다. 
+
+이러한 결과는 특정 기술의 한계를 극복하고 patch coverage를 개선하기 위한 추가적인 연구 개발의 필요성을 의미한다. 더 나은 품질의 regression test suite의 개발과 model-based fuzzing의 적용은 향후 연구의 방향성을 제공할 수 있다.
+
+연구자들이 두가지 접근 방식에서 어떤 이익을 얻을 수 있는지 이해하기위해 두 기술 모두에서 cover된 target을 조사하였다. 아래 그림에서 확인할 수 있듯이 상대적으로 작은 교차점은 각 기술의 개별 강점 때문이라고 볼 수 있다.
+
+![figure9]()
+
+
+SE는 다른방식으로 접근하기 어려운 구역에 들어가기 위한 복잡한 constraint를 해결할 수 있다. 반면 GF는 특정 "이웃"의 경로에 갇히지 않고 target을 향해 많은 경로를 빠르게 탐색할 수 있다. *AFLGo*와 *Katch*는 서로를 보완한다.
+
+이 결과는 보안 연구자들이 특정 취약점이나 코드 변경을 테스트할때 여러 기술을 조합하여 사용하는것의 중요성을 강조한다. SE와 GF의 결합은 보다 광범위한 coverage와 함께 다양한 유형의 취약점을 발견할 가능성을 높여준다. 이러한 포괄적인 보안 검증 프로세스를 이용하여 소프트웨어의 안정성을 향상시킬 수 있다.
+
+미래에는 SE 기반 DWF와 DGF를 통합하여 사전에 지정된 target에 효과적이고 효율적으로 도달하는 DF를 달성할 계호기이다. 우리는 이러한 통합이 각 기술을 개별적으로 사용하는것보다 우월할것이라고 생각한다. 
 ## 5.2. Vulnerability Detection
 
 # 6. Application 2 : Continuous Fuzzing
