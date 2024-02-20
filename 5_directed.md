@@ -297,12 +297,33 @@ SE는 다른방식으로 접근하기 어려운 구역에 들어가기 위한 �
 
 미래에는 SE 기반 DWF와 DGF를 통합하여 사전에 지정된 target에 효과적이고 효율적으로 도달하는 DF를 달성할 계호기이다. 우리는 이러한 통합이 각 기술을 개별적으로 사용하는것보다 우월할것이라고 생각한다. 
 ## 5.2. Vulnerability Detection
+*AFLGo*는 *Katch*에 의해 발견되 7개의 버그중 4개를 포함하여 이전에 보고되지 않은 13개의 버그를 추가로 찾아내었다. 이중 7개의 버그는 CVE-ID가 할당되었다.
+
+우리의 DGF는 vulnerability detection 측면에서 최신 기술을 능가한다. 이 성공은 DGF 기법이 보안 검증 프로세스에서 중요한 역할을 할 수 있음을 보여준다.
+
+우리는 이러한 버그의 발견이 target과 어떠한 관련이 있는지 조사하였다. 12개의 버그는 *AFLGo*의 ditextion의 결과로 발견되었다. 구체적인 7개의 버그는 target 위치를 포함한 stack trace를 가지고 있으며 다른 5개의 버그는 target 근처에서 발견되었다. 
+
+*AFLGo*가 더 우수한 이유는 DGF의 효율성 때문이다. runtime에서의 program analysis가 필요하지 않으므로 더 많은 입력을 생성한다. 또한 *runtime checking*으로 인해 실행 중 crash를 발견하면 프로그램을 crash 한다. *Katch*는 *constraint-based error detction*을 이용한다.
+
+우리는 target을 *runtime checker* (*ASAN*)으로 instrument 하였다. input이 허용되지 않은 메모리에 대한 읽기, 쓰기를 일으키는 경우, ASAN은 프로그램이 일반적으로 crash하지 않은 경우에도 SEGFAULT를 발생시킨다. fuzzer는 runtime checkr로부터 이 신호를 사용하여 생성된 input에 대한 오류를 보고한다.
 
 # 6. Application 2 : Continuous Fuzzing
+우리는 DGF의 유용성을 연구하기 위하여 *Google*의 *OSS-Fuzz*와 통합하였다. *OSS-Fuzz*는 continuous testing platform이다. 완전 자동화된 방식으로 등록된 프로젝트를 checkout, vuild, fuzzing 한다. bug report는 project 관리자에게 자동으로 제출된다. 
 
+*AFLGo*를 통합하여 7개의 open-source project에서 26개의 구별되는 버그를 발견하였다. 즉 *AFLGo*는 well-fuzzed project 에서 취약점을 발견할 수 있는 *OSS-Fuzz*를 위한 patch testing tool 이다.
+
+우리는 *LibXML2*와 *LibMing*에서의 발견된 버그에 대해 초점을 맞추어 설명한다.
 ## 6.1. LibXML2
+*LibXML2*는 C언어로 작정된 널리 사용되는 XML parser library로 PHP의 핵심 요소이다. *LibXML2*의 최근 50개 commit을 fuzzing하여 4개의 구별되는 BOF를 발견하였다. 
+
+우리는 두개의 crash를 incomplete bug fix로 식별하였다. bug report에 있는 input에 대해서는 수정되었지만 다른 input은 여전히 버그를 발생시킨다. 이 버그들을 수정하며 변경한 문장에 대해 target을 설정하여 *AFLGo*는 다른 crash input을 생성하였다.
+
+다른 crash들 또한 동일한 commit의 인근에 존재한다.
+
+> *AFLGo*는 수정되었다고 보도괸 곳에서 취약점을 발견하였다. 자주 패치되는 오류가 발생하기 쉬운 소프트웨어 요소에서 새로운 취약점을 발견할 수 있다.
 
 ## 6.2. LibMing
+*LibMing*은 .swf 파일을 읽고 생성하기 위해 널리 사용되는 라이브러리로 *PHP v5.3.0*까지 PHP와 함꼐 번들로 제공되었다. 이것 역시 가장 최근의 50개 commit을 fuzzing함으로 *AFLGo*는 불완전한 수정을 발견하였다. 이 버그는 최근 다른 보안 연구자에 의해 발견되었고 CVE-ID를 받았다. 하지만 *AFLGo*는 정확히 동일한 stack trace를 생성할 수 있는 다른 crash input을 생성할 수 있었다. 즉 patch가 불완전한 것이다. 우리는 자세한 분석과 patch를 포함한 bug report를 제출하여 CVE-ID가 할당되었다. 
 
 # 7. Application 3 : Crash Reproduction
 
