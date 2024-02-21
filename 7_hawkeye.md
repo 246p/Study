@@ -137,7 +137,7 @@ fuzzer는 piority seed queue 에서 seed를 선택한다. target site에 "가까
 ## 4.1. Graph Construction
 선택된 seed와 target site까지의 거리를 계산하기 위하여 CG,CFG를 구축한다음 이를 결합하여 final inter-procedural CFG를 구성한다. CG는 [4.2](#42-adjacent-function-distance-augmentation), [4.3](#43-directedness-utility-computation)에서 function level distance를 즉정하는데 사용된다. CFG(inter-precedural CFG)는 [4.3](#43-directedness-utility-computation)에서 BB level distance를 즉정하는데 사용된다.
 
-`inclusion-based pointer analysis`를 사용
+- `inclusion-based pointer analysis`를 사용
 
 이 알고리즘은 "p:=q" 형태의 문장을 "q의 points-to set 은 p의 points-to set의 부분집합이다" 라고 번역하는 것이다.
 
