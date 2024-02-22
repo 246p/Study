@@ -15,6 +15,10 @@
 ## Directed Graybox Fuzzing
 [Directed Graybox Fuzzing](./5_directed.md)
 
+[Hawkeye: Towards a Desired Directed Grey-box Fuzzer](./7_hawkeye.md)
+
+[ParmeSan: Sanitizer-guided Greybox Fuzzing](./8_parmesan.md)
+
 ## Smart contract fuzzing
 [Smartian: Enhancing Smart Contract Fuzzing with Static and Dynamic Data-Flow Analyses](./6_smartian.md)
 ## [Abstrac만 읽은 논문](./0_short.md)
