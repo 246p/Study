@@ -11,6 +11,7 @@
 - 기존 saitizer에 의해 수행된 계측이 fuzzer-induced error dcondition에 사용되지만 더 나아가 흥미로운 BB를 감지하고 fuzzer을 가이드 할수 있다는 관찰을 함
 - 이를 이용하여 sanitizer-guided fuzzer *ParmeSan*을 설계하구 구현하였다. 이는 TTE를 크게 줄이고 Coverage-base Fuzzer (*Angora*), DGF(*AFLGo*)보다 더 빠르게 동일한 bug를 찾는다.
 # 1. Introduction
+
 # 2. Background
 ## 2.1. Fuzzing strategy
 ## 2.2. Directed fuzzing
