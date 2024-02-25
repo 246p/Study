@@ -53,7 +53,7 @@ challenges
 coverage guided fuzzing은 깊은 버그를 찾는데 오랜 시간이 걸릴 수 있음, 반면 DF 는 특정 target으로 유도
 
 ## 2.2. Directed fuzzing
-
+https://chat.openai.com/c/8366002a-100a-44ed-a350-d3e10380e6ab
 ## 2.3. Target selection with sanitizers
 ## 2.4. CFG construction
 # 3. Overview
