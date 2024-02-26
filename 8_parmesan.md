@@ -54,12 +54,52 @@ coverage guided fuzzing은 깊은 버그를 찾는데 오랜 시간이 걸릴 �
 
 ## 2.2. Directed fuzzing
 https://chat.openai.com/c/8366002a-100a-44ed-a350-d3e10380e6ab
+
+- DF는 잠재적으로 취약한 위치로 fuzzing 을 유도.
+- 확장성과 호환성의 한계를 가진 SE를 이용함
+- *AFLGo*의 DGF 개념은 GF의 확장성을 도입
+
+두가지 문제
+1. 흥미로운 타겟을 찾는것
+2. 흥미로운 타겟 까지의 거리 계산
+
+
 ## 2.3. Target selection with sanitizers
+- 현대의 compiler (*GCC*, *Clang+LLVM*)은 runtime check를 사용하여 정적 분석으로만 찾을 수 없는 가능한 버그를 탐지하는 *sanitizer*를 제공
+- *sanitizer*는 fuzzer의 bug 찾기 능력을 향상시키는 데 사용됨, overhead가 큼
+- BOF, UAF와 같은 취약점을 위한 검사를 추가함.
+- ParmesSan은 버그 찾기 능력 뿐만아니라 TTE를 줄이기 위한 fuzzing 전략의 효율성 개선을 위해 사용됨
+
 ## 2.4. CFG construction
+- DF는 seed를 선택할때 target까지의 거리를 고려함
+- *AFLGo*, *Hawkeye*는 가벼운 정적 instrument를 사용하여 특정 seed와 target의 거리를 계산함
+- *AFLGo*는 이로 인하여 CFG를 underapproximeating
+- *Hawkeye*는 이를 해결하기 위하여 overapproximeating 하기 위하여 point-to analysis를 사용함
+- context-sensitive, flow-sensitive는 무거움
+- context-insensitive 는 가능하지 않은 실행 경로를 생성할 수 있음
+- 이 문제를 해결하기위해 DFA로 보강된 동적 CFG구성을 제안
 # 3. Overview
+![figure1]()
+
 ## 3.1. Target acquisition
+- fuzzer가 도달하기 희망하는 여러 target을 수집
+- target set은 sanitizer의 instrumentation에 의해 생성됨
+- 정적 분석을 통하여 basline과 instrumented version을 비교화여 sanitizer에 의해 배치된 instrumentations를 찾음
+- 흥미로운 target을 찾기 위하여 pruning heuristic을 사용하여 더 작은 집합을 도출함
 ## 3.2. Dynamic CFG
+- 동적 CFG는 "many-target directed fuzzing"에 적합한 input-aware CFG abstraction을 유지함. 
+- 실행중 관촬 되는 대로 CFG에 edge를 추가하며 DFA를 사용하여 input과 CFG 사이의 의존성을 추적함
+- 주어진 input에 대해 CFG에 영향을 줄 수 있는 input byte에 대한 feedback을 input mutation에 제공
+
 ## 3.3. Fuzzer
+- *ParmeSan* fuzzer는 instrumented binary, target set, initial distance calculation, seed를 입력으로 받음
+- input seed로 시작하여 실행된 BB의 initial set과 이 블록에 의해 커버된 조건을 얻음
+- 동적 CFG에 의해 제공되는 정확한 거리정보를 이용하여 target들로 유도함
+- 각 시도마다 target BB까지의 최적 거리를 결과로 하는 조건을 해결함
+
+- CFG 구성에서 DFA를 사용하였기에 branch constraint를 해결하기위 DFA를 사용
+- DFA-base coverage-guided fuzzer와 유사하게 sanitizer 검사를 뒤집고 bug를 trigger하는데 사용됨
+
 # 4. Target acquisition
 ## 4.1. Finding instrumented points
 
