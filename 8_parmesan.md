@@ -101,9 +101,44 @@ https://chat.openai.com/c/8366002a-100a-44ed-a350-d3e10380e6ab
 - DFA-base coverage-guided fuzzer와 유사하게 sanitizer 검사를 뒤집고 bug를 trigger하는데 사용됨
 
 # 4. Target acquisition
-## 4.1. Finding instrumented points
+*target acquisition*은 흥미로운 target을 찾기 위하여 compiler sanitizer에 의존한다.
 
+- sanitizer의 error condition을 trigger 하여 direction을 함
+- 우리 방식은 sanitizer-agnostic(중립) 하기에 sanitizer에 따라 다른 class의 bug를 대상으로 pipeline을 retarget할 수 있다.
+
+
+## 4.1. Finding instrumented points
+- Compiler framwork(ex *LLVM*)은 machine-agnostic intermediate representation (IR)로 변환함. 
+- sanitizer 는 IR-level 에서 동작, IR을 계측하여 sanitization check를 추가
+
+
+sanitizer는 두가지 방식으로 계측함
+1. 내부 데이터 구조 업데이트 (shadow memory)
+2. 실제 버그를 감지
+
+- 우리는 sanitizer가 내부 데이터 구조를 업데이트할때 sanitizer에 의해 도입된 조건문 branch로 fuzzing을 유도 
+- 이 branch로 들어간다는 것은 bug를 발견했다는것을 의미
+- 다양한 anitizer가 존재하여서 우리는 sanitizer-agnostic한 방법을 원함 이를 위해 snitizer가 적용된 상태와 적용되지 않은 상태의 IR 차이에 대한 blackbox analysis를 구현하여 이를 수행
+- 조건을 포함 하지 않은 BB를 포함시키기 위해 sanitizer에 의해 계측된 모든 BB를 추가함
+- 조건을 포함하는 BB는 계측된 BB와 조건이 취해진 BB (sanitizer의 bug check 기능)을 포함시킨다.
+- 이러한 방법으로 기존과 앞으로의 *LLVM sanitizer*와 호환되는 일반적이고 효과적인 target acquistion 가능
 ## 4.2. Sanitizer effectiveness
+sanitizer instrmentation을 target으로 사용하는것을 확인하기 위하여 실제 버그를 탐지하는지 확인하였다.
+
+- *AdreesSanitizer(ASan)* : BOF, UAF
+- *UndefinedBehaviorSanitizer(UBSan)* : using nullptr, integer overflow
+- *TypeSanitizer(TySan)* : type confusion (C/C++)
+
+
+![table1]()
+
+- 표는 sanitizer가 bug를 포착하는지와 계측된 BB으로 path가 포함되지 않은 BB의 수를 보여줌
+- target으로 향하지 않는 nontarget BB의 수를 계산함
+- *UBSan*, *TySan*은 많은 경우 code coverage의 상당부분을 무시할 수 있음
+- *ASan*은 많은 BB를 계측하기 때문에 사실상 coverage-based fuzzing
+
+challenge : target의 수를 제한 하면서도 intergesting target은 유지하는것 > 두가지 pruning heuristic을 도입
+ 
 ## 4.3. Profile-guided pruning
 ## 4.4. Complexity-based pruning
 
