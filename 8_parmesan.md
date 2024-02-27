@@ -246,12 +246,40 @@ sanitizer가 단순한 branch 외에도 다른 instrumentation을 자주 추가�
 
 ![table2]()
 
-- target을 수동으로 정함
+- target을 수동으로 정하여 test
 - TTE, 버그를 현저히 개선함
-
-
 ## 8.2. Coverage-guided fuzzers
+- 우리의 전략이 최신의 coverage-guided fuzzer보다 더 많은 버그를 더 빠르게 찾는다. 
+- 더 적은 TTE, coverage로 버그 찾기 가능하다.
+
+![table3]()
+
+![table4]()
+
 ## 8.2. Sanitizer impact
+특정 sanitizer가 fuzzing pipeline의 결과에 어떤 영향을 미치는지 알아본다. 즉 특정 유형의 bug에 대한 fuzzing을 집중시킬 수 있다.
+
+- Parmasan은 memory-leak bug에 취약하다. 이는 사용오딘 sanitizer analysis가 중요한 영향을 미친다는 의미
+- target acquisition에 *ASan*을 사용한다면 invalid memory use에 집중하게 됨
+- memory-leak bug에 집중하려면 LeakSanitizer *LSan*을 사용 
+
+> *LSan*은 IR을 수정하지 않고 malloc과 같은 함수로의 library call을 가로챔, 우리는 dummy call을 삽입하는 LLVM pass를 생성하여 *LSan*과 동일한 동작을 유지하며 IR을 변경함
+
+![table5]()
+
+위 표는 target acquisition을 위해 사용된 sanitizer간 차이를 보여줌
+
+- bug를 cover하고 최소한의 target set을 계측하는 sanitizer을 사용하는것이 더 빠르게 버그를 찾을 수 있음
+- 특정 bug class에 대한 fuzzing을 집중하고자 할때 적절한 sanitizer를 선택하는 것이 매우 중요함
+- 단순히 탐지할 수 있는 bug class 뿐만 아니라 fuzzing 과정으 ㅣ효율성에도 영향을 미침
 ## 8.4. New bugs
+![table6]()
 # 9. Related Work
+- AFLGo와 달리 ParmeSan은 target acquisition analysis를 수행함
+- *Hawkeye*는 static alias analysis를 사용하여 간접 호출을 도와주려고 함 
 # 10. Conclusion
+- sanitizer-guided GF *ParmeSan*을 제시
+- sanitizer check로 fuzzing을 guide
+- 기존에 존재하는 sanitizer을 사용
+- taint-enhanced input mutation
+- dynamic CFG construction
