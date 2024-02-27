@@ -236,7 +236,20 @@ sanitizer가 단순한 branch 외에도 다른 instrumentation을 자주 추가�
 - *ParmeSan*이 발견하는 bug class는 사용된 sanitizer에 의존함. *ASan*같은 일부 sanitizer는 다양한 *bug class*탐지 가능.
 
 # 8. Evaluation
+- *ParmaSan*을 다른 DGF, coverage-guided fuzzer와 비교
+- 동적 CFG 구축이 간접호출에 대한 문제를 어떻게 개선하는지 보여줌
+- target acquistion은 compile과정의 일부이기 때문에 실행 시간에 포함 X
+
 ## 8.1. ParmeSan vs. directed fuzzers
+- DFA의 사용이 DF를 어떻게 향상시키는지 보여줌
+- *AFLGo, HawkEye*의 benchmark를 재현
+
+![table2]()
+
+- target을 수동으로 정함
+- TTE, 버그를 현저히 개선함
+
+
 ## 8.2. Coverage-guided fuzzers
 ## 8.2. Sanitizer impact
 ## 8.4. New bugs
