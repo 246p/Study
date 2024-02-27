@@ -140,19 +140,101 @@ sanitizer instrmentation을 target으로 사용하는것을 확인하기 위하�
 challenge : target의 수를 제한 하면서도 intergesting target은 유지하는것 > 두가지 pruning heuristic을 도입
  
 ## 4.3. Profile-guided pruning
+- target의 수를 제한하기 위하여 profile-guided pruning를 수행
+- *ASAP*와 유사한 접근
+- 프로그램을 프로파일링 하고 hot pass(profiling input으로 도달한 path)에 있는 모든 sanitizer를 제거함
+- hot pass는 버그를 포함할 가능성이 낮다.
+- 이 전략은 효과적으로 target set을 pruning 할 수 있다. 물론 일부 유효한 target을 제거할 수 있지만 *ASAP*의 저자는 보수적으로 80%의 버그가 감지된다고 주장한다.
 ## 4.4. Complexity-based pruning
+sanitizer가 단순한 branch 외에도 다른 instrumentation을 자주 추가하기 때문에 추가/수정된 명령어 수를 기반으로 함수를 점수화 하고 더 높은 점수를 받은 target을 더 흥미로운것으로 표시한다.
+
+직관은 sanitizer에 의해 변경된 명령어가 많을 수록 함수의 복잡도가 높고 sanitizer가 targeting 하는 bug class를 만날 가능성이 높다는 것이다.
+
+*LAVA-M* 에서 *ASAN*을 사용하였을때 *base64*에서 상위 3개 target은 `lava_get(), lava_set(), emit_bug_reporting_address()`에 있다. 이중 상위 2개는 *LAVA-M*에서 bug를 발생시키는 함수이다.
+
+점수는 profiling을 기반으로 puruning을 수행할때 고려된다.
+
+※ cold code?
 
 # 5. Dynamic CFG
+*ParmaSan*이 [Target acquisition](#4-target-acquisition) 단계에서 식별한 code로 유도하기 위하여 정확한 CFG를 이용하여 BB와 target 사이의 distance를 추정할 수 있어야 한다.
+
+- [CFG의 정밀도를 동적으로 향상시키는 방법](#51-cfg-construction)
+- [execution trace와 target 사이의 거리를 구하는 방법](#52-distance-metric)
+- [DFA를 추가하여 distance matric을 향상하는방법](#53-augmenting-cfg-with-dfa)
 ## 5.1. CFG construction
+- 기존 DF는 정적으로 CFG를 구성하여 부정확한 결과
+- 우리는 *LLVM*으로 구성된 *CFG*로 시작하여 fuzzing중 edge를 추가하여 점점 정밀하게 만듬 (런타임중 간접 호출은 정적으로 구성할 수 없음)
+- 거리 계산을 하기 위하여 시작점과 target 사이의 조건문의 수를 사용함
+- 전체 CFG에 비해 compact Condition Graph를 사용함
+- 런타임에서 CG, CFG를 모두 사용하지만 거리 계산에는 Condition Graph만 사용함
+- CFG의 node는 불변, edge는 동적, 새로운 edge를 만날때마다 CFG, Condition Graph에 추가
 ## 5.2. Distance metric
+거리 측정은 fuzzer가 target에 더 가까워지기 위해 CFG의 어떤 부분을 다음에 탐색해야할찌 결정
+
+거리 계산은 scalability issues가 있기에 간단한 측정법을 사용함
+
+- branch condition `c`와 흥미로운 BB로 이어지는 branch condition 까지의 거리를 `d(c)`로 정의
+- target branch의 이웃 BB이 가중치 1을 갖게 하는 재귀적 접근을 사용 (*AFLGo*와 유사한 조화평균을 사용하여 계산)
+
+![expreession1]()
+
+- N(c)는 c에서 target으로 가는 경로가 있는 고려되지 않은 successor set
+
+주어진 input에 대한 실행 trace가 주어졌을때 거리 측정법을 이용하여 어떤 branch를 flip할지 결정하여 실행을 흥미로운 BB로 유도한다. 이 방법은 단순하지만 잘 작동한다. 물론 더 나은 scheduling이 존재할 수 있다.
 ## 5.3. Augmenting CFG with DFA
+동적 CFG는 input에 따라 간접 호출을 단일 대상으로 고정하여 거리 계산으 ㄹ개선할 수 있다.
+
+간접 호출 대상을 결정하는 input byte를 알고 있따면 가접 호출 대상을 알 수 있도록 input byte를 고정할 수 있다.
+
+이러한 계산은 우리의 거리 계산의 정밀도에 큰 영향을 미치며 많은 간접 호출이 있는 경우 유익하다.
 # 6. Sanitizer-guided fuzzer
 ## 6.1. DFA for fuzzing
+- 기존의 DGF는 simple distance metrics를 기반으로 input을 direction
+- DFA 기반 coverage-guided fuzzer는 DFA를 주가하여 mutated input이 branch constraint를 쉽게 해결
+- DFA는 새로 발견된 분기에 영향을 미치는 input byte offset을 추적하여 해당 offset을 mutation 한다
+- 우리는 CFG를 구성할때 DFA를 사용하고 있기에 input mutation에도 DFA를 적용
+- sanitizer check를 flip하기 위한 특별한 mutation 전략이 필요하지 않음
 ## 6.2. Input prioritization
+- main fuzzing loop는 조건문과 해당 조건문을 발견한 seed로 구성된 항목을 포함하는 priority queue에서 항목을 꺼냄
+- queue는 (runs, distancs)로 구성된 tuple에 기반하여 정렬
+- 가장 낮은 priority를 꺼내어 DFA에 의해 제공된대로 조건문에 영향을 미치는 input byte에 우선순위를 두어 mutation 수행
+- 입력에 대해 DFA로 계측된 실행을 수행하여 BB에 대한 taint 정보를 수집 (새로운 code coverage를 찾을때만 수집)
+- 원본 seed가 한 라운드에서 여러번(30) mutation 후 CFG가 변경되었다면 업데이트된 distance와 함께 다시 큐에 넣음
 ## 6.3. Efficient bug detection
+- *ParmaSan*은 analysis 목적으로 sanitizer를 사용함
+- 물론 sanitizer 없이 fuzzing을 수행할 수 있음
+- 간단하지만 효율적인 최적화 *lazysan*을 지원
+- target에 도달하였을때 saintizer instrumentation의 요구에 따라 layzysan을 활성할 수 있고 그 외에는 uninstrumentation 을 실행할 수 있다.
+
 ## 6.4. End-to-end workflow
+*ParmaSan*의 end-to-end fuzzing workflow는 3간계로 구성된다.
+1. short coverage-oriented exploration tracing phase : trace를 수집하고 가능한 정확한 CFG를 구축한다.
+2. directed exploration : 원하는 target에 도달하기 위한 condition을 해결하려고 함
+3. exploitation phase : 지정된 target중 하나에 도달하면 시작되어 DFA-driven mutation 수행
+
+2,3 phase는 서로 교촤되어 실행됨
+
+
 # 7. Implementation
+- *ParmeSan*은 coverage-guided fuzzer *Angora*위에 구성된다.
+- Angora : Rust
+- blackbox sanitizer analysis : python, LLVM pass
+- *ParmeSan*의 pipline에 *AFLGo*를 통합하여 *AFLGo*를 사용할 수 있음
+- [target acquisition](#4-target-acquisition)을 구현하기 위하여 *llvm-diff* 사용
+- [profile guided pruning](#43-profile-guided-pruning)을 구현하기 위하여 *ASAP*위에 구현, 이를 확장하여 [complexity based pruning](#44-complexity-based-pruning)을 구현함
+- 동적 CFG는 *Angora*를 기반으로함. 
+- *Angora*를 수정하여 queue에서 target acquisition 단계에서 생성된 target까지의 거리에 따라 정렬함.
+- 동적 CFG 요소를 추가하여 CFG constraint 수집을 가능하게 하고 coverage와 condition에 기반하여 target 까지의 거리를 계산함
+- *LLVM compiler framwork*의 DataFlowSanitizer *DFSan*을 사용함
+
 ## 7.1. Limitations
+- *ParmaSan*은 *LLVM IR*에 의존, 이론상 IR 없이 binary에 적용 가능
+- 현재 analysis는 compiler sanitizer pass에 의존, 원시 binary의 경우 compiler sanitizer대신 binary hardening을 사용할 수 있음
+- linking time에 수정사항을 추가하는 일부 sanitizer에 대한 문제를 발견
+
+- *ParmeSan*이 발견하는 bug class는 사용된 sanitizer에 의존함. *ASan*같은 일부 sanitizer는 다양한 *bug class*탐지 가능.
+
 # 8. Evaluation
 ## 8.1. ParmeSan vs. directed fuzzers
 ## 8.2. Coverage-guided fuzzers
