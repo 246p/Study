@@ -1,0 +1,41 @@
+[WindRanger: A Directed Greybox Fuzzer driven by Deviation
+Basic Blocks](https://dl.acm.org/doi/pdf/10.1145/3510003.3510197)
+
+# 0. Abstract
+- DGF는 execute trace가 target site와 가까운 seed를 우선시하여 direction을 얻음
+- 따라서 distance를 구하는것이 중요함
+- *AFLGo*는 정적 분석중 BB-level distance를 계산하여 seed 거리를 계산함.
+- 모든 BB가 동일한 중요성을 갇는것이 아니며 execute trace가 target에서 벗어나기 시작하는 특정 BB(deviation BB)들이 있음
+
+- 이 논문에서는 deviation BB를 활용하여 *Wind Ranger* 제안
+- deviation BB를 식별하기 위해 static reachability analysis, dynamic filtering을 사용
+- deviation BB와 관련된 data flow information을 통하여 seed distance 계산, mutation, seed priority 지정, explore-exploit scheduling을 수행
+
+# 1. Introduction
+# 2. Motivating Example
+## 2.1. Limitations of Existing Approaches
+## 2.2. Our observations
+## 2.3. Our Approach
+# 3. Approach of windranger
+## 3.1. Deviation Basic Blocks Identification
+## 3.2. Probing-based Taint Analysis
+## 3.3. Seed Distance Calculation
+## 3.4. Data Flow Sensitive Mutation
+## 3.5. Seed Prioritization
+## 3.6. Dynamic Switch between Explore and Exploit Stage
+# 4. Implementation and Evalutation
+## 4.1. Evaluation Setup
+
+## 4.2. Target Site Reaching Capability (RQ1)
+## 4.3. Bug Reproducing Capability (RQ2)
+## 4.4. Impact of Different Components (RQ3)
+## 4.5. New Vulnerability (RQ4)
+
+# 5. Threats to Validity
+
+# 6. Related Work
+## 6.1. Directed Symbolic Execution
+## 6.2. Directed Grey-box Fuzzing
+## 6.3. Coverage-guided Grey-box fuzzing
+
+# 7. Conclusion
