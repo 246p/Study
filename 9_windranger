@@ -86,7 +86,7 @@ DBB만의 평균으로 거리를 계산한다면 시드들을 1,2,1의 거리를
 - *WindRanger*는 정적 분석을 통해 DBB의 가능성이 있는 후보를 식별하고 distance를 계산
 - CGF와 같이 Graybox exploration을 위한 edge coverage를 수집
 
-fuzzing 과정에서 seed input을 선택하기 전에 exploration or exploitation에서 실행할지 결정 - local minimum에 빠지지 않도록 동적으로 결정됨 (exploration 에서는 일반 CGF 처럼, explotation 에서는 distance가 짧은 seed에 우선 순위)
+fuzzing 과정에서 seed input을 선택하기 전에 exploration or exploitation에서 실행할지 결정 - local optima에 빠지지 않도록 동적으로 결정됨 (exploration 에서는 일반 CGF 처럼, explotation 에서는 distance가 짧은 seed에 우선 순위)
 
 queue에 seed가 선택되고 power schedule이 할당 된 후 data flow analysis 결과와 함께 mutation 수행
 
@@ -192,21 +192,124 @@ exploration stage의 경우 모든 constrait와 관련된 byte를 high priority 
 
 또한 constraint 와 관련된 input byte에 대해 이 byte가 연속적인 경우 변수와 관련된 byte가 동일한 값을 공유하는지 확인한다. 만약 동일하다면  input byte가 데이터 변환을 거치지 않았을 가능성이 높기 때문에 mutation을 적용하기 전에 관련 input byte를 cconstraint comparison operand로 교체해보려고 시도한다.
 ## 3.5. Seed Prioritization
+data flow sensitive mutation과 동일하게 seed prioritization은 exploration과 explotitation stage에서 다르게 작동한다.
 
+### 3.5.1. explotitation stage
+- 2-level priority queue를 유지한다. 
+- DBB를 cover할 수 있는 seed 목록을 찾는다. seed distance에 따라  오름차순으로 정렬한다.
+- 각 목록에서 첫번째 seed를 선택하여 더 높은 priority를 갖는 queue에 넣고 나머지 seed는 다른 큐에 넣는다.
+
+mutation을 위한 다음 seed를 선택할때 더 높은 priority queue에서 선택할 가능성이 더 높다.  
+### 3.5.2. exploration stage
+일반 CGF와 동일하게 작동하여 더 높은 code coverage를 달성하는 seed를 우선시한다.
+
+이외는 *AFLGo*에서 사용되는 simultated annealing algorithm을 사용한다. seed distance만 다르다.
 ## 3.6. Dynamic Switch between Explore and Exploit Stage
+- DGF는 local optima에 갇히지 않기 위하여 충분한 coverage exploration이 필요
+- 예를 들어 *AFLGo*에서는 user-defined time budget을 사용한다. 하지만 user가 프로그램에 적함한 time budget을 찾기 위해선 기반 지식이 필요이 문제를 해결하기위하여 
+- DBB의 실행 상태에 따라 explore, exploit stage를 동적으로 전환한다.
+- DBB를 global set으로 유지하여 exploit stage 에서 DBB가 충분히 exploite 되었을때 exploration stage로 전환된다.
+- DBB가 충분히 exploite디었는지 확인하기 위하여 DBB가 실행된 횟수를 확인
+
+![expression6]()
+
+![expression7]()
+
+![expression8]()
+
+    hit (x,b) : input x가 BB b를 hit 할 수 있는지 여부
+    numHit(b) : b가 hit된 횟수
+    I : fuzzing으로 생성된 모든 input set
+    T : fuzzing중 *WindRanger*가 도달한 모든 BB set
+    v : constant factor
+
+- exploration -> explotitation : 새로운 DBB를 발견
+- 이 과정은 seed mutation을 마친 후에 새로운 seed를 선택하기 전에 발생
 # 4. Implementation and Evalutation
+- static analyzer : *LLVM IR*에서 iCFG를 구성하기위하여 *SVF* 사용 
+- dynamic fuzzer : *AFL 2.52b* 기반
+
+RQ1 : target site에 도달하는 능력
+
+RQ2 : target bug를 reproduce 하는 능력
+
+RQ3 : compnent가 성능에 어떤 영향을 미치는가
+
+RQ4 : real-world bug hunting에 도움이 되는가
 ## 4.1. Evaluation Setup
-
+### 4.2.1. Evaluation Datasets
+- *UniBench*의 20개의 프로그램에서 각 4개의 target site를 지정하고 TTT(Time-to-Targets)을 측정함 (RQ1,RQ3)
+- *AFLGo Test Suite*의 n-day vulnerabilities 프로그램 set 사용 (RQ2)
+- *Fuzzer Test Suite* : *Google*의 fuzzer benchmark set 사용 (RQ2)
+### 4.2.2. Evaluated Techniques
+- *WindRanger*
+- *AFLGo* : 대표적인 DGF
+- *AFL* : 대표적인 CGF
+- *FiarFuzz* : CGF 이지만 taint analysis를 사용
+### 4.2.3. Evaluation Criteria
+- TTT : target site에 도달하는 첫 input을 생성하는데 사용된 시간 (알려진 bug 없이 benchmark에서 기술을 평가할때)
+- TTE : bug를 발생하는데 사용된 시간 (알려진 bug가 있는 benchmark에서 기술을 평가)
+### 4.2.4. Experiments Settings
+- *AFLGo Test Suite* : 8시간 20회
+- 나머지 : 24시간 10회
+- Mann-Whitney U test를 사용하여 통계적 유의성 측정
+- Vargha-Delaney static를 사용하여 더 나은 성능을 보일 확률을 측정
 ## 4.2. Target Site Reaching Capability (RQ1)
+- DGF의 TTT를 평가하기 위한 표준 dataset은 없음
+- *Google fuzzer test suite*에는 주어진 target site에 3 프로젝트가 있음 하지만 양이 적고 일부 target site는 제공된 seed로 쉽게 도달할 수 있음
+- 풍부하고 유효한 dataset을 얻기 위하여 *UniBench*를 사용함
+  
+![table1]()
+
 ## 4.3. Bug Reproducing Capability (RQ2)
+baseline fuzzer와 *WindRanger*의 TTE를 비교함으로써 bug reproducing 능력을 연구함
+### 4.3.1. AFLGo Test Suite
+![table2]()
+### 4.3.2. Fuzzer Test Suite
+![table3]()
 ## 4.4. Impact of Different Components (RQ3)
+- 각 component를 개별적으로 비활성하여 [#4.2](#42-target-site-reaching-capability-rq1)와 동일한 실험을 진행
+
+![table4]()
+
+data flow sensitive mutation > seed Prioritization > explore-exploite stage switch > distance calculation
 ## 4.5. New Vulnerability (RQ4)
+- *WindRanger*의 prototype을 보안 전문가에게 제공
+- 수동으로 code review를 하여 50개의 target 설정
+- 그중 하나에서 취약점을 발견하여 CVE-ID 할당
 
+해당 지점을 target site로 하여 *AFLGo*와 비교
+
+![figure3]()
 # 5. Threats to Validity
-
+## 5.1. Internal threat
+1. iCFG를 얻기위하여 *SVF*를 사용함 하지만 부정확한 pointer analysis로 인한 iCFG의 오류 가능성 > reachability analysis에 문제
+2. configurable option (ex [EES의 variable](#36-dynamic-switch-between-explore-and-exploit-stage))
+## 5.2. External threat
+실험 설정과 관련하여 실험에서 무작위성을 완화 하기위하여 통계적 검정을 사용함. 다른 구현의 영향을 완화하기위하여 AFL 기반의 basline을 선택함, 또한 TTE 실험에 대한 세밀한 crash triage 필요
 # 6. Related Work
 ## 6.1. Directed Symbolic Execution
+- DSE는 target site에 도달하기위해 SE를 사용하는 기술
+- DSE는 PUT의 원하는 부분을 효율적으로 테스트할 수 있지만 path-explosion으로 인해 실제프로그램에서 효과적이지 않음
+- 우리의 DGF는 가벼운 program analysis만 사용하여 실제프로그램에서 더 효과적임
 ## 6.2. Directed Grey-box Fuzzing
+- *AFLGo* : sedd trace와 target site간 거리를 계산하는 방법을 제안, 이 거리를 power scheduling에 사용
+- *HawkEye* : trace agumented power schedule, seed prioritization, adaptive mutation
+- FuzzGuard : DGF에 제공하기 전에 target site에 도달할 수 없는 input을 필터링하기위하여 딥러닝 사용
+- *Leopard* : program matric을 사용하여 취약한 코드를 식별하여 이를 target site로 설정
+- *ParmeSan* : sanitizer로 계측된 위치를 target site로 사용
+- *CAFL* : target site, data condition을 사용하여 DGF의 특정 충돌 노출 능력 향상
 ## 6.3. Coverage-guided Grey-box fuzzing
-
+- *AFL* coverage를 feedback으로 사용하는 classic CGF
+- hybrid fuzzing은 CGF와 SE를 결합하여 CGF의 constraint solving능력을 강화
+- *Steelix* : 경랑 정적 분석과 바이너리 계측을 사용하여 magic byte로 보호되는 path를 탐색하는데 도움이 되는 정보를 얻음
+- *Angora* : SE 없이 constraint를 해결하기 위한 gradient descent based input serach를 사용
+- *Greyone* : fuzzing-driven inference를 사용하여 data-flow를 사용하여 fuzzing을 도와줌
+- *FairFuzz* : 드분 branch를 cover하는 input을 생성하는데 영향을 미치는 byte를 식별, 이외에도 seed scheduling process 개선, branch pentrating, detecting specific type of bug등을 사용함
+  
+*WindRanger*는 CGF에서 사용되는 일부 기술 (constraint solving technique) 등을 사용할 수 있음
 # 7. Conclusion
+- DGF의 맥락에서 DBB의 개념을 제안함.
+- 이를 적용하여 *WindRanger* 제시
+- 최신의 DGF에 비해 TTT (21%), TTE(44%) 향상
+- 0-day vulnerability를 찾는데 도움을 주며 실용적인 유용성을 보여줌
