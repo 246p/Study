@@ -157,9 +157,42 @@ seed `s`와 execution trace `𝜉(𝑠)`에 대해
 4. 값이 변경된 경우 *effector map*을 업데이트 하여 `s`에서 변형된 위치가 `VAR`에 영향을 줄 수 있음을 기록
 
 ## 3.3. Seed Distance Calculation
+![expression3]()
+
+
+    $d_b(m,T_b)$ : target BB와 DBB(m) 사이의 거리
+    Φ(s) : seed s 의 execution trace 내의 DBB
+
+- 정의는 *AFLGo*와 *HawkEye*와 동일하지만 모든 BB가 아닌 DBB를 사용함
+- control flow information만 사용하였기에 정확하지 않음
+- DBB의 distance를 data flow information으로 다음과 같이 조정
+
+![expression4]()
+
+![expression5]()
+
+    Ψ(𝑠,𝑚) : DBB의 constraint를 해결하는 난이도
+    NumOfEffectiveByte(s,m) : s의 *effector map*에 따라 m의 constraint에 영향을 줄 수 있는 input byte의 수
+    𝛾 : granularity를 조절하는 constant ratio
+
+- 많은 input byte가 constraint에 영향을 미칠 수록 fuzzer가 이를 해결하기 힘들다
+
+branch distance 대신 constraint에 영향을 미치는 byte 수를 사용하는 이유는 복잡한 데이터 변환을 거치는 경우 branch를 통과하는 난이도를 반영할 수 없기 때문이다.
+
+실험에서 constraint에 영향을 미치는 byte 수를 사용하면 좋은 결과를 얻을 수 있다는 것을 경험적으로 발견하였다. [#4](#4-implementation-and-evalutation)
 
 ## 3.4. Data Flow Sensitive Mutation
+*Effector map*에서 제공하는 정보를 바탕으로 data flow sensetive mutation을 사용한다.
+
+seed와 *effector map*이 주어진 경우 exploration or exploitation stage 인지 확인한다.
+
+만약 exploitation stage의 경우 DBB의 constraint와 관련된 input byte를 high priority byte로 생각한다.
+
+exploration stage의 경우 모든 constrait와 관련된 byte를 high priority byte로 식별한다.
+
+또한 constraint 와 관련된 input byte에 대해 이 byte가 연속적인 경우 변수와 관련된 byte가 동일한 값을 공유하는지 확인한다. 만약 동일하다면  input byte가 데이터 변환을 거치지 않았을 가능성이 높기 때문에 mutation을 적용하기 전에 관련 input byte를 cconstraint comparison operand로 교체해보려고 시도한다.
 ## 3.5. Seed Prioritization
+
 ## 3.6. Dynamic Switch between Explore and Exploit Stage
 # 4. Implementation and Evalutation
 ## 4.1. Evaluation Setup
