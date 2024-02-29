@@ -203,7 +203,7 @@ mutation을 위한 다음 seed를 선택할때 더 높은 priority queue에서 �
 ### 3.5.2. exploration stage
 일반 CGF와 동일하게 작동하여 더 높은 code coverage를 달성하는 seed를 우선시한다.
 
-이외는 *AFLGo*에서 사용되는 simultated annealing algorithm을 사용한다. seed distance만 다르다.
+이외는 *AFLGo*에서 사용되는 simulated annealing algorithm을 사용한다. seed distance만 다르다.
 ## 3.6. Dynamic Switch between Explore and Exploit Stage
 - DGF는 local optima에 갇히지 않기 위하여 충분한 coverage exploration이 필요
 - 예를 들어 *AFLGo*에서는 user-defined time budget을 사용한다. 하지만 user가 프로그램에 적함한 time budget을 찾기 위해선 기반 지식이 필요이 문제를 해결하기위하여 

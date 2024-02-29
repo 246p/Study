@@ -19,6 +19,9 @@
 
 [ParmeSan: Sanitizer-guided Greybox Fuzzing](./8_parmesan.md)
 
+[WindRanger: A Directed Greybox Fuzzer driven by Deviation Basic Blocks](./9_windranger)
+
+[Binary-level Directed Fuzzing for Use-After-Free Vulnerabilities](./10_uafuzz)
 ## Smart contract fuzzing
 [Smartian: Enhancing Smart Contract Fuzzing with Static and Dynamic Data-Flow Analyses](./6_smartian.md)
 ## [Abstrac만 읽은 논문](./0_short.md)
