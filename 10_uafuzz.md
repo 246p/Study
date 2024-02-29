@@ -1,0 +1,1 @@
+[Binary-level Directed Fuzzing for Use-After-Free Vulnerabilities](https://www.usenix.org/system/files/raid20-nguyen.pdf)
