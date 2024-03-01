@@ -125,10 +125,23 @@ int main (int argc , char * argv []) {
 ## 3.2. Coverage-based Graybox Fuzzing
 CGF에서 "AFU"의 input을 생성할 확률은 낮기 때문에 개별 event가 쉽게 트리거 되더라도 UAF event의 순서를 추적하는데 효과적이지 않다.
 ## 3.3. Directed Greybox Fuzzing
+- *ASan*에 의해 주어진 bug trace (14-alloc, 17,6,3-free,19-use)가 주어지면 DGF는 fuzzzer가 원하지 않는 path를 탐색하는것을 방지
+- DGF는 특정한 순서로 위치에 도달하려고 시도하는것이 아닌 target site를 많이 cover하는 seed를 선호
+- target (A,F,U)에 대해 A->F->U와 U->A->F를 구분하지 않음
+- target site를 탐색할때 순서의 부재는 UAF bug 감지를 어렵개 한다.
 
-
+## 3.4. glimpse
+- 우리는 seed selection heuristic을 수정하는데 의존한다.
+- execution trace가 corver하는 target의 수를 늘린다.
+- target ordering-aware seed metric
+- *AFL*에서 "AAAA"와 "AFAA"는 code coverage를 증가시키지 않기때문에 버려짐
+-  하지만 target wsimilarity metric score에 최대값을 가지기 때문에 *UAFuszz*에서 선택됨
+-  *AFAA*-> *AFUA*를 생성함
 
 ## 3.5. Evaluation
+- *AFLGo*는 2시간 내에 버그 탐지 실패
+- *UAFuzz*는 20분만에 탐지 성공
+- *VALGRIND에 보내는 입력 또한 낮음 
 
 # 4. The UAFuzz Approach
 ## 4.1. Bug Trace Flattening
