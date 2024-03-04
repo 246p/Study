@@ -144,7 +144,24 @@ CGF에서 "AFU"의 input을 생성할 확률은 낮기 때문에 개별 event가
 - *VALGRIND에 보내는 입력 또한 낮음 
 
 # 4. The UAFuzz Approach
+![figure2]()
+
+- UAF를 발생하는 control-flow (시간적) runtime(공간적)조건을 모두 충족하는 입력을 찾기
+- UAF 특성을 적용해서 bug trace에 따라 target에 도달하는 잠재적 inputd 
+1. seed metric
+- distance metric : target까지 거리를 근사, 3가지 event를 순서대로 cover할 수 있는지 확인
+- cut-edge metric : 중요한 node에서 올바른 결정을 내리는지 확인
+- target similarity mmetric : execution trace가 runtime에 cover하는 target의 수
+2. seed selection strategy
+- runtime에 많은 target을 cover
+- matric score 기반 power scheduler 
+
+3. profiling tool
+- matric을 이용한 버그 확인을 위하여 *VALGRIND*를 이용하여 가능성이 높은 PoC input을 사전에 식별하여 불필요한 검사 줄임
+
+
 ## 4.1. Bug Trace Flattening
+- G
 ## 4.2. Seed Selection based on Target Similarity
 ### 4.2.1. Seed Selection
 ### 4.2.2. Target Similarity Metrics
