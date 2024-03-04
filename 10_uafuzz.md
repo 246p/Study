@@ -174,6 +174,9 @@ CGF에서 "AFU"의 input을 생성할 확률은 낮기 때문에 개별 event가
 1. DF가 target bug trace cover하는 bug를 찾기 위하여 target bug trace와 유사한 seed 우선
 2. target similarity 는 ordering을 고려해야 한다.
 ### 4.2.1. Seed Selection
+
+> Defenition 1 : max reaching input
+
 ![algorithm 2]()
 
 - max-reaching input : `target bug trace T`와 가장 유사한 input
@@ -196,7 +199,7 @@ CGF에서 "AFU"의 input을 생성할 확률은 낮기 때문에 개별 event가
 
 이를 모두 적용하기 위하여 사전순으로 다음과 같이 결합함
 
-$t_{P-3TP-B}(s,T) := <t_P(s,T),t_{3TP}(s,T),t_B(s,T)> $
+$t_{P-3TP-B}(s,T) := <t_P(s,T),t_{3TP}(s,T),t_B(s,T)>$
 
 우선순위
 
@@ -206,10 +209,79 @@ $t_{P-3TP-B}(s,T) := <t_P(s,T),t_{3TP}(s,T),t_B(s,T)> $
 
 우리는 기본적으로 P-3TP-B를 사용
 ## 4.3. UAF-based Distance
+- seed distance는 DGF에서 중요
+- 기존의 seed distance는 단일 위치에 대해서 계산
+- UAF는 순서를 고려해야함
+- 우리는 순서를 고려하는 seed distace matric을 제안
 ### 4.3.1. Zoom: Background on Seed Distance
+- AFLGo : seed distance d(s,T)는 execution trace의 각 BB에 대한 기본 블록 거리의 산술 평균으로 정의됨
+- HawkEye : CG에서 function간 거리를 계산, caller,callee 관계의 가중치를 두어 edge를 결정
 ### 4.3.2. Our UAF-based Seed Distance
+- target site의 순서를 고려함
+- alloc,free,use 순서를 거치는 path를 선호
+- light-weight static analysis를 사용하여 event 사이에 가능성있는 CG네의 edge에 가중치를 감소시킴
+
+> 방법
+
+1. $R_{alloc}, R_{free}, R_{use}$를 계산함 : $f_a, f_b$ 사이의 call edge의 방향을 나타냄
+2. 각 방향에 대해 edge를 통해 거쳐갈 수 있는 이벤트의 수를 계산
+3. double free를 감지하기 위하여 두 free event를 도달하는 call edge도 함께 계산
+4. edge가 cover하는 event 수에 기반하여 call edge의 가중치를 감소시킴
+5. *Hawkeye*와 유사하게 edge 가중치를 수정함
+ 
+![expression1,2]()
+
+![figure5]()
+
+
+- *AFLGo*와 유사하게 target에 도달하는 가장 짧은 경로를 선호함
 ## 4.4. Power Schedule
+- *AFLGo*는 simultated annealing을 사용하여 target에 가까운 seed에 더 많은 energy 할당
+- *HawkEye*는 trace distance와 function-level similarity를 기반으로 할당
+
+우리의 새로운 power schedule은 다음과 같은 직관을 사용함
+- seed가 더 가까운 경우
+- seed가 target과 더 유사한 경우
+- target이 중요한 code junction에서 더 나은 결정을 내리는 경우
 ### 4.4.1. Cut-edge Coverage Metric
+- 세밀한 접근 방식 : target bug trace와 seed execution trace를 BB-level에서 비교 : 높은 runtime overhead 발생
+- 거친 방식 : function-level similarity 측정 > 하지만 target function에 도달한다 하더라도 해당 BB에 도달하진 않음
+- cut-edge coverage metric : 두 방식의 중간 지점에서 critical decision node에서만 edge level 측정
+
+> Definition 2 : cut edge
+
+두 BB (source, sink) 사이의 cut edge는 decision node에서 나가는 edge이다.
+
+![algorithm3]()
+
+- binary program과 예상 UAF bug trace가 주어졌을때 UAFUZZ에서 cut/non-cut edge를 식별하는 방법
+- Flatting된 bug trace의 모든  consencutive node 사이의 cut edge를 식별하고 축적
+- 해당 함수 진입 시점부터 call event까지 cut edge를 계산함
+- flatting 때문에 동일한 함수 내의 다른 점 사이의 cut edge를 계산해야함
+
+
+![algorithm4]()
+
+- 단일 함수 내에서 cut edge를 계산하는 방법
+- source-sink BB 사이의 conditional jump인 critical node를 수집 (data-flow analysis 사용)
+- critical node의 outgoing edge에 대해 sink BB에 도달할 수 있는지 확인
+- intra-procedual 이기에 inter-procedual CFG 불필요
+
+더 많은 cut edge를 실행하는 입력이 target의 더 많은 위치를 커버할 가능성이 높다는 것
+
+$E_cut(T)$ : UAF bug trace T가 주어진 프로그램의 모든 cut edge set 
+
+s의 cut edge score $e_s(s,T)$를 다음과 같이 정의
+
+![expression 3]()
+
+- hit(e) : edge e가 실행되는 횟수
+- δ : non-cut edge를 cover하는 것에 대한 페널티 가중치
+- loop에 의한 path explosion을 방지하기 위하여 buketized를 사용함
+
+
+
+
 ### 4.4.2. Energy Assignment
 
 ## 4.5. Postprocess and Bug Triage
