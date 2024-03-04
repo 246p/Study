@@ -161,11 +161,50 @@ CGF에서 "AFU"의 input을 생성할 확률은 낮기 때문에 개별 event가
 
 
 ## 4.1. Bug Trace Flattening
-- G
+- bug traces는 복잡하여 light-weight intrumentation에 적합하지 않음
+- bug trace flattening : 통과한 BB의 sequence 추출
+  
+
+![figure3]()
+
+1. 3개의 stak trace를 각 call tree의 path로 보고 stack trace를 병합하여 해당 tree를 재생성함, 여러 child를 가진 node는 UAF event 순서에 따라서 정렬함
+2. preorder traversal을 이용하여 target site에 대한 sequence를 얻음
 ## 4.2. Seed Selection based on Target Similarity
+우리의 seed selection은 다음 두가지에 기반함
+1. DF가 target bug trace cover하는 bug를 찾기 위하여 target bug trace와 유사한 seed 우선
+2. target similarity 는 ordering을 고려해야 한다.
 ### 4.2.1. Seed Selection
+![algorithm 2]()
+
+- max-reaching input : `target bug trace T`와 가장 유사한 input
+- 유사도는 `target similarity metric t(s,T)`에 의해 결정
+- max-reaching input을 선택하고 mutation 해야 하지만 작은 확률 α(1%, AFL과 동일)로 code coverage를 위한 seed를 선택함
 ### 4.2.2. Target Similarity Metrics
+![figure4]()
+- t(s,T) : seed s의 execution trace와 UAF bug trace T간의 유사성 측정
+- bug trace의 cover된 target 순서 고려 : P, 아니면 B
+- 3가지 UAF event를 고려 : 3T
+- target prefix $t_P(s,T)$ : s가 순차적으로 T에 있는 site cover
+- UAF prefix $t_{3TP}(s,T)$ : s가 순차적으로 T의 UAF event cover
+- target bag $t_B(s,T)$ : s가 T에 있는 site cover
+- UAF bag $t_{3TB}(s,T)$ : s가 T의 UAF event cover
 ### 4.2.3. Combining Target Similarity Metrics
+- 정밀한 metric P를 사용하는 것은 target으로의 direction을 잘 평가해줌
+- P의 target bug trace와 일치하는 seed를 구별 할 수 있지만 다른 metricdms qnfrk
+- 덜 정밀한 metric은 정밀한 metric이 제공하지 않는 정보를 제공한다.
+- P는 figure 2의 UUU와 UFU를 측정하진 않지만 B는 측정한다.
+
+이를 모두 적용하기 위하여 사전순으로 다음과 같이 결합함
+
+$t_{P-3TP-B}(s,T) := <t_P(s,T),t_{3TP}(s,T),t_B(s,T)> $
+
+우선순위
+
+1. prefix에서 많은 위치를 cover하는 seed를 우선시 함
+2. 순차적으로 많은 UAF event에 도달
+3. target에 가장 많이 도달하는 seed
+
+우리는 기본적으로 P-3TP-B를 사용
 ## 4.3. UAF-based Distance
 ### 4.3.1. Zoom: Background on Seed Distance
 ### 4.3.2. Our UAF-based Seed Distance
