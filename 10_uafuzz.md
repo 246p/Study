@@ -279,10 +279,13 @@ s의 cut edge score $e_s(s,T)$를 다음과 같이 정의
 - δ : non-cut edge를 cover하는 것에 대한 페널티 가중치
 - loop에 의한 path explosion을 방지하기 위하여 buketized를 사용함
 
-
-
-
 ### 4.4.2. Energy Assignment
+
+
+
+ 
+
+
 
 ## 4.5. Postprocess and Bug Triage
 
