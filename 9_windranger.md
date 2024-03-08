@@ -318,7 +318,7 @@ data flow sensitive mutation > seed Prioritization > explore-exploite stage swit
 
 # 8. study
 
-## 8.1. DBB가 여러개 
+## 8.1. DBB가 여러개가 가능한 이유
 
 ## 8.2. effector map 에서 branch를 선정하는 기준
 
