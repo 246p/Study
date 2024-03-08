@@ -326,4 +326,13 @@ data flow sensitive mutation > seed Prioritization > explore-exploite stage swit
 ## 8.4. Simulated Annealing 
 ## 8.5. seed priorization
 ## 8.6. fuzzer test set 선정 기준
+### UniBench RQ1, RQ3
+- 20 real world program, (6 categories) 
+- 4 target site per program
+- table 1는 해당 실험중 일부 [Link](https://sites.google.com/view/windranger-directed-fuzzing/time-to-target-results?authuser=0)
+- 
+### AFLGo RQ2
+- Test suite
 
+### Google Fuzzer Test Suite RQ2
+- 
