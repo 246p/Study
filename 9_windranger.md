@@ -320,6 +320,7 @@ data flow sensitive mutation > seed Prioritization > explore-exploite stage swit
 
 /windranger/instrument/src/cbi.cpp 확인하기 (instrumentation 도입하는 프로그램)
 ## 8.1. DBB가 여러개가 가능한 이유
+구현에서 DBB = critical BB
 
 ## 8.2. effector map 에서 branch를 선정하는 기준
 afl-fuzz.c:fuzz_one의 eff_map 변수
@@ -556,3 +557,52 @@ outfile << getDebugInfo(bb) << std::endl;
 23 4100 1 { ln: 99  cl: 14  fl: test.c } // main (8)
 24 4000 0 { ln: 100  cl: 3  fl: test.c }
 ```
+
+
+
+critical_ids = dbb
+10149
+
+```c 
+void readDistanceAndTargets() {
+  FILE* distance_file = fopen("distance.txt","r");
+  FILE* targets_file = fopen("targets.txt","r");
+  char buf[1024];
+
+  if (distance_file==NULL)
+    FATAL("distance.txt not exist");
+
+  u32 count = 0;
+  critical_ids = ck_alloc(sizeof(u32)*100);
+  while(fgets(buf, sizeof(buf), distance_file) != NULL) {
+    char* token;
+    token = strtok(buf, " ");
+    int idx = atoi(token);
+    token = strtok(NULL, " ");
+    int dis = atoi(token);
+    distance_val[idx] = dis;
+    token = strtok(NULL," ");
+    if (strcmp(token,"1") == 0) {
+      count++;
+      if (count % 100 == 0)
+        critical_ids = ck_realloc(critical_ids,sizeof(u32)*(count+100));
+      critical_ids[count] = idx;
+    }
+  }
+
+  critical_ids[0] = count;
+
+  //critical_count = ck_alloc(sizeof(u32)*count);
+
+  if (targets_file==NULL)
+    FATAL("targets.txt not exist");
+
+  while(fgets(buf, sizeof(buf), targets_file) != NULL) {
+    targets_num++;
+  }
+
+  fclose(distance_file);
+  fclose(targets_file);
+}
+```
+
