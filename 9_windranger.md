@@ -322,10 +322,41 @@ data flow sensitive mutation > seed Prioritization > explore-exploite stage swit
 ## 8.1. DBB가 여러개가 가능한 이유
 
 ## 8.2. effector map 에서 branch를 선정하는 기준
+afl-fuzz.c:fuzz_one의 eff_map 변수
 
+eff
+
+7346 : 각 byte를 뒤집고 실행 경로의 check sum 확인하여 eff_map을 update
+
+``` c
+if (!eff_map[EFF_APOS(stage_cur)]) {
+    u32 cksum;
+    /* If in dumb mode or if the file is very short, just flag everything
+        without wasting time on checksums. */
+    if (!dumb_mode && len >= EFF_MIN_LEN)
+        cksum = hash32(trace_bits, MAP_SIZE, HASH_CONST);
+    else
+        cksum = ~queue_cur->exec_cksum;
+
+    if (cksum != queue_cur->exec_cksum) {
+        eff_map[EFF_APOS(stage_cur)] = 1;
+        eff_cnt++;
+    }
+}
+```
+
+7408 : mutation하기 전에 해당 byte가 효과적인지 확인함
+
+``` c
+if (!eff_map[EFF_APOS(i)] && !eff_map[EFF_APOS(i + 1)]) {
+    stage_max--;
+    continue;
+}
+```
 ## 8.3. ExtractConstraintVar 함수
+
 ## 8.4. Simulated Annealing 
-afl-fuzz:6217~
+afl-fuzz.c:fuzz_one:6217
 
 ## 8.5. seed priorization
 
