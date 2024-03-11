@@ -324,7 +324,10 @@ data flow sensitive mutation > seed Prioritization > explore-exploite stage swit
 
 ## 8.3. ExtractConstraintVar 함수
 ## 8.4. Simulated Annealing 
+afl-fuzz:6217~
+
 ## 8.5. seed priorization
+
 ## 8.6. fuzzer test set 선정 기준
 ### UniBench RQ1, RQ3
 - 20 real world program, (6 categories) 
@@ -336,3 +339,188 @@ data flow sensitive mutation > seed Prioritization > explore-exploite stage swit
 
 ### Google Fuzzer Test Suite RQ2
 - Table3
+
+
+## 8.7. windranger
+
+`test.c`
+
+```
+#include <stdio.h>
+#include <stdlib.h>
+char buf[30];
+int isUpper(char a);
+int isLower(char a);
+int isDigit(char a);
+void fun0(void);
+void fun1(void);
+void fun2(void);
+void fun3(void);
+void fun4(void);
+void fun5(void);
+void fun6(void);
+void fun7(void);
+void fun8(void);
+void fun9(void);
+void target(void);
+void fun0(void)
+{
+	printf("fun0\n");
+	return;
+}
+void fun1(void) // 0
+{
+	printf("fun1\n");
+	if (isLower(buf[1]))
+		fun3();
+}
+void fun2(void) // 5
+{
+	printf("fun2\n");
+	if (isUpper(buf[1]))
+		fun4();
+}
+void fun3(void) // 1
+{
+	printf("fun3\n");
+	if (isUpper(buf[2]))
+		fun7();
+}
+void fun4(void) // 6
+{
+	printf("fun4\n");
+	if (isLower(buf[2]))
+		fun5();
+	if (isUpper(buf[2]))
+		fun6();
+}
+void fun5(void) // 7
+{
+	printf("fun5\n");
+	if (isLower(buf[3]))
+		fun9();
+	if (isUpper(buf[3]))
+		target();
+}
+void fun6(void) //
+{
+	printf("fun6\n");
+	return;
+}
+void fun7(void) // 2
+{
+	printf("fun7\n");
+	if (isUpper(buf[3]))
+		fun8();
+	if (isLower(buf[3]))
+		target();
+}
+void fun8(void) // 3
+{
+	printf("fun8\n");
+	if (isLower(buf[4]))
+		target();
+	if (isUpper(buf[4]))
+		fun0();
+}
+void fun9(void) 
+{
+	printf("fun9\n");
+	return;
+}
+void target(void) // 4
+{
+	printf("reach target!\n");
+	//abort();
+	int *a = NULL;
+	*a = 1;
+	//target();
+}
+
+int main() // 8
+{
+	scanf("%s", buf);
+	printf("main\n");
+	if (isDigit(buf[0])) target();
+	if (isLower(buf[0]))
+		fun1();
+	if (isUpper(buf[0]))
+		fun2();
+	return 0;
+}
+
+int isUpper(char a)
+{
+	if (a >= 'A' && a <= 'Z')
+		return 1;
+	return 0;
+}
+
+int isLower(char a)
+{
+	if (a >= 'a' && a <= 'z')
+		return 1;
+	return 0;
+}
+
+int isDigit(char a)
+{
+	if (a>='0'&&a<='9') return 1;
+	return 0;
+}
+```
+
+`targets.txt`
+
+``` txt
+0 in line: 23 file: test.c
+1 in line: 35 file: test.c
+2 in line: 62 file: test.c
+3 in line: 70 file: test.c
+4 in line: 83 file: test.c
+5 in line: 29 file: test.c
+6 in line: 41 file: test.c
+7 in line: 49 file: test.c
+8 in line: 92 file: test.c
+```
+
+`cbi.cpp:420-425`
+
+``` cpp
+outfile << bb_id << " " << distance << " ";
+if (critical_bbs.count(bb))
+	outfile << 1 << " ";
+else
+	outfile << 0 << " "; 
+outfile << getDebugInfo(bb) << std::endl;
+```
+
+`distance.txt`
+
+``` txt
+0 3100 1 { ln: 25  cl: 2  fl: test.c }  // fun1 (0)
+1 3000 0 { ln: 27  cl: 3  fl: test.c } 
+2 2100 1 { ln: 37  cl: 2  fl: test.c }  // fun3 (1)
+3 2000 0 { ln: 39  cl: 3  fl: test.c }
+4 763 0 { ln: 64  cl: 2  fl: test.c }  
+5 2000 0 { ln: 66  cl: 3  fl: test.c } 
+6 1100 1 { ln: 67  cl: 14  fl: test.c } // fun7 (2)
+7 1000 0 { ln: 68  cl: 3  fl: test.c } 
+8 1100 1 { ln: 72  cl: 2  fl: test.c }  // fun8 (3)
+9 1000 0 { ln: 74  cl: 3  fl: test.c }
+10 0 0 { ln: 87 fl: test.c }            // target (4)
+11 3100 1 { ln: 31  cl: 2  fl: test.c } // fun2 (5)
+12 3000 0 { ln: 33  cl: 3  fl: test.c }
+13 2100 1 { ln: 43  cl: 2  fl: test.c } // fun4 (6)
+14 2000 0 { ln: 45  cl: 3  fl: test.c }
+15 1200 0 { ln: 51  cl: 2  fl: test.c }
+16 1200 0 { ln: 53  cl: 3  fl: test.c }
+17 1100 1 { ln: 54  cl: 14  fl: test.c } // fun5 (7)
+18 1000 0 { ln: 55  cl: 3  fl: test.c }
+19 724 0 { ln: 94  cl: 2  fl: test.c }
+20 1000 0 { ln: 96  cl: 23  fl: test.c }
+21 2074 0 { ln: 97  cl: 14  fl: test.c }
+22 4000 0 { ln: 98  cl: 3  fl: test.c }
+23 4100 1 { ln: 99  cl: 14  fl: test.c } // main (8)
+24 4000 0 { ln: 100  cl: 3  fl: test.c }
+```
