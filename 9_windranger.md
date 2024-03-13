@@ -313,3 +313,7 @@ data flow sensitive mutation > seed Prioritization > explore-exploite stage swit
 - 이를 적용하여 *WindRanger* 제시
 - 최신의 DGF에 비해 TTT (21%), TTE(44%) 향상
 - 0-day vulnerability를 찾는데 도움을 주며 실용적인 유용성을 보여줌
+
+
+# 8. My Study
+[windranger study](./9_windranger_2.md)
