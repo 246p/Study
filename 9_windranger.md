@@ -320,7 +320,9 @@ data flow sensitive mutation > seed Prioritization > explore-exploite stage swit
 
 /windranger/instrument/src/cbi.cpp 확인하기 (instrumentation 도입하는 프로그램)
 ## 8.1. DBB가 여러개가 가능한 이유
-구현에서 DBB = critical BB
+- potential DBB = critical_ids로 기록됨 > target으로 도달할 수 있는 모든 function
+- critical_condition : condition_info.txt에서 기록한 정보 
+x
 
 ## 8.2. effector map 에서 branch를 선정하는 기준
 afl-fuzz.c:fuzz_one의 eff_map 변수
@@ -357,9 +359,39 @@ if (!eff_map[EFF_APOS(i)] && !eff_map[EFF_APOS(i + 1)]) {
 ## 8.3. ExtractConstraintVar 함수
 
 ## 8.4. Simulated Annealing 
-afl-fuzz.c:fuzz_one:6217
+afl-fuzz.c:calculate_score:6248
 
+```c
+double power_factor = 1.0;
+if (!afl_flag) {
+  u8 flag = 1;
+  if (!no_critical_flag && explore_status)
+  flag = 0;
+    
+  if (flag) {
+    if (q->distance > 0) {
+      double normalized_d = 0; // when "max_distance == min_distance", we set the normalized_d to 0 so that we can sufficiently explore those testcases whose distance >= 0.
+      if (max_distance != min_distance)
+        normalized_d = (q->distance - min_distance) / (max_distance - min_distance);
+        if (normalized_d >= 0) {
+          double p = (1.0 - normalized_d) * (1.0 - T) + 0.5 * T;
+          power_factor = pow(2.0, 2.0 * (double) log2(MAX_FACTOR) * (p - 0.5));
+        }// else WARNF ("Normalized distance negative: %f", normalized_d);
+      }
+    }
+  }
+  perf_score *= power_factor;
+
+```
+
+- explore_status = 1 인 경우 (explore stage)에서는 power_factor가 simulated Annealing을 통하여 감소
+- exploite stage의 경우 power_factor가 변경되지 않는다. 
 ## 8.5. seed priorization
+afl-fuzz.c:cb_cull_queue()
+
+
+
+
 
 ## 8.6. fuzzer test set 선정 기준
 ### UniBench RQ1, RQ3
@@ -451,7 +483,7 @@ void fun7(void) // 2
 void fun8(void) // 3
 {
 	printf("fun8\n");
-	if (isLower(buf[4]))
+	if (isLower(buf[4])&&isLower(buf[5]))
 		target();
 	if (isUpper(buf[4]))
 		fun0();
@@ -474,7 +506,7 @@ int main() // 8
 {
 	scanf("%s", buf);
 	printf("main\n");
-	if (isDigit(buf[0])) target();
+	//if (isDigit(buf[0])) target();
 	if (isLower(buf[0]))
 		fun1();
 	if (isUpper(buf[0]))
@@ -531,31 +563,31 @@ outfile << getDebugInfo(bb) << std::endl;
 `distance.txt`
 
 ``` txt
-0 3100 1 { ln: 25  cl: 2  fl: test.c }  // fun1 (0)
-1 3000 0 { ln: 27  cl: 3  fl: test.c } 
-2 2100 1 { ln: 37  cl: 2  fl: test.c }  // fun3 (1)
-3 2000 0 { ln: 39  cl: 3  fl: test.c }
-4 763 0 { ln: 64  cl: 2  fl: test.c }  
-5 2000 0 { ln: 66  cl: 3  fl: test.c } 
-6 1100 1 { ln: 67  cl: 14  fl: test.c } // fun7 (2)
-7 1000 0 { ln: 68  cl: 3  fl: test.c } 
-8 1100 1 { ln: 72  cl: 2  fl: test.c }  // fun8 (3)
-9 1000 0 { ln: 74  cl: 3  fl: test.c }
-10 0 0 { ln: 87 fl: test.c }            // target (4)
-11 3100 1 { ln: 31  cl: 2  fl: test.c } // fun2 (5)
-12 3000 0 { ln: 33  cl: 3  fl: test.c }
-13 2100 1 { ln: 43  cl: 2  fl: test.c } // fun4 (6)
-14 2000 0 { ln: 45  cl: 3  fl: test.c }
-15 1200 0 { ln: 51  cl: 2  fl: test.c }
-16 1200 0 { ln: 53  cl: 3  fl: test.c }
-17 1100 1 { ln: 54  cl: 14  fl: test.c } // fun5 (7)
-18 1000 0 { ln: 55  cl: 3  fl: test.c }
-19 724 0 { ln: 94  cl: 2  fl: test.c }
-20 1000 0 { ln: 96  cl: 23  fl: test.c }
-21 2074 0 { ln: 97  cl: 14  fl: test.c }
-22 4000 0 { ln: 98  cl: 3  fl: test.c }
-23 4100 1 { ln: 99  cl: 14  fl: test.c } // main (8)
-24 4000 0 { ln: 100  cl: 3  fl: test.c }
+0 3100 1 { ln: 26  cl: 2  fl: test.c }    // fun1 (0)
+1 3000 0 { ln: 28  cl: 3  fl: test.c }
+2 2100 1 { ln: 38  cl: 2  fl: test.c }    // fun3 (1)
+3 2000 0 { ln: 40  cl: 3  fl: test.c }
+4 763 0 { ln: 65  cl: 2  fl: test.c }
+5 2000 0 { ln: 67  cl: 3  fl: test.c }
+6 1100 1 { ln: 68  cl: 14  fl: test.c }   // fun7 (2)
+7 1000 0 { ln: 69  cl: 3  fl: test.c }
+8 1100 1 { ln: 73  cl: 2  fl: test.c }    // fun8 (3)
+9 1000 0 { ln: 75  cl: 3  fl: test.c }
+10 0 0 { ln: 88 fl: test.c }              // target (4)
+11 3100 1 { ln: 32  cl: 2  fl: test.c }   // fun2 (5)
+12 3000 0 { ln: 34  cl: 3  fl: test.c }
+13 2100 1 { ln: 44  cl: 2  fl: test.c }   // fun4 (6)
+14 2000 0 { ln: 46  cl: 3  fl: test.c }
+15 1200 0 { ln: 52  cl: 2  fl: test.c }
+16 1200 0 { ln: 54  cl: 3  fl: test.c }
+17 1100 1 { ln: 55  cl: 14  fl: test.c }  // fun5 (7)
+18 1000 0 { ln: 56  cl: 3  fl: test.c }
+19 724 0 { ln: 95  cl: 2  fl: test.c }
+20 1000 0 { ln: 97  cl: 23  fl: test.c }
+21 2074 0 { ln: 98  cl: 14  fl: test.c }
+22 4000 0 { ln: 99  cl: 3  fl: test.c }
+23 4100 1 { ln: 100  cl: 14  fl: test.c } // main(8)
+24 4000 0 { ln: 101  cl: 3  fl: test.c }
 ```
 
 
