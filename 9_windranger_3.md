@@ -5,25 +5,6 @@
 # 2. simulated annealing
 `windranger-fuzz:6248 == aflgo-fuzz:4953`
 
-# 3. calculated_cb_distance
-critical_bits[i] == 1 or 2 가 의미
-
-1 : pDBB의미
-2 : solved DBB의 의미
-
-`wnidranger-fuzz:setup_shm:1830` 에서 critical_bits에 대한 shared meemory 하당
-
-``` c
-s32 shm_id2 = shmget(IPC_PRIVATE, MAP_SIZE, IPC_CREAT | IPC_EXCL | 0600);
-if (shm_id2 < 0) PFATAL("shmget() failed");
-
-...
-
-critical_bits = shmat(shm_id2, NULL, 0);
-if (!critical_bits) PFATAL("shmat() failed");
-```
-
-# 4. sniff_mask
 
 
 # 5. intrument
@@ -223,4 +204,275 @@ if (!critical_bits) PFATAL("shmat() failed");
             IRB2.CreateStore(CBOne, CBIdxPtr)->setMetadata(M->getMDKindID("nosanitize"), MDNode::get(*C, None));
         }
     } 
+```
+
+
+> solved BB와 critical BB사이의 차이가 무엇일까
+
+
+> taint_bbs 개념
+
+`cbi.cpp:countCFGDistance`
+``` cpp
+for (BasicBlock* bb : target_bbs) {
+		FIFOWorkList<BasicBlock*> worklist;
+		std::set<BasicBlock*> visited;
+		worklist.push(bb);
+		while (!worklist.empty())
+		{
+			BasicBlock* vbb = worklist.pop();
+            // taint_bbs는 target으로부터의 predecessors
+			tmp_taint_bbs.insert(vbb);
+			for (BasicBlock* srcbb : predecessors(vbb)) {
+				if (visited.find(srcbb) == visited.end() && !isCircleEdge(LoopInfo,srcbb,vbb)) {
+					worklist.push(srcbb);
+					visited.insert(srcbb);
+				}
+			}
+		}
+	}
+
+	taint_bbs[svffun->getLLVMFun()] = tmp_taint_bbs;
+```
+
+> solved vs critical
+
+`cbi.cpp:identifyCriticalBB`
+``` cpp
+for (SVFModule::iterator iter = svfModule->begin(), eiter = svfModule->end(); iter != eiter; ++iter){
+	const SVFFunction* svffun = *iter;
+	for (Function::iterator bit = svffun->getLLVMFun()->begin(), ebit = svffun->getLLVMFun()->end(); bit != ebit; ++bit) {
+		BasicBlock* bb = &*(bit);
+		std::set<BasicBlock*> tmp_critical_bbs;
+		std::set<BasicBlock*> tmp_solved_bbs;
+		if (!bb->getSingleSuccessor() && taint_bbs.count(svffun->getLLVMFun()) && taint_bbs[svffun->getLLVMFun()].count(bb)) {
+			for (BasicBlock* dstbb : successors(bb)) { 
+				if (taint_bbs[svffun->getLLVMFun()].count(dstbb) == 0) {
+					tmp_critical_bbs.insert(dstbb); // bb의 successors(dstbb)가 taint 되지 않았더라면 아니라면
+				}
+				else {
+					tmp_solved_bbs.insert(dstbb); // taint되어 있다면 > solved_bbs 
+				}
+			}
+		}
+		if (!tmp_critical_bbs.empty()) { // 만약 successor가 전부 taint되어 있다면 저장하지 않음
+			critical_bbs[bb] = tmp_critical_bbs;
+			solved_bbs[bb] = tmp_solved_bbs;
+		}
+	}
+}
+```
+
+
+
+
+# 4. calculated_cb_distance
+critical_bits[i] == 1 or 2 가 의미 
+
+1 : critical_bbs
+2 : solved_cbbs
+
+`wnidranger-fuzz:setup_shm:1830` 에서 critical_bits에 대한 shared meemory 하당
+
+``` c
+s32 shm_id2 = shmget(IPC_PRIVATE, MAP_SIZE, IPC_CREAT | IPC_EXCL | 0600);
+if (shm_id2 < 0) PFATAL("shmget() failed");
+
+...
+
+critical_bits = shmat(shm_id2, NULL, 0);
+if (!critical_bits) PFATAL("shmat() failed");
+```
+
+
+
+# 5. sniff_mask
+## 5.1. explore stage
+
+## 5.2. exploite stage
+```c
+
+bool sniff_mask(char** argv, struct queue_entry* q, u8* in_buf, u8** cb_mask_ptr, u8** eff_map_ptr, u32* eff_cnt) {
+  s32 len = q->len;
+  u8* cb_mask;
+  u8* conformance_mask;
+  u8 hit_flag = 0;
+  if (!need_sniff(q)) {
+    if (!explore_status) {
+      cb_mask = alloc_cb_mask(len+1);
+      q->cb_mask = alloc_cb_mask(len+1);
+      *cb_mask_ptr = cb_mask;
+    } else {
+      conformance_mask = alloc_cb_mask(len+1);
+      q->conformance_mask = alloc_cb_mask(len+1);
+      *cb_mask_ptr = conformance_mask;
+    }
+    DEBUG("Skip sniff\n");
+    return false;
+  }
+  DEBUG("Do sniff\n");
+  DEBUG("Sniff length: %d\n",len);
+
+  u32 modify_count = 0;
+  u32 insert_count = 0;
+  u32 delete_count = 0;
+  cb_mask = ck_alloc(len+1);
+  conformance_mask = ck_alloc(len+1);
+  u8* out_buf = ck_alloc_nozero(len); 
+  memcpy(out_buf, in_buf, len);
+
+    /* Effector map setup. These macros calculate:
+
+     EFF_APOS      - position of a particular file offset in the map.
+     EFF_ALEN      - length of a map with a particular number of bytes.
+     EFF_SPAN_ALEN - map span for a sequence of bytes.
+
+   */
+
+  #define EFF_APOS(_p)          ((_p) >> EFF_MAP_SCALE2)
+  #define EFF_REM(_x)           ((_x) & ((1 << EFF_MAP_SCALE2) - 1))
+  #define EFF_ALEN(_l)          (EFF_APOS(_l) + !!EFF_REM(_l))
+  #define EFF_SPAN_ALEN(_p, _l) (EFF_APOS((_p) + (_l) - 1) - EFF_APOS(_p) + 1)
+
+  u8* eff_map;
+  eff_map    = ck_alloc(EFF_ALEN(len));
+  eff_map[0] = 1;
+
+  if (EFF_APOS(len - 1) != 0) {
+    eff_map[EFF_APOS(len - 1)] = 1;
+    (*eff_cnt)++;
+  }
+
+  stage_name = "cbflip8";
+  stage_short = "cbflip8";
+  stage_max   = len;
+
+
+  for (stage_cur = 0; stage_cur < stage_max; stage_cur++) {
+    out_buf[stage_cur] ^= 0xFF;
+
+    if (common_fuzz_stuff(argv, out_buf, len)) break;
+
+    if ((hit_flag = hit_critical(q)) != 0) {
+      modify_count++;
+      if ((hit_flag & 1) == 1)
+        cb_mask[stage_cur] = 1;
+
+      if ((hit_flag & 2) == 2) {
+        conformance_mask[stage_cur] = 1;
+      }
+    }
+
+    if (!eff_map[EFF_APOS(stage_cur)]) {
+
+      u32 cksum;
+
+      /* If in dumb mode or if the file is very short, just flag everything
+         without wasting time on checksums. */
+
+      if (!dumb_mode && len >= EFF_MIN_LEN)
+        cksum = hash32(trace_bits, MAP_SIZE, HASH_CONST);
+      else
+        cksum = ~queue_cur->exec_cksum;
+
+      if (cksum != queue_cur->exec_cksum) {
+        eff_map[EFF_APOS(stage_cur)] = 1;
+        (*eff_cnt)++;
+      }
+    }
+
+    *eff_map_ptr = eff_map;
+    out_buf[stage_cur] ^= 0xFF;
+  }
+
+  stage_name = "cbrem8";
+  stage_short = "cbrem8";
+  u8* tmp_buf = ck_alloc(len+1);
+  for (stage_cur = 1; stage_cur < len; stage_cur++) {
+    stage_cur_byte = stage_cur;
+
+    memcpy(tmp_buf, out_buf, stage_cur);
+    
+    memcpy(tmp_buf + stage_cur, out_buf + 1 + stage_cur, len - stage_cur - 1);
+
+    if (common_fuzz_stuff(argv, tmp_buf, len - 1)) break;
+
+    if ((hit_flag = hit_critical(q)) != 0) {
+      delete_count++;
+      if ((hit_flag & 1) == 1)
+        cb_mask[stage_cur] += 2;
+
+      if ((hit_flag & 2) == 2)
+        conformance_mask[stage_cur] += 2;
+    }
+  }
+
+  stage_name = "rbadd8";
+  stage_short = "rbadd8";
+  for (stage_cur = 0; stage_cur <= len; stage_cur++) {
+    stage_cur_byte = stage_cur;
+
+    memcpy(tmp_buf, out_buf, stage_cur);
+    tmp_buf[stage_cur] = UR(256);
+
+    memcpy(tmp_buf + stage_cur + 1, out_buf + stage_cur, len - stage_cur);
+
+    if (common_fuzz_stuff(argv, tmp_buf, len + 1)) break;
+
+    if ((hit_flag = hit_critical(q)) != 0) {
+      insert_count++;
+      if ((hit_flag & 1) == 1)
+        cb_mask[stage_cur] += 4;
+
+      if ((hit_flag & 2) == 2)
+        conformance_mask[stage_cur] += 4;
+    }
+  }
+
+  u32 i;
+
+  update_distance(q);
+
+  q->cb_mask = ck_alloc(len + 1);
+  memcpy (q->cb_mask, cb_mask, len + 1);
+
+  q->conformance_mask = ck_alloc(len + 1);
+  memcpy (q->conformance_mask, conformance_mask, len + 1);
+
+  ck_free(tmp_buf);
+  ck_free(out_buf);
+
+  DEBUG("%d bytes can be modefied\n",modify_count);
+  DEBUG("%d bytes can be deleted\n",delete_count);
+  DEBUG("%d bytes can be inserted\n",insert_count);
+
+  fprintf(mutation_log,"--------------------------------------\n");
+  for (i = 0; i < q->critical_bbs[0]; i++) {
+    fprintf(mutation_log,"%d ",q->critical_bbs[i+1]);
+  }
+   fprintf(mutation_log,"\n");
+  if (!explore_status) {
+    for (i=0;i<len;i++) {
+      fprintf(mutation_log,"%d ",cb_mask[i]);
+    }
+  }
+  else {
+    for (i=0;i<len;i++) {
+      fprintf(mutation_log,"%d ",conformance_mask[i]);
+    }
+  }
+  fprintf(mutation_log,"\n--------------------------------------\n");
+
+  if (!explore_status) {
+    *cb_mask_ptr = cb_mask;
+    ck_free(conformance_mask);
+  }
+  else {
+    *cb_mask_ptr = conformance_mask;
+    ck_free(cb_mask);
+  }
+
+  return true;
+}
+
 ```
