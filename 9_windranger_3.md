@@ -7,7 +7,7 @@
 
 
 
-# 5. intrument
+# 3. intrument
 
 ``` assembly
 0000000000400f80 <fun2>:
@@ -270,15 +270,3 @@ critical_bits[i] == 1 or 2 가 의미
 
 1 : critical_bbs
 2 : solved_cbbs
-
-`wnidranger-fuzz:setup_shm:1830` 에서 critical_bits에 대한 shared meemory 하당
-
-``` c
-s32 shm_id2 = shmget(IPC_PRIVATE, MAP_SIZE, IPC_CREAT | IPC_EXCL | 0600);
-if (shm_id2 < 0) PFATAL("shmget() failed");
-
-...
-
-critical_bits = shmat(shm_id2, NULL, 0);
-if (!critical_bits) PFATAL("shmat() failed");
-```
