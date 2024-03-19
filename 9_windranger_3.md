@@ -209,7 +209,6 @@
 
 > solved BB와 critical BB사이의 차이가 무엇일까
 
-
 > taint_bbs 개념
 
 `cbi.cpp:countCFGDistance`
@@ -290,6 +289,9 @@ if (!critical_bits) PFATAL("shmat() failed");
 ## 5.1. explore stage
 
 ## 5.2. exploite stage
+
+
+
 ```c
 
 bool sniff_mask(char** argv, struct queue_entry* q, u8* in_buf, u8** cb_mask_ptr, u8** eff_map_ptr, u32* eff_cnt) {
