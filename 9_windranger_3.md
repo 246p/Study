@@ -270,3 +270,5 @@ critical_bits[i] == 1 or 2 가 의미
 
 1 : critical_bbs
 2 : solved_cbbs
+
+왜 solved_cbbs = critical_bbs일까
