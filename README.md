@@ -23,7 +23,7 @@
 
 [Binary-level Directed Fuzzing for Use-After-Free Vulnerabilities](./10_uafuzz.md)
 
-[MC2: Rigorous and Effeicient Directed Greybox Fuzzing](./11_EC2.md)
+[MC2: Rigorous and Effeicient Directed Greybox Fuzzing](./11_MC2.md)
 
 [DAFL: Directed Grey-box Fuzzing Guided by Data Dependency](./12_DAFL.md)
 ## Smart contract fuzzing
