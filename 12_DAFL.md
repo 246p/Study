@@ -99,24 +99,83 @@ z = x + *p;
 ```
 
 - z에 대해 static program slice를 계산 > 단순한 slicing algorithm은 line 1~3 반환 > 실제로는 line 3는 관련 없음
-- thin slicing은 pointer dereference를 무시하여 이를 해결함
+- thin slicing은 pointer dereference를 무시하여 이를 해결함 > [3.1절](#31-selective-coverage-instrumentation)에서 논의한것 처럼 모든 data, control dependency를 수집하는것은 실용적이지 않음
+- control dependency가 thin slice node 근처에서 나타나는 것을 관찰함 > sliced node를 포함하는 함수에 instrument
+- sliced node를 이용하여 Relevance score 계산
+- 우리의 slicing module은 P, t가 주어지면 target point와 관련된 data flow를 포함하는 DUG를 계산
+- CFG (C, →) : C = program point set , → = control flow edge set
+- DUG (C, ↪) : C = program point set , ↪ = data dependency edge set
 
-https://chat.openai.com/c/7f14c5f7-a30e-4411-b6e0-5505cf61ce4c
+다음과 같이 thin slicing strategy를 정의
+
+![formula1](./image/12_formula1.png)
+
+- thin slicing 후에도 pointer가 가리키는 변수를 알고 있어야함 > data depedency를 도출하기 위해 flow-insensitive, context-insensitive pointer analysis가 필요함
+- DUG를 형성 한 이후 t와 관련된 node를 가진 G를 얻기 위하여 pruning 수행 > target node에서 싲가하여 역방향으로 순회하여 sliced graph G = $(C_t, ↪_t )$ 만듬 
+
+![formula2](./image/12_formula2.png)
+
+- sliced graph에서 관련된 모든 ㅎ마수를 수집하여 relevant function을 계산
+
+![formula3](./image/12_formula3.png)
+
+
 ## 4.2. Seed Scheduling
+- semantic relevance score라고 불리는 새로운 feedback mechanism을 도임
+- sliced DUG 내에서 실행된 node와 target node 사이의 proximity 측정
+- CFG 대신 DUG 사용한 이유
+1. sliced DUG는 불필요한 node를 포함하지 않음
+2. CFG에서 loop가 있더라도 DUG는 loop를 가지지 않을 수 있음
+
 
 ### 4.2.1. Semantic Relevance Score
+- SA에서 얻은 sliced DUG G로 정의된 input에 대하여 semantic relevance socre를 계산함
+- G에서 더 많은 node를 실행하거나 target에 더 가까운 node를 실행하는 경우 더 높은 점수를 줌
+- node c의 semantic relevance score = $Score_{G,t}(c)=L-(|c-t|)+1$
+- |c-t| = DUG에서 c, t 간 최단거리, L : DUG G에서 t와 가장 먼 노드 사이의 거리 > 가장먼 노드 = 1, 가장 까까운 노드 = L
+- seed s의 semantic relevance score = $Score_{G,t}(s)=\sum{Score_{G,t}(c)}, c\in C_x$
+- 모든 실행된 node의 relevance socre의 합으로 정의됨
+
 ### 4.2.2. Seed Pool Management
+- seed prioritization에 relevance score를 사용
+
 ### 4.2.3. Energy Assignment
+- seed energy assignment에도 relevance 사용
 
+$E_{DAFL}(s) =$ ${scr_s} \over {scr_{avg}}$ $ * E_{AFL}(s)$
+
+$scr_s$ : semantic relevance socre of s, $scr_{avg}$ : seed pool의 모든 seed의 평균
 ## 4.3. Implementation
-
+- AFL v2.57b 기반
+- slicing 단계에서 AFL LLVM pass에 추가
+- slicing module을 구현하기 위하여 SPARROW 기반으로 구현됨
 # 5. Evaluation
+- RQ1 : bug reproducing term
+- RQ2 : slicing 전략의 효율성
+- RQ3 : selective coverage instrumentation과 semantic relevance scoring이 fuzzing의 성능에 미치는 영향
 ## 5.1. Evaluation Setup
+- AFL, AFLGo, Beacon, WindRanger와 비교
+- Benchmark : Beacon의 취약점, ASAN으로 target 식별 (Beacon은 아님)
+- 평가 기준 : target bug의 input을 찾았는 지 평가 : TTE사용
 ## 5.2. Time-to-Exposure
+- 대체로 성능이 좋음
+- 성능이 안좋은 경우 : slicing이 inetr-flocedural control dependency를 정확히 계산하지 못함 > slicing을 계선할 여지가 있음
 ## 5.3. Impact of Thin Slicing
+- thin slicing vs normal slicing > thin이 2.01배 향상시킴
 ## 5.4. Impact of Selective Coverage Instrumentation & Semantic Relevance Scoring
-
+- selective coverage instrumentation : 1.73
+- semantic relevance scoring : 1.39
+- 둘다 적용 : 1.93
 # 6. Discussion
+## 6.1. Supporting Multiple Targets
+- 이 논문에선 단일 target에 대해서만 적용
+- slicing을 각 target에 대해서 별도로 수행, slice들의 합집합에 있는 함수를 계측하여 단일 binary program 생성 가능
+## 6.2. Supporting Other Languages
+- DAFL은 C에서만 적용되지만 OOP에서 thin slicing의 효과가 입증되어 있음 > OOP로 확장가능
+- C++의 동적 특성은 pointer analysis를 어렵게 만들기에 어려움
 # 7. Threats to Validity
-# 8 .Related Work
+- bug triage logic의 부정확성
+- fuzzer의 성능은 basline, compiler tool chain의 버전등에 의해 달라질 수 있음
+- Beacon과 다른 버전의 AFL, LLVM을 사용함
+
 # 9. Conclusion
