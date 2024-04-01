@@ -159,7 +159,7 @@ $scr_s$ : semantic relevance socre of s, $scr_{avg}$ : seed pool의 모든 seed�
 - 평가 기준 : target bug의 input을 찾았는 지 평가 : TTE사용
 ## 5.2. Time-to-Exposure
 - 대체로 성능이 좋음
-- 성능이 안좋은 경우 : slicing이 inetr-flocedural control dependency를 정확히 계산하지 못함 > slicing을 계선할 여지가 있음
+- 성능이 안좋은 경우 : slicing이 inetr-procedural control dependency를 정확히 계산하지 못함 > slicing을 계선할 여지가 있음
 ## 5.3. Impact of Thin Slicing
 - thin slicing vs normal slicing > thin이 2.01배 향상시킴
 ## 5.4. Impact of Selective Coverage Instrumentation & Semantic Relevance Scoring
