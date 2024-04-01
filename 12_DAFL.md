@@ -177,3 +177,6 @@ $scr_s$ : semantic relevance socre of s, $scr_{avg}$ : seed pool의 모든 seed�
 - bug triage logic의 부정확성
 - fuzzer의 성능은 basline, compiler tool chain의 버전등에 의해 달라질 수 있음
 - Beacon과 다른 버전의 AFL, LLVM을 사용함
+
+# 8. 추가 공부
+[def-use](https://greg4cr.github.io/courses/spring20dit635/Lectures/Spring20-Lecture9-DataFlow.pdf)
