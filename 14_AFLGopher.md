@@ -38,13 +38,30 @@
 - AFLGo 에서 T1 = 1.6 < T2 = 2.43
 - AFLGo에서 p1, p2 거리를 동일하게 계산함 > 실제 실행해서는 2번째 trace가 target에 도달할 확률이 더 높음 > 거리에 가중치를 주어야함
 
-
 # 3. Approach
 ## 3.1. Overview
-
+![figure2](./image/14_figure2.png)
+1. dynamic analysis
+- LLVM IR, MLTA를 기반으로 indirect-call을 포함한 CFG 구성
+- CFG와 CG의 call site를 수집하여 inter-procedural flow graph 생성
+- classification을 수행
+2. tracer
+- fuzzer와 trace를 함께 실행
+3. feasibility prediction
+- LSTM (long short time memory : 딥러닝 기법)에 trace를 입력하여 잠재적 branch statement에 대한 feasibility를 예측함
+- LSTM에 넣을 data가 부족하기 때문에 graph이론에서 pre-dominating node method를 사용
+4. update mechanism
+- 새로운 trace를 모니터링 하며 feasibility prediction이 충분하지 않을때 update함
 ## 3.2. Branch Statement Analysis
+- multiple outgoing branch에 대해서 feasibility를 예측해야함
+- (1) multi outgoing branch 식별 (2) feasibility analysis 수행
 ### 3.2.1. Branch Statement Extraction
+- outgoing edge가 여러개인 statement를 식별 > LLVM IR 기반
+- while, for는 IR에서 if문으로 변함 > indirect call, if, switch에 대해서만 예측
+- `prt=malloc(n*sizeof)
+
 ### 3.2.2. Branch Statement Grouping
+
 ## 3.3. Tracer
 ## 3.4. Feasibility Prediction
 ### 3.4.1. Branch Statement Feasibility Prediction
