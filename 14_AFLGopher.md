@@ -58,10 +58,14 @@
 ### 3.2.1. Branch Statement Extraction
 - outgoing edge가 여러개인 statement를 식별 > LLVM IR 기반
 - while, for는 IR에서 if문으로 변함 > indirect call, if, switch에 대해서만 예측
-- `prt=malloc(n*sizeof)
-
+- `prt=malloc(n*sizeof) if (ptr==NULL){...}` 에서 ptr이 아니라 malloc 부분이 중요함
+- 즉 branch statement 내부요소(ptr)의 source가 outgoing edge의 feasibility에 영향을 줌 > SBA(Source Backward Analysis) 수행
+- 우리는 SBA에서 source를 3가지로 나눔 (global, function reutrn, function argument)
+- LLVM IR에서 static SBA를 수행하여 3가지중 하나에 해당하는 source를 찾을때까지 추적함
+- 이에 맞는 중요 정보 (global : type, value), (func ret : ret type, func, parameter) (func argu : type, arugument name) 저장
 ### 3.2.2. Branch Statement Grouping
-
+- 각 category에서 classification을 수행해야함 > NLP의 word2vec을 사용
+- 
 ## 3.3. Tracer
 ## 3.4. Feasibility Prediction
 ### 3.4.1. Branch Statement Feasibility Prediction
