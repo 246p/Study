@@ -78,9 +78,14 @@
 - trace를 기반으로 function call chain 얻을 수 있음 > 이를 기반으로 callee를 예측하기 위하여 LSTM을 사용
 - function call chain을 문장으로, function call을 단어로 취급함
 ### 3.4.3. Distance Calculation
+- AFLGo와 Hawkeye에서 CG, CFG에 대해서 동일한 가중치를 주었지만 우리는 달라야 한다고 생각
+#### BB level - CFG
+![formula2,3](./image/14_formula2,3.png)
 
-#### BB level
-#### Function level
+
+#### Function level - CG
+
+
 #### Distance table
 ## 3.5. Fuzzer Updating
 #### Weights on CFG
