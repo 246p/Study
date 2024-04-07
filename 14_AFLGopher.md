@@ -1,4 +1,4 @@
-[Guiding Directed Fuzzing with Feasibility](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10190644&tag=1)
+[Guiding Directed Fuzzing with Feasibility](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10190644)
 # 0. Abstract
 - 기존 distance calculation은 feasibility-unware
 - 예로 if문의 두 분기가 같은 feasibility를 가진다고 가정 > DGF의 편향
@@ -82,13 +82,21 @@
 #### BB level - CFG
 ![formula2,3](./image/14_formula2,3.png)
 
-
 #### Function level - CG
+![formualt4,5](./image/14_formula4,5.png)
 
+- direct-call : LLVM IR에서 찾을 수 있음 : function call이 될  확률 계산
+- indirect-call : MLTA를 통해 잠재적 indirec-call 대상을 예측하고 LSTM을 사용하여 feasibility prediction 수행
 
 #### Distance table
+
+- BB level에 static distance를 instrumentation 하는 것이 아닌 memory에 로드될 distance table을 관리하는 방식을 사용함
+- fuzzing target을 다시 compile하지 않고 fuzzing 중 edge distance를 update할 수 있음
 ## 3.5. Fuzzer Updating
+- fuzzer는 edge에 대한 weight를 동적으로 관리
+
 #### Weights on CFG
+
 #### Weights on CG
 ### 3.5.1. Error Monitor
 
