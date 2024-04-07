@@ -64,13 +64,21 @@
 - LLVM IR에서 static SBA를 수행하여 3가지중 하나에 해당하는 source를 찾을때까지 추적함
 - 이에 맞는 중요 정보 (global : type, value), (func ret : ret type, func, parameter) (func argu : type, arugument name) 저장
 ### 3.2.2. Branch Statement Grouping
-- 각 category에서 classification을 수행해야함 > NLP의 word2vec을 사용
-- 
+- 각 category에서 classification을 수행해야함 > NLP 기술들을 이용하여 수행함 (word2vec, DBSCAN clustering)
+- `if(ptr==NULL)` 을 <IF ,FR#, G#> 으로 변환 FR : function return, G : global, # : cluster
+
 ## 3.3. Tracer
+- tracer를 이용하여 branch statement로 도달한 횟수와 각 outgoing branch가 어디로 이동했는지 계산함
+- indirect-call에 대한 예측을 수행하기 위하여 LSTM에 trace를 입력
+
 ## 3.4. Feasibility Prediction
 ### 3.4.1. Branch Statement Feasibility Prediction
+- trace를 기반으로 각 cluster의 확률을 계산 가능
 ### 3.4.2. Indirect-call Target Feasibility Prediction
+- trace를 기반으로 function call chain 얻을 수 있음 > 이를 기반으로 callee를 예측하기 위하여 LSTM을 사용
+- function call chain을 문장으로, function call을 단어로 취급함
 ### 3.4.3. Distance Calculation
+
 #### BB level
 #### Function level
 #### Distance table
