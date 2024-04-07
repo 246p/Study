@@ -1,4 +1,9 @@
+[Guiding Directed Fuzzing with Feasibility](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10190644&tag=1)
 # 0. Abstract
+- 기존 distance calculation은 feasibility-unware
+- 예로 if문의 두 분기가 같은 feasibility를 가진다고 가정 > DGF의 편향
+- fesibility-aware DGF *AFLGopher* 제시
+-
 # 1. Introduction
 # 2. Motivation
 # 3. Approach
