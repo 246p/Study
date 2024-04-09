@@ -26,6 +26,12 @@
 [MC2: Rigorous and Effeicient Directed Greybox Fuzzing](./11_MC2.md)
 
 [DAFL: Directed Grey-box Fuzzing Guided by Data Dependency](./12_DAFL.md)
+
+[SELECTFUZZ: Efficient Directed Fuzzing withSelective Path Exploration](./13_selectfuzz.md)
+
+[Guiding Directed Fuzzing with Feasibility](./14_AFLGopher.md)
+
+
 ## Smart contract fuzzing
 [Smartian: Enhancing Smart Contract Fuzzing with Static and Dynamic Data-Flow Analyses](./6_smartian.md)
 
