@@ -97,7 +97,11 @@
 
 #### Weights on CFG
 
+- fuzzing중 trace를 분석하여 feasability를 업데이트하여 적용함
 #### Weights on CG
+- indirect call feasability (LSTM)
+- 언제 update를 할지 정해야함
 ### 3.5.1. Error Monitor
+- feasability가 충분하지 않을때 update > feasabjility가 정확한지 판단하는 error monitor 도입
 
-# 6. Conclusion
+![algorithm1](./image/14_algorithm1.png)
