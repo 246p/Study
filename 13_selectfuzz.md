@@ -49,6 +49,9 @@ Selective Path Exploration](https://seclab.cse.cuhk.edu.hk/papers/sp23_selectfuz
 # 3. Problem statement
 ## 3.1. Relevant Code
 - relevant code : target에 도달(control flow condition), vulnerability에 사용 (data flow condition) 하는 코드
+- 이는 target에 접근하는지 분석하는 것과 다름 > 유일한 sucessor 라면 실행에 더 가까이 도달하는데 도움이 되지 않음
+
+!
 ## 3.2. Limitations of Existing Approaches
 ## 3.3. Research Goals and Challenges
 # 4. SelectFuzz
