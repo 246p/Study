@@ -1,5 +1,4 @@
-[SELECTFUZZ: Efficient Directed Fuzzing with
-Selective Path Exploration](https://seclab.cse.cuhk.edu.hk/papers/sp23_selectfuzz.pdf)
+[SELECTFUZZ: Efficient Directed Fuzzing with Selective Path Exploration](https://seclab.cse.cuhk.edu.hk/papers/sp23_selectfuzz.pdf)
 
 # 0. Abstract
 - DGF는 새로 발견한 코드가 target과 관련이 있는지 여부와 관련없이 새로운 코드를 발견하는 input을 선호
@@ -186,9 +185,13 @@ $SelcF : d_{bb}(a,T) = 2, d_{bb}(h,T)=2, d_{bb}(h,T)=4$ /// 해설 필요
 - 이러한 false positive를 해결하지 않음
 ## 7.2. Solving Complex Path Constraints
 - 복잡한 path constraint를 해결하기 위해서는 무작위 변영 보다는 SE, TA, structure-aware mutation이 사용되어야함
-
+## 7.3. Identifying Vulnerable Code Paths
+- Table1의 5번과 같은 일부 crash에 대해서 target code외에 추가 vulnerability 정보 (ex crash dump)로 보조해야 한다고 생각함
 # 8. Related Work
-
 ## 8.1. Improving Directed Fuzzing Efficiency
-## 8.2. Targeted Program Analysis
+- 우리의 방법중 relevant code만 intrumentation하여 selective path exploration 은 다른 기존 기술과 통합할 수 있다고 생각한다.
+
 # 9. Conclusion
+- program path를 selective exploration하는 *SELECTFUZZ* 도입 
+- target에 도달하거나 vulnerability를 trigger하는 code를 식별하고 instrumentation
+- 새로운 distance matric 제시
