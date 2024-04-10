@@ -51,9 +51,26 @@ Selective Path Exploration](https://seclab.cse.cuhk.edu.hk/papers/sp23_selectfuz
 - relevant code : target에 도달(control flow condition), vulnerability에 사용 (data flow condition) 하는 코드
 - 이는 target에 접근하는지 분석하는 것과 다름 > 유일한 sucessor 라면 실행에 더 가까이 도달하는데 도움이 되지 않음
 
-!
+![listing1](./image/13_listing1.png)
+
+![figure1](./image/13_figure1.png)
+
+- 14~15 에서 rechability를 결정 할 수 있음
+- control flow condition을 고려하면 항상 line 11에 도달할 수 있기 때문에 2~10 line의 code는 관련이 없음
+- 11~13중 일부 rechable code가 target과 간접적인 control flow dependency를 갖고 있더라도 이곳에 instrumentation 하는 것은 non trivial한 부작용을 제공
+- target reachalbe과 관련 없는 code block을 모두 제외한 다면 line 5와 같이 target에 사용되는 변수의 값을 변경하는 code를 제외하게 됨 > 우리는 line 5와 같이 data dependence한 코드를 relevant code에 포함한다.
+
 ## 3.2. Limitations of Existing Approaches
+- 기존 DGF가 inrelevant code를 탐색하여 효율적이지 않음
+- figure 1 : `a->c->e->h` 가정 > 우리는 f,b 를 실행하는 input을 relevant input으로 간주
+
+> DGF가 inrelevant code를 탐색하여 효율성이 낮아지는 이유
+1. inrelevant input에 대한 변형은 fuzzer가 계속 inrelevant input을 생성할 가능성이 높음
+2. target에 도달하더라도 효율적으로 vulnerability를 trigger하기 어려움 > irrelevant code는 data dependency가 없기 때문
 ## 3.3. Research Goals and Challenges
+- relevant code에 초점을 맞춘 더 나은 path exploreation 전략을 개발하고자함
+> challenge
+1. 
 # 4. SelectFuzz
 ## 4.1. Block Distance
 ## 4.2. Selective Path Exploration
