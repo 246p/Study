@@ -48,7 +48,7 @@ Selective Path Exploration](https://seclab.cse.cuhk.edu.hk/papers/sp23_selectfuz
 
 # 3. Problem statement
 ## 3.1. Relevant Code
-- 직관적으로 relevant code : DGF중 target reach or vulnerability exploiting 하는 코드
+- relevant code : target에 도달(control flow condition), vulnerability에 사용 (data flow condition) 하는 코드
 ## 3.2. Limitations of Existing Approaches
 ## 3.3. Research Goals and Challenges
 # 4. SelectFuzz
