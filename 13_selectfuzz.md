@@ -49,7 +49,7 @@ Selective Path Exploration](https://seclab.cse.cuhk.edu.hk/papers/sp23_selectfuz
 # 3. Problem statement
 ## 3.1. Relevant Code
 - relevant code : target에 도달(control flow condition), vulnerability에 사용 (data flow condition) 하는 코드
-- 이는 target에 접근하는지 분석하는 것과 다름 > 유일한 sucessor 라면 실행에 더 가까이 도달하는데 도움이 되지 않음
+- 이는 target에 접근하는지 분석하는 것과 다름 > 유일한 successor 라면 실행에 더 가까이 도달하는데 도움이 되지 않음
 
 ![listing1](./image/13_listing1.png)
 
@@ -91,11 +91,11 @@ Selective Path Exploration](https://seclab.cse.cuhk.edu.hk/papers/sp23_selectfuz
 
 - BB에 3가지 labeling ( 0 : initial, 1 : distance 계산중, @: distance 계산 완료)
 - cal_prob()에서 reaching probability $P_b$ : b에서 target에 도달할 확률 추정
-- $P_b$ : 모든 sucessor block의 reching probability의 평균으로 계산
+- $P_b$ : 모든 successor block의 reching probability의 평균으로 계산
 - target이 여러개라면 어떤 target에든 도달할 확률로 계산
 - loop, recursion의 경우 unroll 처리하여 한번만 계산
 - cal_dist()에서 $P_b$의 역수를 block distance로 $d_{bb}(b,T)$를 계산
-- cross function block distance를 계산하기 위하여 call site에 callee function을 sucessor로 추가함
+- cross function block distance를 계산하기 위하여 call site에 callee function을 successor로 추가함
 - indirection call의 경우 target function을 추론하여 indirection call site 가능한 모든 callee를 연결함 > 이는 false positive error를 도입할 수 도 있지만 이런 경우 distacne가 매우 커서 선호되지 않을 것이다 /// 이해필요
 
 ### 4.1.2. Input Distance
@@ -131,23 +131,64 @@ $SelcF : d_{bb}(a,T) = 2, d_{bb}(h,T)=2, d_{bb}(h,T)=4$ /// 해설 필요
 - relevent BB 간의 새로운 edge를 cover하거나 기존 edge를 new scale로 증가시키는 input을 선택
 - selectfuzz가 항상 relevant input을 만들 수 있는것은 아님 > 이럴 경우 더 작은 input distnace를 갖는 irrelevant input을 변형함
 
-
 #### 4.2.2.2. Power Scheduling
 - AFLGo의 annealing-based power scheduling을 사용함
-- [4.2.1](#421-relevant-code-identification)에 의하면 irrelevant BB *irbb* 가 
-# 5. Impelementation
-# 6. Evaluation
+- [4.2.1](#421-relevant-code-identification)에 의하면 irrelevant BB *irbb* 
+1. 단일 successor 
+- $d_{bb}(irbb,T)$ = successor의 distance와 같음 > input distance에 영향을 주지 않음
+2. 모든 successor가 target에 도달할 수 있거나 도달할 수 없음
+- $d_{bb}(irbb,T)$ = successor 와 같음 > input distanc에 영향을 주지 않음
 
+> irbb 를 instrumentation 하지 않아도 power scheduling은 의도대로 작동함
+# 5. Impelementation
+## 5.1. Call Graph
+- CG : cross function distance를 계산할때 사용함
+- indirect call에서 target function을 추론하기 위해 pointer analysis 사용
+## 5.2. Inter-procedural Data-flow Analysis
+- target에서 시작하는 inter-rocedural data flow analysis를 사용하여 data dependent code를 식별
+- call site의 callee함수를 분석
+- 중요 변수와 data dependency
+가 있는 argument/parameter를 식별함
+- callee 함수의 data flow relationship을 분석하여 data dependency가 존재하는지 식별
+
+## 5.3. Alias Analysis
+- 우리의 data flow analysis에서 pointer aliasing을 처리하기 위하여 point-to analysisㄹ르 사용함
+- false positive를 갖게 됨 > 이를 개선해야함 
+# 6. Evaluation
+- RQ1 : SELECTFUZZ는 알려진 vulnerability를 trigger 할 수 있나?
+- RQ2 : 각 구성 요소가 성능에 어떤 기여를 하는가
+- RQ3 : 어떤 요소가 효과에 어떤 영향을 미치는가
+- RQ4 : 표준 bnechmark에서 어떤 결과를 갖는가
+- RQ5 : 실제 프로그램에서 새로운 bculnerability를 발견할 수 있는가
 ## 6.1. Triggering Known Vulnerabilities (RQ1)
+![table1](./image/13_table1.png)
+
 ## 6.2. Ablation Study (RQ2)
+![figure4](./image/13_figure4.png)
+
+- distance matric, selective path exploration으로 DGF르 개선하므로 이 효과를 평가하기 위하여 AFLGo의 방식을 적용하여 개선을 비교
 ## 6.3.  Understanding Performance Boost (RQ3)
+### 6.3.1. Instrumentation overhead
+- 다른 DGF에 비하여 더 적은 BB를 instrumentation함
+### 6.3.2. Exploring Relevant code 
+- trigger와 관련 없는 코드의 비율에 크게 영향을 받음 다른 DGF는 전체/도달 : 1.96/12.33
 ## 6.4. Benchmarking (RQ4)
+![table2](./image/13_table2.png)
+
+- 복잡한 branch constraint를 충족시키는 input을 생성하지 못함
 ## 6.5. Detecting New Vulnerabilities (RQ5)
+![table3](./image/13_table3.png)
+
 # 7. Discussion
 ## 7.1. False Positives in Relevant Code Identification
+1. call relation을 과대 추정하고 data flow analysis에서 보수적으로 alias analysis를 하기에 false positive 발생
+2. data dependent code를 식별할때 target에서 사용되는 모든 변수를 중요 변수로 간주한다 > 예를들어 index overflow 취약점 에서는 array, index만 중요함 > false positive 발생 
+- 이러한 false positive를 해결하지 않음
 ## 7.2. Solving Complex Path Constraints
-## 7.3. Identifying Vulnerable Code Paths
+- 복잡한 path constraint를 해결하기 위해서는 무작위 변영 보다는 SE, TA, structure-aware mutation이 사용되어야함
+
 # 8. Related Work
+
 ## 8.1. Improving Directed Fuzzing Efficiency
 ## 8.2. Targeted Program Analysis
 # 9. Conclusion
