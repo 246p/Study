@@ -70,12 +70,29 @@ Selective Path Exploration](https://seclab.cse.cuhk.edu.hk/papers/sp23_selectfuz
 ## 3.3. Research Goals and Challenges
 - relevant code에 초점을 맞춘 더 나은 path exploreation 전략을 개발하고자함
 > challenge
-1. 
+1. relevant code를 정확하게 결정하는 것
+2. inrelevant code를 explore 하지 않는 방법
+- 조기 종료와 같은 방법은 효율적이지 않음
+- 관련 없는 코드를 삭제하는ㄴ 것은 오류를 일으킬 수 있고 유효한 PoC가 아닐 수 있음
+
 # 4. SelectFuzz
+![figure2](./image/13_figure2.png)
+
+- relevant code만 식별하고 탐색함
+- 새로운 distance metric을 활용하여 모든 rechable code를 식별, input prioritization에 사용됨
+- inter procedural control flow, data flow analysis를 통하여 relevant code를 식별하고 선택적으로 instrumentation을 하여 code coverage feedback 제공
 ## 4.1. Block Distance
+- BB에서 target까지 multi path reching "probability"를 개발함 > input distance는 input이 explore path에 있는 모든 relevant BB의 inter-procedural bb distance 에서 계산됨
+> 장점
+1. 모든 가능한 path를 고려하여 BB에서 target에 도달할 확률을 평가 가능
+2. inter procedural analysis, call target analysis를 통하여 cross-fuction distance 측정
+### 4.1.1. Block Distance
+### 4.1.2. Input Distance
+### 4.1.3. Example
+
 ## 4.2. Selective Path Exploration
 ### 4.2.1. Relevant Code Identification
-### 4.2.2.  Input Prioritization and Power Scheduling
+### 4.2.2. Input Prioritization and Power Scheduling
 
 # 5. Impelementation
 # 6. Evaluation
