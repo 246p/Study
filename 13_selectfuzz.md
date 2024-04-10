@@ -101,10 +101,10 @@
 - distance matric에서 input distance는 cover된 모든 BB의 최단 block distance (다른 것은 평균을 사용함)
 - 최단 거리가 상황을 잘 반영하는지 보여줄 수 있다.
 ### 4.1.3. Example
-![listing2](./image/13_listing2.png)'
+![listing2](./image/13_listing2.png)
 ![figure3](./image/13_figure3.png)
 
-$SelcF : d_{bb}(a,T) = 2, d_{bb}(h,T)=2, d_{bb}(h,T)=4$ /// 해설 필요
+$SelcF : d_{bb}(a,T) = 2, d_{bb}(h,T)=2, d_{bb}(h,T)=4$
 
 ## 4.2. Selective Path Exploration
 - relevant code를 선택적으로 instrumentation 하고 explore함
@@ -117,7 +117,7 @@ $SelcF : d_{bb}(a,T) = 2, d_{bb}(h,T)=2, d_{bb}(h,T)=4$ /// 해설 필요
 - line 14, 15의 path divergent code는 line 13에서 생략된 code block의 data에 의존적일 수 있음
 - 하지만 이를 무시함으로 더 작은 explore space를 갖을 수 있다. 그리고 line 13 에서 y,z값을 변경 하는것은 fuzzer에 의해 방문될 것이다. > WindRanger와 비슷함
 
-> data dependency code : target에서 사용되는 중요 변수에 영향을 미치는 code
+> data dependent code : target에서 사용되는 중요 변수에 영향을 미치는 code
 - target에 도달하는데 도움이 되지 않지만 exploitation 단계에서 도움이 될 수 있음
 
 ![figure1](./image/13_figure1.png)
@@ -144,10 +144,9 @@ $SelcF : d_{bb}(a,T) = 2, d_{bb}(h,T)=2, d_{bb}(h,T)=4$ /// 해설 필요
 - CG : cross function distance를 계산할때 사용함
 - indirect call에서 target function을 추론하기 위해 pointer analysis 사용
 ## 5.2. Inter-procedural Data-flow Analysis
-- target에서 시작하는 inter-rocedural data flow analysis를 사용하여 data dependent code를 식별
+- target에서 시작하는 inter-procedural data flow analysis를 사용하여 data dependent code를 식별
 - call site의 callee함수를 분석
-- 중요 변수와 data dependency
-가 있는 argument/parameter를 식별함
+- 중요 변수와 data dependency가 있는 argument/parameter를 식별함
 - callee 함수의 data flow relationship을 분석하여 data dependency가 존재하는지 식별
 
 ## 5.3. Alias Analysis
