@@ -29,15 +29,26 @@ Selective Path Exploration](https://seclab.cse.cuhk.edu.hk/papers/sp23_selectfuz
 - selective path explore를 적용한 DGF *SELECTFUZZ* 제시 > 기존 접근법 보완 가능
 - 14개의 새로운 취약점 탐지
 # 2. Background
+> DGF를 개선하는 두가지 방법
+1. SE, TA를 이용항 고품질 input 생성
 
-## 2.1. Directed Greybox Fuzzingㄴ
-
-## 2.2. Improving Directed Fuzzing Efficiency
-### 2.2.1. Distance-based Input Prioritization
-### 2.2.2. Input Reachability Analysis
+2. fuzzer가 흥미로운 input을 식별 (이 논문의 중점)
+- 흥미롭지 않은 input을 과도하게 testing 하는것은 낭비 > 보통 distance based, input reachability analysis 사용
+## 2.1. Distance-based Input Prioritization
+- 두 BB간의 거리는 CFG에서 dijkstra algorithm > input distance는 input이 방문한 모든 BB의 average distance 사용
+- 이러한 input prioritization에 heuristic을 사용하며 항상 성능을 개선한다는 보장이 
+- 여러 개선이 있지만 효율성을 크게 개선하지는 못하였음
+## 2.2. Input Reachability Analysis
+- rechability analysis는 최근 두가지 접근 방법이 있음
+### 2.2.1. Deep Learning
+- *FuzzGuard*는 unrechable input을 제거하는 DL 모델 훈련 > target에서 pre-dominating node를 미리 식별하고 이러한 node를 통과할 수 없는 input을 걸러내는것 > 즉 이전 실행에서 학습하여 pre-dominating node를 통과할 수 있는지 예측하는 모델
+### 2.2.2. Path Pruning
+- *Beacon*은 unrechable path에 실행을 조기에 종료 시킴 > 변수 정의와 branch에 checkpoint를 삽입하여 target에 도달하는 precondition을 추론하기 위한 interval analysis 수행 > precondition이 충족되도록 assertion 
+- 도달하지만 inrelevant code를 실행하여 에너지 낭비
 
 # 3. Problem statement
 ## 3.1. Relevant Code
+- 직관적으로 relevant code : DGF중 target reach or vulnerability exploiting 하는 코드
 ## 3.2. Limitations of Existing Approaches
 ## 3.3. Research Goals and Challenges
 # 4. SelectFuzz
