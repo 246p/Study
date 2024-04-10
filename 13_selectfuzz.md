@@ -44,7 +44,7 @@ Selective Path Exploration](https://seclab.cse.cuhk.edu.hk/papers/sp23_selectfuz
 - *FuzzGuard*는 unrechable input을 제거하는 DL 모델 훈련 > target에서 pre-dominating node를 미리 식별하고 이러한 node를 통과할 수 없는 input을 걸러내는것 > 즉 이전 실행에서 학습하여 pre-dominating node를 통과할 수 있는지 예측하는 모델
 ### 2.2.2. Path Pruning
 - *Beacon*은 unrechable path에 실행을 조기에 종료 시킴 > 변수 정의와 branch에 checkpoint를 삽입하여 target에 도달하는 precondition을 추론하기 위한 interval analysis 수행 > precondition이 충족되도록 assertion 
-- 도달하지만 inrelevant code를 실행하여 에너지 낭비
+- 도달하지만 irrelevant code를 실행하여 에너지 낭비
 
 # 3. Problem statement
 ## 3.1. Relevant Code
@@ -61,17 +61,17 @@ Selective Path Exploration](https://seclab.cse.cuhk.edu.hk/papers/sp23_selectfuz
 - target reachalbe과 관련 없는 code block을 모두 제외한 다면 line 5와 같이 target에 사용되는 변수의 값을 변경하는 code를 제외하게 됨 > 우리는 line 5와 같이 data dependence한 코드를 relevant code에 포함한다.
 
 ## 3.2. Limitations of Existing Approaches
-- 기존 DGF가 inrelevant code를 탐색하여 효율적이지 않음
+- 기존 DGF가 irrelevant code를 탐색하여 효율적이지 않음
 - figure 1 : `a->c->e->h` 가정 > 우리는 f,b 를 실행하는 input을 relevant input으로 간주
 
-> DGF가 inrelevant code를 탐색하여 효율성이 낮아지는 이유
-1. inrelevant input에 대한 변형은 fuzzer가 계속 inrelevant input을 생성할 가능성이 높음
+> DGF가 irrelevant code를 탐색하여 효율성이 낮아지는 이유
+1. irrelevant input에 대한 변형은 fuzzer가 계속 irrelevant input을 생성할 가능성이 높음
 2. target에 도달하더라도 효율적으로 vulnerability를 trigger하기 어려움 > irrelevant code는 data dependency가 없기 때문
 ## 3.3. Research Goals and Challenges
 - relevant code에 초점을 맞춘 더 나은 path exploreation 전략을 개발하고자함
 > challenge
 1. relevant code를 정확하게 결정하는 것
-2. inrelevant code를 explore 하지 않는 방법
+2. irrelevant code를 explore 하지 않는 방법
 - 조기 종료와 같은 방법은 효율적이지 않음
 - 관련 없는 코드를 삭제하는ㄴ 것은 오류를 일으킬 수 있고 유효한 PoC가 아닐 수 있음
 
@@ -87,13 +87,54 @@ Selective Path Exploration](https://seclab.cse.cuhk.edu.hk/papers/sp23_selectfuz
 1. 모든 가능한 path를 고려하여 BB에서 target에 도달할 확률을 평가 가능
 2. inter procedural analysis, call target analysis를 통하여 cross-fuction distance 측정
 ### 4.1.1. Block Distance
+![algorithm1](./image/13_algorithm1.png)
+
+- BB에 3가지 labeling ( 0 : initial, 1 : distance 계산중, @: distance 계산 완료)
+- cal_prob()에서 reaching probability $P_b$ : b에서 target에 도달할 확률 추정
+- $P_b$ : 모든 sucessor block의 reching probability의 평균으로 계산
+- target이 여러개라면 어떤 target에든 도달할 확률로 계산
+- loop, recursion의 경우 unroll 처리하여 한번만 계산
+- cal_dist()에서 $P_b$의 역수를 block distance로 $d_{bb}(b,T)$를 계산
+- cross function block distance를 계산하기 위하여 call site에 callee function을 sucessor로 추가함
+- indirection call의 경우 target function을 추론하여 indirection call site 가능한 모든 callee를 연결함 > 이는 false positive error를 도입할 수 도 있지만 이런 경우 distacne가 매우 커서 선호되지 않을 것이다 /// 이해필요
+
 ### 4.1.2. Input Distance
+- distance matric에서 input distance는 cover된 모든 BB의 최단 block distance (다른 것은 평균을 사용함)
+- 최단 거리가 상황을 잘 반영하는지 보여줄 수 있다.
 ### 4.1.3. Example
+![listing2](./image/13_listing2.png)'
+![figure3](./image/13_figure3.png)
+
+$SelcF : d_{bb}(a,T) = 2, d_{bb}(h,T)=2, d_{bb}(h,T)=4$ /// 해설 필요
 
 ## 4.2. Selective Path Exploration
+- relevant code를 선택적으로 instrumentation 하고 explore함
 ### 4.2.1. Relevant Code Identification
-### 4.2.2. Input Prioritization and Power Scheduling
+> path divergent code : rechable path와 unrechable path의 교차 지점
+- target을 향하는 input을 구별할 수 있는 중요한 feedback을 제공
+- 따라서 intrumentation 되지 않고 coverage나 distance feedback을 제공하지 않는 irrelevant code는 인식하지 못함
 
+![listing1](./image/13_listing1.png)
+- line 14, 15의 path divergent code는 line 13에서 생략된 code block의 data에 의존적일 수 있음
+- 하지만 이를 무시함으로 더 작은 explore space를 갖을 수 있다. 그리고 line 13 에서 y,z값을 변경 하는것은 fuzzer에 의해 방문될 것이다. > WindRanger와 비슷함
+
+> data dependency code : target에서 사용되는 중요 변수에 영향을 미치는 code
+- target에 도달하는데 도움이 되지 않지만 exploitation 단계에서 도움이 될 수 있음
+
+![figure1](./image/13_figure1.png)
+- e, f : path divergent code, b, g : data dependent code
+
+### 4.2.2. Input Prioritization and Power Scheduling
+- intrumentation을 다르게 했기 때문에 input prioritization과 power scheduling을 변경해야함
+
+#### 4.2.2.1. Input Prioritization
+- relevent BB 간의 새로운 edge를 cover하거나 기존 edge를 new scale로 증가시키는 input을 선택
+- selectfuzz가 항상 relevant input을 만들 수 있는것은 아님 > 이럴 경우 더 작은 input distnace를 갖는 irrelevant input을 변형함
+
+
+#### 4.2.2.2. Power Scheduling
+- AFLGo의 annealing-based power scheduling을 사용함
+- [4.2.1](#421-relevant-code-identification)에 의하면 irrelevant BB *irbb* 가 
 # 5. Impelementation
 # 6. Evaluation
 
