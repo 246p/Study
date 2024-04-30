@@ -31,6 +31,9 @@
 
 [Guiding Directed Fuzzing with Feasibility](./14_AFLGopher.md)
 
+[Predecessor-aware Directed Greybox Fuzzing](./15_PDGF.md)
+
+[BEACON : Directed Grey-Box Fuzzing with Provable Path Pruning](./16_BEACON.md)
 
 ## Smart contract fuzzing
 [Smartian: Enhancing Smart Contract Fuzzing with Static and Dynamic Data-Flow Analyses](./6_smartian.md)
