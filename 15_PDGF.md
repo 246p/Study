@@ -94,7 +94,12 @@
 - executor에서 region2의 새로운 coverage를 감지하는 시드는 navigator로 절달되어 INT3 > PBB의 정확한 위치 보고
 
 ![algorithm1](./image/15_algorithm1.png)
-- 
+- 1-3 : instrumentation을 통하여 PE PN를 생성
+- 4-12 : fuzzing loop
+- 8-11 : predecessor 확장
+- 13-17 : region2에 대한 새로운 coverage 에 대한 coverage 추적
+- 18-30 : PN을 호출하여 SIGTRAP을 확인하여 PBB후보를 찾음, PBB후보의 주소는 A에 저장, ID의 bit를 변경
+
 
 ## 3.4. Fuzzing based on regional maturity
 
