@@ -180,10 +180,10 @@
 - 모든 target rechable path를 탐색할것을 기대함
 - $P_{benign}$ : 도달 가능한 path의 수
 - $P_{crash}$ : 도달 가능한 crash의 수
-
 ### 5.3.1. Path coverage
 
 ### 5.3.2. Unique crash
+
 ## 5.4. Understanding performance boost (RQ3)
 
 ## 5.5. Component investigation (RQ4)
