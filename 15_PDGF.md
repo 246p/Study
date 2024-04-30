@@ -100,35 +100,90 @@
 - 13-17 : region2에 대한 새로운 coverage 에 대한 coverage 추적
 - 18-30 : PN을 호출하여 SIGTRAP을 확인하여 PBB후보를 찾음, PBB후보의 주소는 A에 저장, ID의 bit를 변경
 
+> 장점
+- 추가 binary(navigator)를 도입했음에도 overhead가 줄어듬
+- PE의 특정 BB뿐만 아니라 알려진 PBB에 이르기까지 모든 predecessor BB도 제공함
 
 ## 3.4. Fuzzing based on regional maturity
+- AFL의 pipeline을 조정함
+
+> Definition 2 : Regional maturity = 주어진 predecessor area에서 coverage rate
+
+![formula2](./image/15_formula2.png)
+
+> Definition 3 : Seed depth : execution path에서 실행된 predecessor의 수
+
+![formula3](./image/15_formula3.png)
+
+- AFL에서 구현에서는 predecessor = PE
 
 ### 3.4.1. Seed selection
-
+- bitmap region 1 에서의 coverage feedback > 더 많은 edge를 포함하는 seed는 더 큰 priority
+- PDGF는 d(s)=0인 seed를 필터링 해야 하지만 seed diversity 문제가 있기 때문 regional maturity가 증가하면 선택 확률이 줄어들도록 설계
 ### 3.4.2. Power scheduling
+- simulated annealing algorithm 사용 > 하지만 PDGF는 distance based가 아님
+
+> normalized seed depth
+
+![formula4](./image/15_formula4.png)
+
+> power function
+
+![formula5](./image/15_formula5.png)
+
+- $T_{exp}$ 는 AFLGo의 exponential cooling schedule
+- M : regional maturity
+- M * d(s) 를 통하여 d(s)가 높더라도 M이 작다면 작은 값을 할당함 > 시간이 지날스록 가중치가 더 커짐
+
+> seed energy
+
+![formula6](./image/15_formula6.png)
 
 ### 3.4.3. Seed mutation
+- deterministic : sequential함, bitflip, addition, substitution
+- non-deterministic : havoc, splicing
+- PDGF는 M*d(s) > θ, (θ = 임계값)에 대해서 deterministic mutation을 적용함
 
 # 4. Implementation
-
+- AFL기반으로 작성
+- initial predecessors : SVF를 기반으로 iCFG에서 LLVM pass를 사용
 ## 4.1. Initialization at compile-time
-
+- 주어진 PUT에 대해 BFS를 수행하여 initial PBB를 추출
+- PE counting > regional maturity를 초기화함
 ## 4.2. Managing two binaries
-
+- forkserver을 사용하여 executor binary를 사용
+- region 2에서 새로운 coverage 발견 > forkserver중단, navigatgor binary를 시작하여 해당 주소를 A에서 수집, binary overwriting을 통하여 executor, navigator 모두 업데이드
 # 5. Evaluation
+- RQ1 : bug reproducing
+- RQ2 : target-rechable path cover
+- RQ3 : 성능에 기여한 요인
+- RQ4 : 어떤 component가 전체 성능에 어떤 영향을 미쳤는지
+- RQ5 : real-world bug에 대한 효과성
 
 ## 5.1. Evaluation setup
-
 ### 5.1.1. Benchmarks
+![table3](./image/15_table3.png)
+- UniFuzz에서 채택한 16개의 프로그램
+- IC/C, PBB/BB 비율이 다양함 > PDGF의 일반성을 입증
 
 ### 5.1.2. Baselines
-
-### 5.1.3. Settings
-
+- AFL
+- AFLGo
+- WindRanger
+- Beacon
+- SleveFuzz reachability-aware
 ## 5.2. Bug reproducing capability (RQ1)
+![table4](./image/15_table4.png)
 
 ## 5.3. Path diversity (RQ2)
+![table5](./image/15_table5.png)
+- 모든 target rechable path를 탐색할것을 기대함
+- $P_{benign}$ : 도달 가능한 path의 수
+- $P_{crash}$ : 도달 가능한 crash의 수
 
+### 5.3.1. Path coverage
+
+### 5.3.2. Unique crash
 ## 5.4. Understanding performance boost (RQ3)
 
 ## 5.5. Component investigation (RQ4)
