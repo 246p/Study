@@ -180,28 +180,34 @@
 - 모든 target rechable path를 탐색할것을 기대함
 - $P_{benign}$ : 도달 가능한 path의 수
 - $P_{crash}$ : 도달 가능한 crash의 수
-### 5.3.1. Path coverage
-
-### 5.3.2. Unique crash
 
 ## 5.4. Understanding performance boost (RQ3)
-
+### 5.4.1. Seed quality
+![figure7](./image/15_figure7.png)
+- PoC와 seed의 중첩을 시각화함 > PDGF가 고품질 seed에 더 많은 에너지를 할당함
+### 5.4.2. Coverage tracing
+![figure8](./image/15_figure8.png)
+- SA vs DE로 찾아낸 PBB의 수를 비교 > DE가 더 많음
 ## 5.5. Component investigation (RQ4)
-
+![table6](./image/15_table6.png)
+### 5.6.1. Ablation study
+- Coverage Tracing (CT), Power Scheduling (PS), Seed Muation and Selection (MS)
+### 5.6.2. Pointer analysis
+- predecessor area를 SA로만 추출하여 실행하여 효율성 비교
 ## 5.6. Bug discovery (RQ5)
-
+### 5.6.1. Crashes in benchmark
+### 5.6.2. New vulnerabilities
+![table8](./image/15_table8.png)
 # 6. Discussion
-
 ## 6.1. Hash collision
+Q. Bitmap을 4영역으로 나누고 index로 2bit를 사용하므로 hash collision을 증가시킬 수 있다
 
+A. region 1의 크기는 일반적인 프로그램의 PoC에서 edge를 저장하기에 충분함, *CollAFL*에서 사용한것처럼 다양한 edge에 대한 다양한 hash 함수를 적용하여 해결 가능
 ## 6.2. Identify venerable path
+Q. SA, coverage tracing을 통해 성공적으로 predecessor area를 생성하지만 모두 가치있는것은 아님 
 
+A. sequence similarity, dataflow를 사용하면 효율ㅇ르 상승할 수 있음
 ## 6.3. Hybrid DGF
+Q. CGF는 복잡한 constraint에 효과가 없을 수 있음
 
-# 7. Related Work
-
-## 7.1. Distance-based DGF
-
-## 7.2. Non-distance-based DGF
-
-# 8. Conclusion
+A. concolic execution을 사용한다면 해결 가능
