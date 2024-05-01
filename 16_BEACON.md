@@ -34,6 +34,7 @@
 - Savior
 ## 2.2. Problem and Challenges : infeasible-path-explosion problem
 - intermediate program state
+https://chat.openai.com/c/f4804893-2b0a-45d5-b7d8-279b9e436a37
 # 3. Beacon in a Nutshell
 
 ## 3.1. Backward Interval Analysis
