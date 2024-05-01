@@ -9,7 +9,10 @@
 - 이를 infeasible-path-explosion problem이라고 함
 - DWF : SE를 이용하여 path constraint를 해결하여 rechability를 결정함 > scale의 문제가 있음
 - DGF : unrechable path를 거부하는데 관심이 없음
-- BEACON :
+- BEACON : 적은 overhead로 infeasible path를 pruning
+- lightweight SA를 이용하여 infeasible 하게 만드는 variable에 대한 근사치 계산 가능
+
+![]
 # 2. Background
 
 ## 2.1. Directed Grey-Box Fuzzing
