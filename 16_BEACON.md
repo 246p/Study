@@ -33,15 +33,46 @@
 - FuzzGuard
 - Savior
 ## 2.2. Problem and Challenges : infeasible-path-explosion problem
-- intermediate program state
-https://chat.openai.com/c/f4804893-2b0a-45d5-b7d8-279b9e436a37
+- intermediate program state를 weakest precondition으로 근사하여 계산하여 execution을 허용한다.
+- CFG에서 target l, 위치 p가 주어졌을떄 wp(p,l) : l에 rechable을 보장하는 가장 러프한 precondition
+- 일반적을 wp(p,l)은 프로그램 변수에 대한 1차 논리연산으로 표현된다.
+- p에 도달하지만 wp(p,l)을 만족하지 않는 path는 제거된다.
+- 이때 precondition을 static하게 정확하고 효율적으로 추론하는것이 어려움 > 기존의 두가지 절충안
+1. fast SA : 특정 속성을 맞추는 간단한 path condition에대한 제한적 추론 > 정확하지 않음
+2. slow SA : path exploration 과 같은 문제를 피하기 위하여 제한적 > 부정확한 결과
+
+> challenge
+1. precondition inference 에서 path condition에 대해 효율적으로 추론하는방법
+2. merging path에서 정밀도 손실을 피하면서 precision loss를 피하는 방법
 # 3. Beacon in a Nutshell
+![figure3](./image/16_figure3.png)
 
+- BEACON은 target code를 입력으로 받음
+- SA를 간소화 하여 명핵한 infeasible path를 pruning > CFG 에서 reachability analysis를 수행하여 제거함
 ## 3.1. Backward Interval Analysis
-
+- static하게 계산된 control flow information으로 프로그램을 slicing 함
+- wp를 추론하기 위하여 backward interval analysis를 수행
+- 정확한 weakest precondition 을 계산할 수 없기에 predefined abstract domain에 대한 sound abstraction을 계산함 (over approximation)
+- 일반적으로 사용되는 abstract domain : interval domain, octagon domain, polyhedral domain ....
+- variable에 가능한 값을 추론하는데 도움을 줌
+- 여기서 cheapest domain (interval domain)을 선택함
+- interval domain은 precondition을 효율적으로 추론할 수 있지만 변수간의 상호작용을 고려하지 안ㅇ흠
+> 부정확성을 악화시키는 두가지 해결
+1. Relationship Preservation
+- 변수간의 관계를 보존한다면 정확한 precondition을 얻을 수 있음 
+2. Bounded Disjunction
+- 전통적인 방법은 서로 다른 path에서의 SA결과를 병합함 > 부정확성 발생
+- SA 결과에 대한 제한적 Disjoint를 유지하고 path의 수가 임계값을 넘을때만 병합함
+- 임계값에서 병합할때 어떤식으로 병합하는지에 따른 문제도 있음
 ## 3.2. Selective Instrumentation
+- PUT의 모든 statement를 intrumentation 하는 것은 cost가 많이듬
+- BEACON은 변수 정의, branch에 대해서만 intrumentation
+- precondition을 포함하는 assertion을 삽입함
 
 # 4. Methodology
+- BEACON은 control flow rechability, path condition satisfiability를 이용하여 infeasible path를 pruning
+- iCFG를 이용한 reachability analysis > target에 도달할 수 없는 BB를 제거
+- 
 
 ## 4.1. Preliminary
 
