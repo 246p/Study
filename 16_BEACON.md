@@ -72,14 +72,15 @@
 # 4. Methodology
 - BEACON은 control flow rechability, path condition satisfiability를 이용하여 infeasible path를 pruning
 - iCFG를 이용한 reachability analysis > target에 도달할 수 없는 BB를 제거
-- 
 
 ## 4.1. Preliminary
-
 ### 4.1.1. Language
+![figure4](./image/16_figure4.png)
 
 ### 4.1.2. Precondition Inference
-
+![algorithm1](./image/16_algorithm1.png)
+- target에 도달하기 위한 weakest condition을 역으로 계산됨 (true로 시작하여  변화함)
+- algorithm1 은 precondition을 정확하게 찾지만 추론에 비용이 많이드는 복잡한 constraint를 출력함
 ## 4.2. Backward Interval Analysis
 
 ## 4.3. Optimizations for Maintaining Precision
