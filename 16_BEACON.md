@@ -32,8 +32,8 @@
 - Hawkeye
 - FuzzGuard
 - Savior
-## 2.2. Problem and Challenges
-
+## 2.2. Problem and Challenges : infeasible-path-explosion problem
+- intermediate program state
 # 3. Beacon in a Nutshell
 
 ## 3.1. Backward Interval Analysis
