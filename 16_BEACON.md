@@ -12,15 +12,26 @@
 - BEACON : 적은 overhead로 infeasible path를 pruning
 - lightweight SA를 이용하여 infeasible 하게 만드는 variable에 대한 근사치 계산 가능
 
-![]
+![figure2](./image/16_figure2.png)
+
+> Contribution
+- cheqp cost SA를 이용하여 target에 도달하기 위한 condition을 계산하고 이를 이용하여 infeasible program state를 filtering
+- runtime overhead가 낮고 많은 infeasible path를 pruning 하는 DGF 제시
+
 # 2. Background
-
 ## 2.1. Directed Grey-Box Fuzzing
-
+- DGF의 목표 : 프로그램의 특정 부분을 작은 runtime overhead로 testing 하는것
+- challenge
+1. 어떤 대상을 테스트 할지 지정
+2. fuzzer를 target code에 빠르게 도달하게 하는방법
 ### 2.1.1. Specifying the Targets
-
+- 수동으로 target code를 지정할 수 있음 (patch가 이루어진 곳)
+- 자동으로 지정 하는 방법(*Semfuzz* : 자연어 처리를 활용한 bug report 분석, *ParmeSan* : sanitizer에 의해 도입된 지점을 labeling)
 ### 2.1.2 Reaching the Targets
-
+- AFLGo 
+- Hawkeye
+- FuzzGuard
+- Savior
 ## 2.2. Problem and Challenges
 
 # 3. Beacon in a Nutshell
