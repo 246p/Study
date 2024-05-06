@@ -112,6 +112,10 @@
 - 각 함수에 32bit ID 할당 > indirect call edge : caller,callee " 64bit edge ID 계산
 - 시간 복잡도가 낮기에 overhead 무시할만함
 ## 6.5. Maintaining Exploration Diversity
+- tripwiring은 CGF를 특정 target site로 유도하여 direction을 달성함
+- 새로운 coverage가 발견되지 않은 경우 seed를 random mutation > target을 자체를 실행해야 하기에 올바르지 않음
+- execution diversity heuristic을 개발 > code coverage가 더 큰 test case의 mutation을 우선시함
+- fuzzing 대상에 instrumentation을 통하여 trace length(testcase에 의해 실행된 function의 수) 측정
 # 7. EVALUATION
 ## 7.0.1. Benchmarks
 ## 7.0.2. Experiment Procedure and Infrastructure
