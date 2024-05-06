@@ -1,3 +1,8 @@
+[One Fuzz Doesn’t Fit All: Optimizing Directed Fuzzing via Target-tailored Program State](https://dl.acm.org/doi/pdf/10.1145/3564625.3564643)
+
+
+[source code](https://github.com/HexHive/SieveFuzz)
+
 # 0. Abstract
 # 1. Introduction
 # 2. Background
