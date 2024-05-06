@@ -64,20 +64,53 @@
 ## 5.1. Tripwiring
 - target site에 선행되지 않는것으로 보장되는 region을 식별하는 방법론 제시
 ### 5.1.1. Methodology
-![algorithm1](./image/17_algorithm1.png)
 - SieveFuzz는 code space가 target rechable path에 있는지 판별해야함
-- SA로 iCFG, CG를 이용하여 target site
+- SA로 iCFG, CG를 이용하여 target site 로의 path에 있는 모든 space를 표시
+
+![algorithm1](./image/17_algorithm1.png)
+
+- iCFG는 context insensetive 하기 때문에 target-relevant code region은 over-approximate 
+- CG에서 수행되는 function rechability analysis를 함께 사용함
+
 ### 5.1.2. Indirect Transfers
+- point-to, value-set analysis를 사용하여 inderect transfer에 대한 문제를 해결함 > over approximate에 대한 문제 존제
+- 이러한 오차는 under tripwiring (탐색해야 하는 code를 과다 추정)
+- indirect branch가 발견될때마다 CG를 동적으로 update함 > tripwiring을 조정
+- re-analysis 과정은 overhead를 더하지만 새로운 coverage는 지수적으로 감속하기 때문에 괜찮음
+- indirect call을 dynamic하게 해결하기 때문에 target site가 초기 rechability analysis에서 빠질 수 있음 > 실험적으로 괜찮음 (추가되기 때문)
 # 6. Implementation : SIEVEFUZZ
 ## 6.1.  Architectural Overview
+- AFL++위에 구현
+- on-demand rechability analysis를 수행하기 위하여 fuzzer, analyzer 간의 client-server 구축
+- indirect edge를 static analyzer로 전달하여 dynamic CFG를 update한 후 rechability, tripwiring analysis를 update
+- LLVM 기반 SVF framwork 사용
+- LLVM pass를 사용하여 function level 조기 종료를 위한 intrumentation을 도입
 ## 6.2. High-level Fuzzing Workflow
+![figure2](./image/17_figure2.png)
 ### 6.2.1. Initial Analysis (INIT)
+- initial iCFG, CG analysis에서 도달 여부를 질의함, unreachable : indirect call edge가 누락된것으로 판단 > EXP 를 실행
 ### 6.2.2. Exploration (EXP)
+- target에 unreachable한 경우 non-directed, non-tripwiring fuzzing으로 seed를 다양화함
+- indirect edge를 모니터링하여 rechability analysis를 수행하고 이에 따라 update
+
 ### 6.2.3. Tripwired Fuzzing (FUZZ)
+- target이 rechable한 순간부터 tripwiring DF가 시작
+- 이때도 새로운 indirect edge를 analysis 수행
+- tripwiring intrumentation (조기 종료와 관련된 명령어 추가, 삭제)를 수행
 ## 6.3. Maintaining Fast On-demand Analysis
+- fuzzing을 종료하고 다시 재게함에 있어서 overhead가 크기 때문에 client-server 방식을 채택
+- new indirect edge에 대한 analysis가 완료되면 fuzzing을 정지 상태에서 재개함
+- coverage가 증가하는  testcase는 1/10000정도 이기 때문에 괜찮음
 ## 6.4. Maintaining Fast SUT Execution
 ### 6.4.1. Preemptive Termination
+- fuzzing을 위해 instrumentation 되는 동안 PUT의 code region(function)에 ID 할당
+- region의 시작점에 해당 ID로 runtime library 호출, library를 PUT에 연결하고 tripwiring preemptive termination 수행
+- 구현 : activation birmap 사용 > bit 설정 : 실행 허용 > bitmap을 SA module에서 동적으로 유지
 ### 6.4.2. Indirect Call Tracking
+- 모든 indirect call site에 intrumentation을 적용하여 edge의 destination을 식별
+- indirect(caller, callee) pair 추적
+- 각 함수에 32bit ID 할당 > indirect call edge : caller,callee " 64bit edge ID 계산
+- 시간 복잡도가 낮기에 overhead 무시할만함
 ## 6.5. Maintaining Exploration Diversity
 # 7. EVALUATION
 ## 7.0.1. Benchmarks
