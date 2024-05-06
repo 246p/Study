@@ -32,7 +32,7 @@
 2. 작은 set을 찾기 위하여 greedy serach
 - distance minimiazation의 cost를 quantify 하기 위하여 실험 진행
 ## 3.1. Experiment Setup
-![lisintg1](./image/17_.listing1.png)
+![lisintg1](./image/17_listing1.png)
 
 - DAPRA cyber grand challenge benchmark `KPRCA-00038` 
 - `cgc_program_parse` : NULL pointer referencing 이 포함된 interpreter
@@ -49,11 +49,24 @@
 - *AFLGo*는 exploitation, exploration 두 단계가 있기에 explotitation mode에 대해서만 측정
 - 두 Fuzzer 모두 Poc대비 29% 이상의 함수를 실행함
 - distance minimazation은 program state에 대한 greedy search로 인한 대가를 지불 > non-DF이 더 우수할때가 있음
-
 # 4. Overcoming the bottlenecks of directedness
+![figure1](./image/17_.figure1.png)
+
+-  tripwiring : fuzzer의 program state space의 search가 확률 적이며 control flow에 크게 영향을 받는점을 이용 > rechable path의 subset을 serach space에 제한 > subset은 target site에 도달하는데 반드시 필요한 path로 보장됨
+- control flow, path detection으로 target 으로의 path set을 식별
+- coverage guided fuzzing workflow를 수정하여 이러한 set만 탐색하도럭함
+- 이 region의 boundary를 "trip"할때 사전에 차단하고 종료
 # 5. Preemptive Termination
+- 기존 DF는 distance minimazation을 모든 testcase에 대해서 적용 > serach noise에 민감함
+- target site를 선행하지 않는것으로 입증되는 region의 탐색을 선제적으로 종료 > 장점
+1. 90% 이상의 runtime에서 실행되는 target inrerelevant path의 code coverage, target distance를 측정하는 낭비 없앰
+2. path를 explore 하기 전에 filtering > resource를 낭비하지 않음
 ## 5.1. Tripwiring
+- target site에 선행되지 않는것으로 보장되는 region을 식별하는 방법론 제시
 ### 5.1.1. Methodology
+![algorithm1](./image/17_algorithm1.png)
+- SieveFuzz는 code space가 target rechable path에 있는지 판별해야함
+- SA로 iCFG, CG를 이용하여 target site
 ### 5.1.2. Indirect Transfers
 # 6. Implementation : SIEVEFUZZ
 ## 6.1.  Architectural Overview
