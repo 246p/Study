@@ -19,10 +19,19 @@
 - Black box : 동적으로 삽입된 intrumentation or binary rewriting, or hardware support
 - code coverage를 증가 시키는 것은 1/10000 이기에 모든 test case의 coverage를 추적하는것은 낭비
 - UnTracer : CGF에서 overhead를 줄이는 것이 목표
-- coverage guided tracing은 code coverage 를 증가시키는 test case에 대해서만 보고하도록 함 > 이러한 수정된 binary 를  *Interst Oracle*
-- 
+- coverage guided tracing은 code coverage 를 증가시키는 test case에 대해서만 보고하도록 함 > 이러한 수정된 binary 를 *Interst Oracle* > native speed로 실행 가능
+- Black Box binary intrumentation tool *Dyninst*를 이용하여 Interst Oracle, tracing infra 구축
+
+> Contribution
+- Covergea guided Tracing 도입
+- Coverage 증가 testcase의 발생 빈도를 정량화함
+- UnTracer 구현, 평가
+- QSYM-UnTracer
 # 2. Background
 ## 2.1. An Overview of Fuzzing
+![figure1](./image/18_figure1.png)
+- fuzzer는 많은 양의 testcase를 생성하고 binary file의 execution을 monitoring, bug, crash를 일으키는 test case를 식별
+- 
 ## 2.2. Coverage-Guided Fuzzing
 ## 2.3. Coverage Tracing Performance
 ## 2.4. Focus of this Paper
