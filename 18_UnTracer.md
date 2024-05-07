@@ -118,11 +118,16 @@
 2. tracing reading의 불이익
 - 이를 해결하기 위하여 유일하게 cover된 BB만 기록함 > overhead 줄임
 ## 5.5. Unmodifying th Oracle
-
+- coverage increasing test case가 overlap coverage 되는 문제 > global coverage를 추적하기 위한 hashmap data structure를 도입하여 tracing log 에서 BB를 Unmodifying 하기 전에 이전 tarcing에서 본ㅇ적 있는지 결정함
+- 새로 cover된 BB에서만 global coverage tracing 처리
 # 6. Tracing-only Evaluation
-
+1. UnTracer는 모든 testcase를 tracing 하는것에 비해 효율적인가
+2. UnTracer의 overhead에 기여하는 요인
+3. Untracer의 overhead는 coverage increasing test case의 비율에 어떤 영향을 받는가
 ## 6.1. Evaluation Overview
-
+![table3](./image/18ta)
+- 8개의 open source benchmark
+- AFL-Clang(White box), AFL-QEMU(Black box), AFL-Dyninst(Black box)와 비교함
 ## 6.2. Experiment Infrastructure
 
 ## 6.3. Benchmarks

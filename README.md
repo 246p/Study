@@ -9,6 +9,7 @@
 ## Graybox Fuzz testing
 [Angora: Efficient Fuzzing by Principled Search](./3_angora.md)
 
+[Full-speed Fuzzing: Reducing Fuzzing Overhead through Coverage-guided Tracing](./18_UnTracer.md)
 ## Evaluate
 [Evaluating Fuzz Testing](./4_evaluating.md)
 
@@ -35,7 +36,10 @@
 
 [BEACON : Directed Grey-Box Fuzzing with Provable Path Pruning](./16_BEACON.md)
 
+[One Fuzz Doesn’t Fit All: Optimizing Directed Fuzzing via Target-tailored Program State](./17_SIEVFUZZ.md)
+
 ## Smart contract fuzzing
 [Smartian: Enhancing Smart Contract Fuzzing with Static and Dynamic Data-Flow Analyses](./6_smartian.md)
 
+[Constraint-guided Directed Greybox Fuzzing](./19_CAFL.md)
 ## [읽을 논문 list](./0_short.md)
