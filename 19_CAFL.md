@@ -1,9 +1,19 @@
 [Constraint-guided Directed Greybox Fuzzing](https://www.usenix.org/system/files/sec21fall-lee-gwangmu.pdf)
 
 # 0. Abstract
-
+- DGF는 orderd target site, data condition을 고려하지 않음
+- target site에 도달하는 것이 아닌 constraint를 만족하는 것을 목표로 하는 constraint-guided DGF를 제시
+- target site와 dat condition의 조합으로 constraint를 정의하고 해당 constraint를 만족하도록 seed를 유도함
+- 7가지 crash dump와 4가지 patch changelog로 constraint 생성
+- constraint가 명확해질수록 PoC generation 측면에서 우수한 성능을 보여줌
 # 1. Introduction
-
+- 현재 DGF의 문제
+1. DGF는 target site 들이 서로 독립적이라고 가정, target site의 order dependency를 고려하지 않음
+2. target crash에 필요한 data condition을 고려하지 않음
+- 이러한 문제를 해결하는 CDGF 제안
+- target site에 도달하는것이 목표가 아닌 constraint를 만족시키는것을 목표로함
+- 순서에 따라 그 constraint를 더 잘 만족시키는 seed를 우선
+- constraint는 하나 이상일 수 있으며 이때 지정된 순서대로 constraint를 만족해야함
 # 2. Background and Motivation
 
 ## 2.1. Directed Greybox Fuzzing
