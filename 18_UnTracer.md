@@ -168,13 +168,16 @@
 - UnTracer는 BB coverage 사용 > 사실 다른 BBE 기반도 BB tracing에 의존함
 - ingoing/outgoing edge를 식별화는 과정속에서 coverage를 부풀리고 coverage input을 잘못 버리게 함
 - BBE가 BB의 super set이기 때문에 coverage increasing test case의 비율이 증가하는 것은 명확함
-- 
+- UnTracer를 Edge level로 변화하여도 coverage increasing testcase의 증가는 high level에서 큰 차이가 없을것
 ## 8.3. Comprehensive Black-Box Binary Support
-
+- UnTracer는 Blackbox, Whitebox binary instrumentation을 혼합하여 사용함
+- 현대의 blackbox binary rewriter 또는 function hooking을 통하여 forkserver를 삽입한다면 Blackbox로 변환 가능
 # 9. Related Work
-
+- Coverage increasing testcase의 비율을 높이는것은 전체 fuzzer의 성능을 향상시킬 수 있다.
 ## 9.1. Improving Test Case Generation
-
+- AFL, libFuzzer와 같은 CGF는 "blind" test case generation을 사용함, random mutation에 의존 > magic byte에 대한 해결 힘듬
+- Symbolic execution을 사용하면 해결 가능하나 PUT binary의 복잡성이 증가하면 증가하기 힘듬
 ## 9.2. System Scalability
-
+- execve() call로 오는 overhead를 피하기 위한 forkserver execution model을 사용함, distribute fuzzing 또한 인기를 얻고 있음
 # 10. Conclusion
+- Coverage guided tracing은 coverage increasing testcase가 매우 드문점을 이용하여 새로운 coverage를 생성할때 보고하도록 target binary를 수정 > overhead의 큰 감소
