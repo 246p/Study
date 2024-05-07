@@ -39,7 +39,7 @@
 ![figure2](./image/18_figure2.png)
 - CGF는 binary intrumentation, system emulation, hardware-assisted mechanism을 통하여 code coverage 추적
 - CGF는 BB, BBE, BBP중 하나를 code coverage 측정 기준에 기반함
-- BBE 는 BB의
+- BBE 는 BB의 tuple
 ## 2.3. Coverage Tracing Performance
 ## 2.4. Focus of this Paper
 # 3. Impact of Discarded Test Cases
