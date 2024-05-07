@@ -116,9 +116,18 @@
 - 새로운 coverage가 발견되지 않은 경우 seed를 random mutation > target을 자체를 실행해야 하기에 올바르지 않음
 - execution diversity heuristic을 개발 > code coverage가 더 큰 test case의 mutation을 우선시함
 - fuzzing 대상에 instrumentation을 통하여 trace length(testcase에 의해 실행된 function의 수) 측정
-# 7. EVALUATION
+- trace length를 그대로 사용하는것은 비효율적임 > 평균 trace length를 사용 /// 무슨소린지 모르겠음
+# 7. evaluation
+1. RQ1. tripwiring은 rechable search space를 제한하는데 효과적인가
+2. RQ2. tripwiring은 DF를 효과성과 속도를 향상시키는가
+3. RQ3. tripwiring에 잘 적용되는 target location의 특성
 ## 7.0.1. Benchmarks
+![table1](./image/17_table1.png)
+
+- DARPA CGC corpus의 3개의 ground truth memory bug set
+
 ## 7.0.2. Experiment Procedure and Infrastructure
+
 ## 7.1. RQ1: Tripwiring’s Search Space Restriction
 ### 7.1.1. Results: Magnitude of Space Restriction
 ### 7.1.2. Results: Initialization Cost
