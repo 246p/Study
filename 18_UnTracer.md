@@ -1,7 +1,26 @@
-![Full-speed Fuzzing: Reducing Fuzzing Overhead through Coverage-guided Tracing](https://users.cs.utah.edu/~snagy/papers/19SP.pdf)
+[Full-speed Fuzzing: Reducing Fuzzing Overhead through Coverage-guided Tracing](https://users.cs.utah.edu/~snagy/papers/19SP.pdf)
 
 # 0. Abstract
+- CGF의 3가지 구성 요소
+1. test case generation
+2. code coverage tracing
+3. crash triage
+- code coverage tracing이 가장 큰 overhead > static or dynamic binary intrumentation을 통한 모든 test case의 code coverage 추적 > 대다수의 coverage 정보가 code coverage를 증가시키지 않아 버려짐
+- 이를 해결하기 위하여 coverage guided tracing 도입
+1. 생성된 test case중 소수만이 coverage를 증가시킴
+2. coverage를 증가하는 test case는 시간이 지남에 따라 드물게 발생
+- target bianry file에 현재 frontier of coverage를 incoding하여 testcase가 새로운 coverage를 생성할때 tracing 없이 self-report > filtering
+- coverage를 증가시키지 않는 testcase를 처리하는 시간을 줄임
+- UnTracer : Static binary intrumentation tool *Dyninst*를 기반으로 구현
+- testcase를 더 많이 실행할 수 있음
 # 1. Introduction
+- code coverage는 3가지 형태 > BB, BB edge, BB path
+- White box : compile time에 intrumentation을 통한 coverage 측정
+- Black box : 동적으로 삽입된 intrumentation or binary rewriting, or hardware support
+- code coverage를 증가 시키는 것은 1/10000 이기에 모든 test case의 coverage를 추적하는것은 낭비
+- UnTracer : CGF에서 overhead를 줄이는 것이 목표
+- coverage guided tracing은 code coverage 를 증가시키는 test case에 대해서만 보고하도록 함 > 이러한 수정된 binary 를  *Interst Oracle*
+- 
 # 2. Background
 ## 2.1. An Overview of Fuzzing
 ## 2.2. Coverage-Guided Fuzzing
