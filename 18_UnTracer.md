@@ -125,41 +125,50 @@
 2. UnTracer의 overhead에 기여하는 요인
 3. Untracer의 overhead는 coverage increasing test case의 비율에 어떤 영향을 받는가
 ## 6.1. Evaluation Overview
-![table3](./image/18ta)
+![table3](./image/18_table3.png)
 - 8개의 open source benchmark
 - AFL-Clang(White box), AFL-QEMU(Black box), AFL-Dyninst(Black box)와 비교함
 ## 6.2. Experiment Infrastructure
-
+- tracing overhead를 계산하기위하여 testcase를 execution/tracing 하는 시간에 초점
 ## 6.3. Benchmarks
-
+- baseline : AFL-Clang, AFL-Dyninst, AFL-QEMU
 ## 6.4. Timeouts
-
+- coverage tracing은 timout value에 영향을 받음 > 짧은 timout이 자주 발생할떄 tracer의 overhead를 외곡시킴
+- coverage가 누락될 수 있음 > 애초에 execution time이 긴 path에 대한 coverage가 non-coverage-increasing 으로 판단되기 때문
+- 100ms의 timout은 너무 짧음 > 500ms로 설정
 ## 6.5. Untracer vs Coverage-agnostic Tracing
+- fuzzing tracer의 benchmark별 overhead를 검토
+- coverage agnostic tarcing 방법에 대한 UnTracer의 성능을 비교함
+
+![figure7](./image/18_figure7.png)
+
+![figure8](./image/18_figure8.png)
 
 ## 6.6. Dissecting UnTracer's Overhead
 
+![figure11](./image/18_figure11.png)
+
 ### 6.6.1. Tracing
-
+- UnTracer의 overhead의 80%
 ### 6.6.2. Forkserver restarting
-
+- forkserver를 재시작하는것은 두번째로 높은 overhead
+- pipe, read write와 같은 process간 통신에 resource가 많이듬 > 유의미한 개선이 힘듬
 ## 6.7. Overhead vs Rate of Coverage-increasing test cases
-
 # 7. Hybrid Fuzzing Evaluation
-
-### 7.0.1. Trimming and calibration
-
-### 7.0.2. Saving timouts
-
-## 7.1. Evaluation Overview
-
-## 7.2. Performance of UnTracer-based Hybrid Fuzzing
-
+- UnTracer를 QSYYM에 통합
 # 8. Discussion
 
 ## 8.1. UnTracer and Intel Processor Trace
-
+- hardware support를 사용한다면 더 효율적인 coverage tracing이 가능하다 > INTEL Proccessor Trace
+- IPT 는 control flow 를 memory에 저장함
+- hardware level에서 분석하기 때문에 BB, edge, path level에서 완전히 찾을 수 있고 overhead가 낮음
+- 단점 : 특정 processor에서만 동작, flow log decoding, x86 binary만 지원
 ## 8.2. Incorporating Edge Coverage Tracking
-
+- fuzzing 에서는 BB, BBE level이 지베적임
+- UnTracer는 BB coverage 사용 > 사실 다른 BBE 기반도 BB tracing에 의존함
+- ingoing/outgoing edge를 식별화는 과정속에서 coverage를 부풀리고 coverage input을 잘못 버리게 함
+- BBE가 BB의 super set이기 때문에 coverage increasing test case의 비율이 증가하는 것은 명확함
+- 
 ## 8.3. Comprehensive Black-Box Binary Support
 
 # 9. Related Work
