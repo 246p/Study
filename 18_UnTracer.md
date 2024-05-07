@@ -100,13 +100,23 @@
 - Coverage increasing을 식별하는 Interest Oracle, 새로운 coverage를 식별하는 tracer
 - AFL의 forkserver을 사용하여 UnTracer의 Oracle과 Tracer binary를 이로 사용함
 ![algorithm1](./image/18_algorithm1.png)
+![figure6](./image/18_figure6.png)
 
 ## 5.2. Forkwerver Instrumentation
-
+- Tracer, Oracle binary의 실행 속도를 최적화 해야함
+- 두 binary 모두 forkserver execution model을 도입 > fork()가 execve()보다 빠름
+- Oracle의 경우 Dyninst를 통해 instrumentation 하는 것은 한계가 있었음
+- Black box binary overwriter를 모방하는 AFL assembly time intrumentation을 활용하여 forkserver 삽입
 ## 5.3. Interst Oracle Binary
-
+- Dyninst의 Static control flow analysis를 통하여 BB list를 찾고 binary file IO를 통하여 INT 삽입
+- fork server 초기화 전 INT가 발생하는것을 막기위해 _start, _libc_start_main, _init, frame_dummy는 고려하지 않음
+- INT = SIGTRAP > 0xCC 1byte 이고 gdb, kernnel proving에 사용되어왔기에 선택
 ## 5.4. Tracer binary
-
+- Tracer의 binary를 static instrumentation 하여 각 BB에 coverage callback을 삽입
+- 반복적으로 실행되는 BB가 coverge tracing의 2가지 overhead를 추가함
+1. 개별 BB를 여러번 기록
+2. tracing reading의 불이익
+- 이를 해결하기 위하여 유일하게 cover된 BB만 기록함 > overhead 줄임
 ## 5.5. Unmodifying th Oracle
 
 # 6. Tracing-only Evaluation
