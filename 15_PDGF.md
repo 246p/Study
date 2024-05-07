@@ -1,4 +1,4 @@
-[Predecessor-aware Directed Greybox Fuzzing](https://csdl-downloads.ieeecomputer.org/proceedings/sp/2024/3130/00/313000a040.pdf?Expires=1714452425&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jc2RsLWRvd25sb2Fkcy5pZWVlY29tcHV0ZXIub3JnL3Byb2NlZWRpbmdzL3NwLzIwMjQvMzEzMC8wMC8zMTMwMDBhMDQwLnBkZiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTcxNDQ1MjQyNX19fV19&Signature=CL4CF5f2c~oBEB1o6ZM6kOGEDFJ0WxSutK~Oadii33IGRHRN2uqaT6F0G14EP7bhihfOb0j9ermE-gCInPWbO-CJ~uGRbrIToPQ-x55NNQMJ8n785e1yh2EEJV8wG~d8OihQNbWcPSCIpV-dgcWad8wJDIkYKkgdHG3TkDxaOhdCa5v2zU-szAe2pTjzpuKJQLGH9iXDJKRuY3HCraCliYMF6G-RAMjibJelfeq67bhpwICiUYGcxdAzP~deJifgPZYoE-Fvaykeo74e-VM9VfDeEf5qUzrOvxYIXSpc6BU~qZq4D3hp6NPnvRqzTnHGaVMjHThKXDBzCkKrS4YWYg__&Key-Pair-Id=K12PMWTCQBDMDT)
+[Predecessor-aware Directed Greybox Fuzzing](https://www.computer.org/csdl/proceedings-article/sp/2024/313000a040/1RjEaeMELbq)
 
 [source code는 24.6에 공개 예정](https://github.com/SEU-SSL/PDGF)
 # 0. abstract
