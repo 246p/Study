@@ -125,22 +125,41 @@
 ![table1](./image/17_table1.png)
 
 - DARPA CGC corpus의 3개의 ground truth memory bug set
-
+- real world bug 5개
+- Magma의 2개
 ## 7.0.2. Experiment Procedure and Infrastructure
-
+1. RQ1. tripwiring된 비율
+2. RQ2. TTE
+3. RQ3. disjoint target 과 SieveFuzz AFLGo의 성능의 상관관계
+- 특이한점 : Debian 사용
 ## 7.1. RQ1: Tripwiring’s Search Space Restriction
-### 7.1.1. Results: Magnitude of Space Restriction
-### 7.1.2. Results: Initialization Cost
-### 7.1.3. Results: On-demand Analysis Cost
+![table2](./image/17_table2.png)
+1. tripwiring된 code region의 비율
+2. tripwire initialization, on-demand analysis의 cost를 계산
+- 24시간 fuzzing중 overhead는 낮은편임
 ## 7.2. RQ2: Targeted Defect Discovery
+![table3](./image/17_table3.png)
+1. consistency
+2. speed
+
 ### 7.2.1. Results: Tripwiring vs. Minimization-directed Fuzzing
+- AFLGo와 비교
 ### 7.2.2. Results: Tripwiring vs. Precondition-directed Fuzzing
+- BEACON과 비교 
+![table4](./image/17_table4.png)
+- SieveFuzz 대비 BEACON은 path를 과도하게 줄임
+- BEACON은 indirect controlflow를 감지하지 못함 
 ### 7.2.3. Results: Tripwiring vs. Undirected Fuzzing
+- AFL++과 비교
 ## 7.3. RQ3: Target Location Feasibility for Tripwiring
+- disjoint target일때 tripwiring이 distance minimaization 보다 성능이 더 좋아짐
 # 8. Discussion and Future Work
 ## 8.1. Refinements in Path Analysis
+- target site에 도달하는 경로를 찾은 경우 indirect call에 의해 발생되는 경로를 못찾을 수 있음
+- exploration과 tripwiring을 번갈아 수행하여 indirect call을 해결할 수 있을것으로 기대됨
 ## 8.2. Path Prioritization
-# 9. Related Work
-## 9.1. Directed Fuzzing
-## 9.2. Improving Fuzzing Performanc
+- target에 도달한s path set search를 유도 > path중 우선순위를 정하지 못함
 # 10. Conclusion
+- distance minimaization based GF의 bottleneck을 해결
+- tripwiring은 irrelevant code를 제거하여 원하지 않는 path로의 경로를 사전에 차단함
+- overhead가 낮고 consistency, speed가 더 좋음
