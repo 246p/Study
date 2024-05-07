@@ -31,8 +31,15 @@
 ## 2.1. An Overview of Fuzzing
 ![figure1](./image/18_figure1.png)
 - fuzzer는 많은 양의 testcase를 생성하고 binary file의 execution을 monitoring, bug, crash를 일으키는 test case를 식별
-- 
+> test case를 생성하는 2가지 방법 
+1. Grammar-based > 사전에 정의된 input grammer에 제약을 받는 test case를 생성
+2. Mutational > 다른 test case를 muation하여 test case 생성
+- CGF는 binary file code 전체를 탐색하려고 하므로 새로운 code region에 도달하는 test case mutation 선호
 ## 2.2. Coverage-Guided Fuzzing
+![figure2](./image/18_figure2.png)
+- CGF는 binary intrumentation, system emulation, hardware-assisted mechanism을 통하여 code coverage 추적
+- CGF는 BB, BBE, BBP중 하나를 code coverage 측정 기준에 기반함
+- BBE 는 BB의
 ## 2.3. Coverage Tracing Performance
 ## 2.4. Focus of this Paper
 # 3. Impact of Discarded Test Cases
