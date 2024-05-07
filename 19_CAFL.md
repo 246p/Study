@@ -14,34 +14,55 @@
 - target site에 도달하는것이 목표가 아닌 constraint를 만족시키는것을 목표로함
 - 순서에 따라 그 constraint를 더 잘 만족시키는 seed를 우선
 - constraint는 하나 이상일 수 있으며 이때 지정된 순서대로 constraint를 만족해야함
+> contribution
+- ordered target site, data conditon을 통합한 CDGF 제안
+- 주어진 information source (crash dump, patch changelog)를 통하여 자동으로 constraint 생성
+- CAFL을 구현하고 AFLGo에 비해 crash triger 측면에서 우수성을 입증
 # 2. Background and Motivation
-
 ## 2.1. Directed Greybox Fuzzing
+![figure1](./image/19_figure1.png)
+
+- [a,b,e,f] -> 0.785
+- [a,b,c,d,a,b,e,f] -> 0.85
+- [a,b,c,a,d,e,f] -> 0.971
+- target에 모두 도달해도 거리가 더 클 수 있음
 
 ## 2.2. Usage Example
-
+- DGF는 target site를 정확하게 정의할수 있는 곳에서 사용할 수 있음
 ### 2.2.1. Static Analyzer Verification
-
+- compile time의 source code의 잠재적 버그를 발견하기 위한 SA를 사용함
+- SA는 crash location, crash에 가정된 data condition을 포함함
+- SA의 낮은 정확도로 인해 크게 신뢰하지 않음 > DGF를 이용한다면 target site로 설정하여 testing 가능
 ### 2.2.2. Crash Reproduction
-
+- crash report : 어떤 유형의 crash가 어떤 위치에서 발생한지 나와있음
+- 하나의 PoC만으로 crash를 수정할때 PoC가 부족하여어려울 수 있음 > DGF 사용 가능
 ### 2.2.3. PoC Generation
-
+- 공격자의 입장에서 patch changelog를 분석하여 patch된 위치에 target을 설정하여 DGF를 이용한 PoC 생성 가능
 ## 2.3. Limitation
-
 ### 2.3.1. Independent Target Sites
+![figure2](./image/19_figure2.png)
+- DGF는 모든 target site를 독립적이라고 간주하여 crash site 이전에 precondition site에 도달하는 개면이 없음
+- UAF에서 T1 : TYPE_INT, T2 : ident > 우선 순위가 seed C > B > A 가 바람직함
+- DGF는 T1, T2를 독립적으로 간주하기 때문에 target site 의 average distance를 기준으로 seed distance 계산
 
 ### 2.3.2. No Data Condition
-
+![figure3](./image/19_figure3.png)
+- DGF는 seed를 원하는 data condition으로 유도할 mechanism이 없음 
+- T1에서 buf를 할당 > t2에서 bound를 넘어서 buf에 접근하는 GRAD를 가져야함 > 우선 순위가 seed C > B > A 가 바람직함
+- DGF는 data condition을 인식하지 못하므로 distance를 기준으로 잘못된 우선순위 부여
 ## 2.4. Requirements
+1. Ordered Target Sites : crash의 precondition을 나타내는 program location을 가지고 있어야 하므로 DGF는 이 지점으로 먼저 유도되어야함
+2. Data Conditions : 대부분의 vulnerability는 data condition을 동반하므로 DGF는 seed를 data condition으로 유도할 수 있어야함
 
 # 3. Constraint-guided DGF
-
 ## 3.1. Overview
+- CDGF : independent target site set에 도달하는 것이 아닌 sequence of constraints 를 만족하는 것을 목표로함
+- 따라서 더 많은 constraint를 만족하거나 다른 seed보다 첫번째로 만족되지 않는 constraint를 만족하기 쉬운 경우에 짧은 distance 부여 
+- constraint distance = target site distance + data condition
 
 ## 3.2. Example
-
 ### 3.2.1. Ordered Target Sites
-
+![figure4](./image/19_figure4.png)
 ### 3.2.2. Data Conditions
 
 # 4. Constraints
