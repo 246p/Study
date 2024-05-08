@@ -74,7 +74,7 @@
 - CG에서 수행되는 function rechability analysis를 함께 사용함
 
 ### 5.1.2. Indirect Transfers
-- point-to, value-set analysis를 사용하여 inderect transfer에 대한 문제를 해결함 > over approximate에 대한 문제 존제
+- point-to, value-set analysis를 사용하여 inderect transfer에 대한 문제를 해결함 > over approximate에 대한 문제 존재
 - 이러한 오차는 under tripwiring (탐색해야 하는 code를 과다 추정)
 - indirect branch가 발견될때마다 CG를 동적으로 update함 > tripwiring을 조정
 - re-analysis 과정은 overhead를 더하지만 새로운 coverage는 지수적으로 감속하기 때문에 괜찮음
@@ -109,14 +109,15 @@
 ### 6.4.2. Indirect Call Tracking
 - 모든 indirect call site에 intrumentation을 적용하여 edge의 destination을 식별
 - indirect(caller, callee) pair 추적
-- 각 함수에 32bit ID 할당 > indirect call edge : caller,callee " 64bit edge ID 계산
+- 각 함수에 32bit ID 할당 > indirect call edge : caller,callee : 64bit edge ID 계산
 - 시간 복잡도가 낮기에 overhead 무시할만함
 ## 6.5. Maintaining Exploration Diversity
 - tripwiring은 CGF를 특정 target site로 유도하여 direction을 달성함
-- 새로운 coverage가 발견되지 않은 경우 seed를 random mutation > target을 자체를 실행해야 하기에 올바르지 않음
-- execution diversity heuristic을 개발 > code coverage가 더 큰 test case의 mutation을 우선시함
+- 기존 fuzzer는 새로운 coverage가 발견되지 않은 경우 seed를 random mutation > target site를 self call (stack overflow)하는 triggering에 알맞지 않음
+- target에 도달할 뿐만 아니라 그것을 trigger 해야함
+- execution diversity heuristic을 개발 > target relevant code region 에서의 coverage가 더 큰 test case의 mutation을 우선시함
 - fuzzing 대상에 instrumentation을 통하여 trace length(testcase에 의해 실행된 function의 수) 측정
-- trace length를 그대로 사용하는것은 비효율적임 > 평균 trace length를 사용 /// 무슨소린지 모르겠음
+- trace length를 그대로 사용하는것은 비효율적임 > 평균 trace length를 사용 /// 무슨소린지 모르겠음 (normalization하여 사용 한다는 의미인가?)
 # 7. evaluation
 1. RQ1. tripwiring은 rechable search space를 제한하는데 효과적인가
 2. RQ2. tripwiring은 DF를 효과성과 속도를 향상시키는가
