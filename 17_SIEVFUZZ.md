@@ -153,6 +153,7 @@
 ### 7.2.3. Results: Tripwiring vs. Undirected Fuzzing
 - AFL++과 비교
 ## 7.3. RQ3: Target Location Feasibility for Tripwiring
+![figure3](./image/17_figure3.png)
 - disjoint target일때 tripwiring이 distance minimaization 보다 성능이 더 좋아짐
 # 8. Discussion and Future Work
 ## 8.1. Refinements in Path Analysis
