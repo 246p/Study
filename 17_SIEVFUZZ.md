@@ -50,7 +50,7 @@
 - 두 Fuzzer 모두 Poc대비 29% 이상의 함수를 실행함
 - distance minimazation은 program state에 대한 greedy search로 인한 대가를 지불 > non-DF이 더 우수할때가 있음
 # 4. Overcoming the bottlenecks of directedness
-![figure1](./image/17_.figure1.png)
+![figure1](./image/17_figure1.png)
 
 -  tripwiring : fuzzer의 program state space의 search가 확률 적이며 control flow에 크게 영향을 받는점을 이용 > rechable path의 subset을 serach space에 제한 > subset은 target site에 도달하는데 반드시 필요한 path로 보장됨
 - control flow, path detection으로 target 으로의 path set을 식별
