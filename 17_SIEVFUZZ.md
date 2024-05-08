@@ -30,12 +30,13 @@
 - distance manimization을 기반으로한 DF는 execution path가 target에 가까운 testcase에 초점을 맞춤 > 두가지 overhead
 1. 모든 test case에 대해서 path distance 계산
 2. 작은 set을 찾기 위하여 greedy serach
-- distance minimiazation의 cost를 quantify 하기 위하여 실험 진행
+- distance minimiazation의 cost를 정량화 하기 위하여 실험 진행
 ## 3.1. Experiment Setup
 ![lisintg1](./image/17_listing1.png)
 
 - DAPRA cyber grand challenge benchmark `KPRCA-00038` 
 - `cgc_program_parse` : NULL pointer referencing 이 포함된 interpreter
+- bug trigger 조건 
 1. empty statement > language semantics 만족
 2. reference를 trigger하는 non empty statement 삽입
 - `crc_parse_statements`는 disjoint target
@@ -45,14 +46,14 @@
 - disjoint target에 대해서는 distance minimization이 non-DF보다 더 안좋음
 ## 3.2. Consequence 2: Unconstrained Exploration
 - distance minimization DF와 non-DF 의 격차
-- 두 fuzzing campain을 profiling > target site에 도달하는데 관련없는 코드에 대한 shfur cmrwjd
+- 두 fuzzing campain을 profiling > target site에 도달하는데 관련없는 코드를 실행한 비율을 측정
 - *AFLGo*는 exploitation, exploration 두 단계가 있기에 explotitation mode에 대해서만 측정
 - 두 Fuzzer 모두 Poc대비 29% 이상의 함수를 실행함
-- distance minimazation은 program state에 대한 greedy search로 인한 대가를 지불 > non-DF이 더 우수할때가 있음
+- distance minimazation은 program state에 대한 greedy search로 인한 대가를 지불함 따라서 non-DF이 더 우수할때가 있음
 # 4. Overcoming the bottlenecks of directedness
 ![figure1](./image/17_figure1.png)
 
--  tripwiring : fuzzer의 program state space의 search가 확률 적이며 control flow에 크게 영향을 받는점을 이용 > rechable path의 subset을 serach space에 제한 > subset은 target site에 도달하는데 반드시 필요한 path로 보장됨
+-  tripwiring : fuzzer의 program state space의 search가 확률적이며 control flow에 크게 영향을 받는점을 이용 > rechable path의 subset을 serach space에 제한 > subset은 target site에 도달하는데 반드시 필요한 path로 보장됨
 - control flow, path detection으로 target 으로의 path set을 식별
 - coverage guided fuzzing workflow를 수정하여 이러한 set만 탐색하도럭함
 - 이 region의 boundary를 "trip"할때 사전에 차단하고 종료
@@ -92,7 +93,6 @@
 ### 6.2.2. Exploration (EXP)
 - target에 unreachable한 경우 non-directed, non-tripwiring fuzzing으로 seed를 다양화함
 - indirect edge를 모니터링하여 rechability analysis를 수행하고 이에 따라 update
-
 ### 6.2.3. Tripwired Fuzzing (FUZZ)
 - target이 rechable한 순간부터 tripwiring DF가 시작
 - 이때도 새로운 indirect edge를 analysis 수행
