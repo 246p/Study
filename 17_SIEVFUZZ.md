@@ -158,7 +158,7 @@
 - target site에 도달하는 경로를 찾은 경우 indirect call에 의해 발생되는 경로를 못찾을 수 있음
 - exploration과 tripwiring을 번갈아 수행하여 indirect call을 해결할 수 있을것으로 기대됨
 ## 8.2. Path Prioritization
-- target에 도달한s path set search를 유도 > path중 우선순위를 정하지 못함
+- target에 도달한 path set search를 유도 > path중 우선순위를 정하지 못함
 # 10. Conclusion
 - distance minimaization based GF의 bottleneck을 해결
 - tripwiring은 irrelevant code를 제거하여 원하지 않는 path로의 경로를 사전에 차단함
