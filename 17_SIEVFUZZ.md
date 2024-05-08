@@ -95,7 +95,7 @@
 - indirect edge를 모니터링하여 rechability analysis를 수행하고 이에 따라 update
 ### 6.2.3. Tripwired Fuzzing (FUZZ)
 - target이 rechable한 순간부터 tripwiring DF가 시작
-- 이때도 새로운 indirect edge를 analysis 수행
+- 이때도 새로운 indirect edge 발견한 경우 re-analysis 수행
 - tripwiring intrumentation (조기 종료와 관련된 명령어 추가, 삭제)를 수행
 ## 6.3. Maintaining Fast On-demand Analysis
 - fuzzing을 종료하고 다시 재게함에 있어서 overhead가 크기 때문에 client-server 방식을 채택
