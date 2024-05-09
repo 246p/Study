@@ -89,7 +89,9 @@
 ## 6.2. High-level Fuzzing Workflow
 ![figure2](./image/17_figure2.png)
 ### 6.2.1. Initial Analysis (INIT)
-- initial iCFG, CG analysis에서 도달 여부를 질의함, unreachable : indirect call edge가 누락된것으로 판단 > EXP 를 실행
+- initial iCFG, CG analysis에서 도달 여부를 질의함
+- unreachable : indirect call edge가 누락된것으로 판단 > EXP
+- rechable > FUZZ
 ### 6.2.2. Exploration (EXP)
 - target에 unreachable한 경우 non-directed, non-tripwiring fuzzing으로 seed를 다양화함
 - indirect edge를 모니터링하여 rechability analysis를 수행하고 이에 따라 update
@@ -158,9 +160,11 @@
 # 8. Discussion and Future Work
 ## 8.1. Refinements in Path Analysis
 - target site에 도달하는 경로를 찾은 경우 indirect call에 의해 발생되는 경로를 못찾을 수 있음
-- exploration과 tripwiring을 번갈아 수행하여 indirect call을 해결할 수 있을것으로 기대됨
+- 찾지 못한 indirect call로 trigger되는 bug를 놓칠 가능성 존재
+- exploration과 tripwiring을 번갈아 수행하여 이를 해결할 수 있을것으로 기대
 ## 8.2. Path Prioritization
-- target에 도달한 path set search를 유도 > path중 우선순위를 정하지 못함
+- target에 도달한 path set search를 유도 > path중 우선순위를 정하지 못함 > 이를 개선해야함
+
 # 10. Conclusion
 - distance minimaization based GF의 bottleneck을 해결
 - tripwiring은 irrelevant code를 제거하여 원하지 않는 path로의 경로를 사전에 차단함
