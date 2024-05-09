@@ -154,7 +154,7 @@
 - AFL++과 비교
 ## 7.3. RQ3: Target Location Feasibility for Tripwiring
 ![figure3](./image/17_figure3.png)
-- disjoint target일때 tripwiring이 distance minimaization 보다 성능이 더 좋아짐
+- disjoint target일때 tripwiring이 distance minimaization 보다 성능이 더 좋아짐 > figure 3의 의미를 잘 모르겠음 (disjointness가 없지않나?)
 # 8. Discussion and Future Work
 ## 8.1. Refinements in Path Analysis
 - target site에 도달하는 경로를 찾은 경우 indirect call에 의해 발생되는 경로를 못찾을 수 있음
