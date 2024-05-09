@@ -63,18 +63,42 @@
 ## 3.2. Example
 ### 3.2.1. Ordered Target Sites
 ![figure4](./image/19_figure4.png)
+- figure 2의 `yasm 1.3.0`의 UAF에 대한 constraint
+- T1 > T2  순서로 도달해야함
+
+- CDGF의 seed distance
+1. seed A : T1과 가까운 b에 접근 > free의 constraint = 2, %use : T1에 도달하지 못하였기에 T2에 도달하더라도 max > 2 + max
+2. seed B : 1 + max
+3. seed C : 0 + 1
+4. seed D : 0 + 0
+- UAF를 재현하는 단계를 더 잘 따르는 seed에 대해서 더 짧은 seed distance 부여
+
+
 ### 3.2.2. Data Conditions
-
+![figure5](./image/19_figure5.png)
+- figure 3의 `CVE-2017-7578` 의 constraint
+- T1 에서 buffer allocation
+- T2 : buffer 크기와 offset 사이의 크기를 줄이도록 하여 boundary로 유도 (cond)
+- figure 3의 모든 seed는 target에 도달함
+- %access의 data condition distance를 통하여 seed distance를 계산함
+- T1의 buf 크기 - T2 의 offset 
 # 4. Constraints
-
+- CDGF를 사용하기 위해선 constraint, constraint의 distance metric을 정의해아함
 ## 4.1. Definition
-
+- constraint = target site + target site's data condition
+- constraint는 다음의 경우 satisfied 된것으로 간주
+1. target site에 도달
+2. target site에서 모든 data condition을 만족 한 경우 (있다면) 
 ### 4.1.1. Variable capturing
-
+- target site에서 사용된 변수를 캡쳐 > target site가 의 유형에 따라 다름
+- figure 5 의 예시
+- T2:buf[] : deereference > (&buf[i*10+10]) : dereferenced address
+- T1:malloc() : allocation > L*10 : size, 할당된 주소 : ret
 ### 4.1.2. Data condition
-
+- data condition : target site 에서 만족해야하는 캡쳐된 변수간의 boolean expression (including comparison operation)
+- precondition 이나 constraint에 의해 캡쳐된 모든 변수를 사용할 수 있음
 ### 4.1.3. Orderedness
-
+- constraint는 여러개가 존재할 수 있음 > 그러한 경우 지정된 순서되로 만족되어야함
 ## 4.2. Distance of Constraints
 
 ### 4.2.1. Target Site Distance
