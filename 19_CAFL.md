@@ -245,52 +245,98 @@
 ## 6.4. CAFL Fuzzer
 ### 6.4.1. Seed scoring
 - CAFL은 distance에 반비례하여 scoring
-- 일부 seed는 더 줄일 수 없는 local minimum 일 수 있음 > 이를 해결하기위해 stuck depth(fuzzing된 횟수)를 통하여 지수적으로 난춤
+- 일부 seed는 더 줄일 수 없는 local minimum 일 수 있음 > 이를 해결하기위해 stuck depth(fuzzing된 횟수)를 통하여 지수적으로 낮춤
 
 ![formula7](./image/19_formula7.png)
 ### 6.4.2. Seed creation
+- 현재 최대 점수보다 높은 점수의 seed를 관찰할때마다 새로운 seed 생성
+- seed가 새로운 control flow edge를 cover할때도 일반적인 방법으로 seed를 생성하여 dtat context를 다양화함
 ### 6.4.3. Seed prioritization
-
+- AFL의 seed prioritization을 수정하여 seed의 선택 확률을 score에 기반하여 조절함
+- seed의 점수의 증가순으로 순위를 매기고 지수적으로 높게 부여함
+- 점수가 아니라 순위를 통한 확률 부여 > distance가 두가지 척도의 조합이고 스 척도가 호환되지 않기 때문
+- P(s)=1/exp(R(s))
 # 7. Evaluation
-
+- AFLGo와 CAFL을 비교
+- 모든 constraint는 자동으로 생성
 ## 7.1. Microbenchmark: LAVA-1
+![figure10](./image/19_figure10.png)
+
+![table2](./image/19_table2.png)
+
+
 
 ## 7.2. Crash Reproduction
+- 47개의 real world crash에 대한 crash reproduction time
+- AddressSanitizer, MemorySanitizer의 crash dump를 이용한 자동 constraint 생성
+
+
+![table3](./image/19_table3.png)
+
+![table4](./image/19_table4.png)
 
 ## 7.3. PoC Generation
+- 12개의 crash에 대한 PoC 생성 시간
+- git, Mercurial의 patch changelog를 사용한 자동 생성
+
+![table5](./image/19_table5.png)
 
 # 8. Discussion
-
 ## 8.1. Use-cases with manually written constraints
-
+- 이 논문의 evaluation에서는 자동으로 생성된 constraint를 사용하지만 개발자가 수동으로 설정할 경우에도 효과가 있을것으로 기대됨
 ## 8.2. Bugs that require three or more constraints
-
+- 일부의 경우 3개 이상의 constraint가 필요한 경우가 존재함
+- stack call overflow (무한재귀) : 실행 stack을 더 깊게하기 위하여 여러 constraint가 필요 
+- CAFL는 이를 지원하지 않음
 ## 8.3. Ineffective scenarios
-
+- 현재 자동으로 생성된 datcondition은 crash의 원인이 near-crash condition과 관계가 없을 경우 비효율적일 수 있음
+- BOF를 일으키는 uninitialized offset > distance와 관련 없음
+- seed scheduling을 통하여 완하활 수 있지만 얼마나 많은 비효율을 초래하는지 조사가 필요
 ## 8.4. Bugs that require further research
-
+- global buffer-overflow, buffer-underflow의 경우 단순한 data condition으로 유도되기 힘듬
+- global BOF의 경우 접근 offset과 buffer boundray 산술적 관계가 없음
+- buffer underflow의 경우 buffer의 시작 부분을 쉽게 접근하여 data condition이 이를 구별하는데 실패함 (arr[0]을 접근하는 수가 많기에 arr[-1]에 대한 지향성 힘듬?)
 ## 8.5. Issue on distance of pointer conditions
+- 현재 산술적 차이로 data condition을 표현함 > 부적절한 경우가 있음
+- 두 포인터가 다른 객체를 가르키는 경우 두 포인터 값의 차이는 의미있는 정보가 아님
 
+![figure11](./image/19_figure11.png)
+- user.addr과 free.arg0 사이의 차이가 UAF를 발생시킬 확률과 관련이 없음
+- double-free와 같은 시간적 pointer bug에서 동일하게 발생
+- 이를 nT로 지정하였고 crash input을 찾기 위한 fuzzy한 특성에 의존함
 # 9. Related Work
-
 ## 9.1. Directed greybox fuzzing
-
+- AFLGo, SemFuzz : DGF
+- Hawkeye는 AFLGo를 기반으로 DGF를 개선함 > call trace를 반영한 distance metric
+- 전통적인 DGF는 순서가 있는 target site, data condition 개념이 없기 때문에 긴 fuzzing time
+- ParemeSan은 dynamic CFG를 통한 distance 개선
+- CDGF의 distacne metric은 CFG의 유형에 따라 달라지지 않기에 dynamic CFG를 통한 이점을 얻을 수 있음
 ## 9.2. Static analysis-assisted directed fuzzing
-
+- 일부 DGF는 SA가 제시한 crash execution path 이용 > crash location에서 crash reproduction을 용이하게 하는 mechanism이 없거나 부정하게 분석된 path로 fuzzing을 과도하게 제한함
 ## 9.3. Targeted analysis with symbolic execution
-
+- SE는 여러 어려운 branch condition을 해결하는 장점이 있음
+- hybrid fuzzing은 branch condition을 해결하는 target SE를 사용함
+- DGF에도 이를 결합할 수 있음
 ## 9.4. ML-based directed fuzzing
-
+- NEUZZ : seed의 branch coverage를 예측하는 model을 사용
+- FuzzGuard  seed distance를 단축하지 못할것으로 예측되는 input을 필터링
 ## 9.5. Alternative distance metrics
-
+- Angora : branch condition solving을 위해 integer distance를 도입
+- UAFuzz : seed call stack과 UAF PoC간의 유사성을 활요하는 distance metric > UAF에 한정적임
 ## 9.6. Domain-specific fuzzing
-
+- FuzzFactory : domain에 특화된 seed generation 규칙 > 이에 맞는 seed generation : 자동화 되지 못함
 ## 9.7. PoC generation
-
+- 다른 tool과 다르게 CAFL은 SE가 필요없음
 # 10. Conclusion
-
+- target site, data condition을 통합하여 constraint를 정의함
+- 지정된 순서대로 constraint를 만족시키는 CDGF 제시
+- constraint sequence에 대한 distance metric을 정의 > constraint를 잘 만족하는 seed를 우선시
+- 7가지 유형의 crash dump, 4가지 유형의 patch changelog를 이용한 constraint 자동 생성
 
 # 11. Appendix
-## 11.1. A
-## 11.2.
-## 11.3. Constraint Generation Algorithm for Changelogs
+## 11.C. Constraint Generation Algorithm for Changelogs
+![algorithm1](./image/19_algorithm1.png)
+- 주어진 patch changelog와 함꼐 적절한 constraint를 찾음
+- 변경된 location set을 통하여 사전에 정의된 사례로 분류 > target site, data condition 생성
+- 
+## 11.D. Analysis on Minimum Distance Change
