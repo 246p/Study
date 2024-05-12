@@ -131,32 +131,125 @@
 - 만약 같은 수의 data condition이 만족 > 첫번째로 만족하지 못하는 data condition의 가능성이 더 가까운 것으로함
 
 ![formula4](./image/19_formula4.png)
-- 
+-  $c_{data} = 2^{32}$  
 ### 4.2.3. Constraint Distance
+- constraint distance = target site distance + data condition distance
+
+![formula5](./image/19_formula5.png)
+- 다음과 같이 계산됨
+1. Target site 이전 : $D^n = d(B^n,B^*)+c_{data}*N(\overrightarrow{Q})$
+2. Target site 에서 : $D^n= 0 + D^n_{DATA}$
+3. constraint 만족 : $D^n = 0$
 
 ### 4.2.4. Total Distance
+- total distance = distance of a constraint sequence
+- $\overrightarrow{B}^* = [B^*_1, ..., B^*_M]$ : constraint에 포함되는 target site의 sequence
+- $\tau_n$ : 천번째로 만족되지 않은 constraint의 index
+
+![formula6](./image/19_formula6.png)
+
+- $c_{con} = 2^{35}$ = 8개의 data condition 수용 가능 
+- 다음과 같이 계산됨
+1. 모든 constraint를 만족하지 못하였을때 : $D^n=c_{con}(N(\overrightarrow{B}^*)-1+min(c_{con}, D^n_1)$
+2. 하나의 constraint가 남았을때 : $D^n = min (c_{con},D^n_M)$
+3. 모든 constraint를 만족하였을떄 : $D^n=0$
+- seed : execution 동안의 minimum total distance로 정의
 
 # 5. Constraint Generation
-
+- 추가 정보를 이용하여 constraint를 생성함 > 사전에 정의된 constraint templete을 이용
+- memory error detector의 crash dump, patch changelog를 이용하여 생성함
 ## 5.1. Crash Dump
+- 7개의 bug type을 지원하는 3가지 template을 제공
+- nT : UAF, double-free, use-of-uninitilized-value
+- 2T + D : stack-BOF, heap-BOF
+- 1T + D : assertion-failure, divide-by-zero
 
 ### 5.1.1. Multiple Target Sites (nT)
 
+![figure6](./image/19_figure6.png)
+- nT  : crash dump가 순서대로 도달해야하는 target site를 알려줌
+#### Avoiding wrapper functions
+- alloc, ree, mem과 같은 keyword가 stack fram caller에 있는지 확인하여 memory wrapper 내부의 target이 아닌 하위 stack frame의 location을 선택
+#### Constraint description
+- crash reproduction을 위해 순서대로 도달해야하는 multiple target site를 지정함
+- %cause(cause 생성) -> %trans(cause 전달) -> %crash (crash 발생)
 ### 5.1.2. Two Target Sites with Data Conditions (2T+D)
 
+![figure7](./image/19_figure7.png)
+
+- BOF를 위한것
+- endaddr는 할당된 memory의 끝 (ret+size)
+#### Constraint description
+- %alloc은 buf를 할당하는 위치
+- <alloc_site>에 도달하면 ret, endaddr 을 캡쳐
+- %access : <access_site>에서 cond 조건을 통하여 endaddr로 경계까지 driven
+#### Corresponding bug types
+- global-buffer-overflow, buffer underflow를 지원하진 못함
 ### 5.1.3. One Target Site with Data Conditions (1T+D)
 
+![figure8](./image/19_figure8.png)
+#### Constraint description
+- target site와 data condition을 지정
+#### Corresponding bug types
+- Divide-by-zero : <data_cond>에서 constr.rhs == 0
+- Assertion-failure : target_site : 실패한 assertion, datacond = assertion 조건의 부정
 ## 5.2. Patch Changelog
 
+![figure8](./image/19_figure8.png)
+
+- patch change log에 대한 constraint는 1T+D를 사용
+#### Constraint description
+- target_site, data_cond 설정
+#### Determining constraint
+- 적절한 constraint를 찾기 위하여 patch changelog는 사전에 정의된 case와 matching
+- [부록 3](#113-constraint-generation-algorithm-for-changelogs)
+1. 새로운 예외검사 도입 : target_site : 해당 source, data_cond : 도입된 예외 검사 조건
+2. branch condition 변경 : target_site : 변경된 조건, data_cond : C_pre XOR C_post
+3. 변수 교체 : target_site : 교체된 변수, data_cond : patch 전과 후의 변수의 값이 다른지 확인
+4. 위의 경우가 아닌 경우 > data condition이 없음
+#### Multiple target sites
+- 모든 변경된 위치에 sentinal function으로 연결하고 이를 target_site로 설정
+- 각 변경 위치에서 sentinal function call을 삽입
 # 6. Implementation
+
+
+- *AFL 2.52b* 기반으로 CAFL 제작
 
 ## 6.1. System Overview
 
+![figure9](./image/19_figure9.png)
+
 ## 6.2. CAFL Compiler
-
+### 6.2.1. Coverage instrumentation
+- LLVM IR을 통한 byte code 생성
+- target site들이 최적화 되지 않도록 주석을 담
+- AFL instrumentation compiler를 사용하여 edge coverage를 instrumentation
+### 6.2.2. Call graph construction
+- target site distance calculation을 위하여 program 전체의 CG 구축
+- function pointer와 관련하여 같은 형식의 모든 함수를 잠재적인 callee로 가정 > 그런 함수가 없다면 부분적으로 일치하는 함수들을 callee로 가정
+### 6.2.3. Target site distance instrumentation
+- target site에서 시작하여 BB의 target site distance를 계산하고 CFG, CG를 기반으로 checkpoint call을 삽입
+- target site에서 캡처된 변수를 check point call을 통하여 CAFL에 runtime으로 전달함
 ## 6.3. CAFL Runtime
-
+### 6.3.1. Seed distance tracking
+- checkpoint를 통한 target site distance feedback을 사용하여 seed distance을 tracking
+- intrumentation된 binary는 $[\tau,d(B_n,B^*_\tau)]$ tuple을 전달
+- $\tau : constraint index, d(B_n,B^*_\tau) : \tau번째 constarint의 target site distance$
+- CAFL runtime은 첫번째로 만족되지 않는 constraint의 target site distance를 선택적으로 받아들여 seed distance를 update
+- target site에서 checkpoint call을 통하여 캡쳐된 변수를 받고 data condition distance를 계산
+- 할당 해제된 변수에를 처리하기 위하여 memory pointer varibale, free/realloc에 의해 해제된 heap objext, stack unwinding object를 폐기
+- 현재 constraint의 distance가 0이 된다면 다음 constraint로 이동함
+### 6.3.2. Seed distance reporting
+- CAFL은 shared memory interface를 통하여 fuzzer에게 seed distance를 보고함
+- 추가적인 runtime 정보 (어떤 constraint에 멈추어 있는지)도 보고함
 ## 6.4. CAFL Fuzzer
+### 6.4.1. Seed scoring
+- CAFL은 distance에 반비례하여 scoring
+- 일부 seed는 더 줄일 수 없는 local minimum 일 수 있음 > 이를 해결하기위해 stuck depth(fuzzing된 횟수)를 통하여 지수적으로 난춤
+
+![formula7](./image/19_formula7.png)
+### 6.4.2. Seed creation
+### 6.4.3. Seed prioritization
 
 # 7. Evaluation
 
@@ -195,3 +288,9 @@
 ## 9.7. PoC generation
 
 # 10. Conclusion
+
+
+# 11. Appendix
+## 11.1. A
+## 11.2.
+## 11.3. Constraint Generation Algorithm for Changelogs
