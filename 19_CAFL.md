@@ -100,11 +100,38 @@
 ### 4.1.3. Orderedness
 - constraint는 여러개가 존재할 수 있음 > 그러한 경우 지정된 순서되로 만족되어야함
 ## 4.2. Distance of Constraints
-
 ### 4.2.1. Target Site Distance
+#### Basic block distance
+- 두 BB가의 거리는 다음과 같이 정의
 
+![formula1](./image/19_formula1.png)
+- $B_s$ : $B_1$의 모든 successor
+
+#### Target site distance
+![formula2](./image/19_formula2.png)
+- target site와 현재 BB간의 BB distance로 정의
+- $B*$ : target site
+- $\overrightarrow{B} = [B_1,B_2,...]$ : 실행된 BB sequence
+
+- 앞으로 임의의 변수 #에 대해서 #^n : B^n을 실행하는 순간의 변수의 값
 ### 4.2.2. Data Condition Distance
+#### Distance of an individual data condition
+![table1](./image/19_table1.png)
+- Angora와 유사
+- 개별 data condition은 $\hat{d}_x(\overrightarrow{n})$를 기반
+- $\hat{d}(\overrightarrow{n})$을 다음과 같이 정의함
 
+![formula3](./image/19_formula3.png)
+
+- $Var^n(Q)$ : $B^n$이 실행될때까지 포착된 변수의 vector set
+
+#### Distance of multiple data conditions
+- seed가 모든 data condition을 만족하는데까지의 거리를 의미
+- 더 많은 data condition이 만족될때 더 짧아지도록 정의
+- 만약 같은 수의 data condition이 만족 > 첫번째로 만족하지 못하는 data condition의 가능성이 더 가까운 것으로함
+
+![formula4](./image/19_formula4.png)
+- 
 ### 4.2.3. Constraint Distance
 
 ### 4.2.4. Total Distance
