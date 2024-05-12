@@ -338,5 +338,7 @@
 ![algorithm1](./image/19_algorithm1.png)
 - 주어진 patch changelog와 함꼐 적절한 constraint를 찾음
 - 변경된 location set을 통하여 사전에 정의된 사례로 분류 > target site, data condition 생성
-- 
+
 ## 11.D. Analysis on Minimum Distance Change
+![figure13](./image/19_figure13.png)
+- fuzzing중 minimum seed distance의 변화
