@@ -76,12 +76,51 @@
 ## 4.1. Preliminary
 ### 4.1.1. Language
 ![figure4](./image/16_figure4.png)
+- 각 함수는 formal parameter $v_i$를 받아 r을 반환
+- non deterministic s1:s2 or atmoic i
+- statement 전 후 program location l, l' 으로 labeling
+- assume : boolean 조건이 성립해야 실행됨 > if b then s1 else s2 > (assume b; s1) ; assume (!b ; s2)
 
 ### 4.1.2. Precondition Inference
 ![algorithm1](./image/16_algorithm1.png)
 - target에 도달하기 위한 weakest condition을 역으로 계산됨 (true로 시작하여  변화함)
-- algorithm1 은 precondition을 정확하게 찾지만 추론에 비용이 많이드는 복잡한 constraint를 출력함
+- algorithm1 : predicate transformers : precondition을 정확하게 찾지만 추론에 비용이 많이드는 복잡한 constraint를 출력함 
+- `v:=e` -> $\phi[e/v]$로 변환
+- 실제로는 target에서 condition을 역방향으로 전파
+- algorithm1은 정확하지만 복잡한 constraint를 추론하는데 비용이 많이듬 > 전체 조건의 정확성과 overhead 사이의 절충 필요
 ## 4.2. Backward Interval Analysis
+
+- 우리는 모든 pruning된 경로가 target unrechable 하다는 것을 보장하며 많은 infeasible path를 prunging 해야함
+- target location $l_0'$이 주어질때 target에 도달하기 위한 precondition set $\hat{wp}(l,l_0')$을 계산
+- path condition을 추론하기 위하여 $\alpha, \gamma$를 사용
+- target site에서 시작하는 역방향 path를 over-approximate 해야함
+- 이를 위해 모든 active (instruction, postcondition) pair를 포함하는 worklist를 사용함
+
+![algorithm2](./image/16_algorithm2.png)
+- line3 : target t와 initial postcondition true를 work list에 추가 
+- line 5-6 : work list에서 $(<l,i,l'>,\phi)$를 pop 하여 instruction i에 따라 postcondition $\phi$ 변환
+- 새로 계산된 postcondition $\phi'$은 $\hat{wp}(l)$의 값을 update하기 위하여 역방향 전파
+- predicate transformer 와 worklist가 모든 execution을 추적하여 backworld path를 추론할 수 있음
+
+![figure2](./image/16_figure2.png)
+
+- $l_{18} -> l_{14} backworld analysis$를 진행하여 line 9에서 p1, p2로 분기됨
+- line 8 에서 p1, p2의 condition은 다음과 같음
+- pc1 : {z<2y, v<6, x<40, v=y-x, w<5, x>=20}
+- pc2 : {z<2y, v<6, x<40, v=y-x, w>25, x<20}
+- 이를 해결하기 위해서 SMT solver를 사용하는 것은 cost가 높음
+- line 8 에서 다시 두 path가 합쳐지므로 적당한 정밀도 손실을 유지하며 $\hat{wp}(l_8)$로 결합되어야함
+- 이를 위하여 적당한 interval abstraction 사용 
+- $\alpha = \Lambda : V -> Interval $, Interval = integear 사이의 집합, $\top$ = Z, $\bot$ = 공집합
+- $\gamma(\Lambda) = \cap_{v\in dom(\Lambda)}cons(v)$ : abstract value를 logical constraint로 mapping
+
+![formula1](./image/16_formula1.png)
+
+- interval abstraction으로 다양한 backword path를 건전하게 결합함
+
+![abstract1](./image/16_abstract1.png)
+
+
 
 ## 4.3. Optimizations for Maintaining Precision
 
