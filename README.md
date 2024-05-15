@@ -38,8 +38,8 @@
 
 [One Fuzz Doesn’t Fit All: Optimizing Directed Fuzzing via Target-tailored Program State](./17_SIEVFUZZ.md)
 
+[Constraint-guided Directed Greybox Fuzzing](./19_CAFL.md)
 ## Smart contract fuzzing
 [Smartian: Enhancing Smart Contract Fuzzing with Static and Dynamic Data-Flow Analyses](./6_smartian.md)
 
-[Constraint-guided Directed Greybox Fuzzing](./19_CAFL.md)
 ## [읽을 논문 list](./0_short.md)
