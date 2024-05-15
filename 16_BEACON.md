@@ -144,21 +144,44 @@
 - bound threshold를 사용하여 l에 도달하는 path의 수가 threshold 적을때 condition들을 $\hat{wp}(l)$에서 유지
 - 개별적으로 backword propagate
 
-![figure7](./image/figure7)
+![figure7](./image/16_figure7.png)
+- interval abstraction을 통해 정밀도 손상이 발생할 수 있음
+- 두 abstract region의 교차는 frechet distance로 측정할 수 있음
+- interval domain에서 각 변수의 interval 에서 distance를 누적하여 정밀도 손실을 계산해야함
+
+![formula2](./image/16_formula2.png)
+- v = path condition $\phi_1, \phi_2$의 공유 변수
+- $v_{\phi_1} = [l_1, u_1], v_{\phi_2} = [l_2, u_2]$
+
+![formula3](./image/16_formula3.png)
+
+![formula4](./image/16_formula4.png)
 
 
 ## 4.4. Precondition Instrumentation
-
+- target program location에서 rechable을 위한 precondition을 추론 > 이를 program에 instrumentation 하여 runtime에 infeasible path pruning
+- 정교한 분석 > instrumentation, runtime에 overhead > 선택적으로 instrumentation 해야함
+1. SSA form으로 변환하여 변수 정의만 instrumentation의 후보 위치
+2. v1의 값이 v2에 의존하는 경우 v1은 instrumentation 되지 않음
 # 5. Evalutation
+- LLVM을 기반으로 BEACON 구현
+- PUT를 LLVM bit code로 compile, precondition analysis, instrumentation, coverage 관련 instrumentation이 수행됨
+- 이후 LLVM bit code를 executable binary로 compile하여 AFLGo를 fuzzing engine으로 사용
+1. 4가지 DGF와 비교
+2. path slicing, precondition 확인이 fuzzing 시간을 얼마나 단축하는지 평가
+3. precondition analysis가 relational preservation, bounded disjunction의 영향 평가
+4. instrumentation에 의한 runtime overhead의 측정으로 instrumentation 전략의 효과 평가 
 
-### 5.0.1. Baselines
+- Baselines : AFLGo, Hawkeye, AFL, Mopt, AFL++
+- Benchmarks
 
-### 5.0.2. Benchmarks
+![table2](./image/16_table2.png)
 
-### 5.0.3. Configurations
-
+- threshold = 5
 ## 5.1. Compared to the State of the Art
-
+### AFLGo
+### Hawkeye
+### AFL, AFL++
 ## 5.2. Impacts of Path Slicing & Precondition Checking
 
 ## 5.3. Impacts of Relation Preservation & Bounded Disjunction
