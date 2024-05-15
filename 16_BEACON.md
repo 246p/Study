@@ -157,7 +157,6 @@
 
 ![formula4](./image/16_formula4.png)
 
-
 ## 4.4. Precondition Instrumentation
 - target program location에서 rechable을 위한 precondition을 추론 > 이를 program에 instrumentation 하여 runtime에 infeasible path pruning
 - 정교한 분석 > instrumentation, runtime에 overhead > 선택적으로 instrumentation 해야함
