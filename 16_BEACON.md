@@ -120,13 +120,32 @@
 
 ![abstract1](./image/16_abstract1.png)
 
-
+- `joinPath`에서 pc1, pc2의 interval abstraction을 결합
+- interval abstraction은 부정확 할 수 있음 > 정밀도를 향상시키는 두가지 최적화
+1. 특정 변수간 관계를 명시적으로 추적하는 interval abstraction $\alpha$ 설계
+2. 결합을 수행할 시기와 방법을 결정하는 bounded disjuction strategy 설계
 
 ## 4.3. Optimizations for Maintaining Precision
-
 ### 4.3.1. Relationship Preservation
+- top-down analysis
+- interavl abstraction $\alpha$는 path condition에 나타내는 변수들의 범위를 추론하는데 사용됨
+- 변수 뿐만 아니라 path condition에 나타나는 expression의 interal 또한 추적 > 이를 child, parent에 전파하여 정밀도 상승
+
+![figure5](./image/16_figure5.png)
+
+- 7,8 : interval abstactionn의 정밀도를 증가시키는 heuristic
+
+![figure6](./image/16_figure6.png)
+- pc2에서 새로운 추론규칙을 사용 : 더 정밀한 결과
 
 ### 4.3.2. Bounded Disjunctions
+- 다른 path에서 전파된 조건을 선택적으로 결합하여 정밀도를 높일 수 있음
+- backword propagation 동안 정밀도를 유지하기 위한 bounded dijunctions 전략 설계
+- bound threshold를 사용하여 l에 도달하는 path의 수가 threshold 적을때 condition들을 $\hat{wp}(l)$에서 유지
+- 개별적으로 backword propagate
+
+![figure7](./image/figure7)
+
 
 ## 4.4. Precondition Instrumentation
 
