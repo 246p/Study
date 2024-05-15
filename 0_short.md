@@ -38,31 +38,6 @@ fuzzing 성능 향상을 위하여 이 문제를 문제를 해결하였다.
 새로운 operating primitives specialized를 통하여 120코어를 사용하였고 Google fuzzer test suite를 대상으로 AFL : 6.1~28.9배, LibFuzzer : 1.1~735.7배 향상함을 확인하였다.
 
 더 일반적인 설정인 30코어를 할당한 경우에도 AFL의 처리량을 7.7배까지 향상시킨다. 이러한 fuzzer-agnostic primitives는 어떤 fuzzer에도 쉽게 적용할 수 있으며 대규모 fuzzer 및 cloud 기반 fuzzing 서비스에 직접적인 이익이 된다.
-### Full-speed Fuzzing: Reducing Fuzzing Overhead through
-[Link](https://users.cs.utah.edu/~snagy/papers/19SP.pdf)
-
-coverage-guided fuzzing은 다음 3가지 요소를 갖는다.
-1. test case generation
-2. code coverage tracking
-3. crash triage
-
-이중 code coeverage tracking은 overhead의 주요한 원인이다. coverage-guided fuzzer는 static or dynamic binary instrumentation 또는 하드웨어 지원을 통하여 testcase의 code coverage를 추적한다.
-
-모든 testcase를 추적하는것은 상당한 성능 저하를 초래한다. 심지어 압도적 다수의 testcase coverage 정보가 쓸모가 없다.
-
-coverage-guided fuzzer에 불필요한 추적을 제거하기 위하여 coverage-guided tracking을 소개한다.  이는 두가지 관찰에 기반한다.
-
-1. 생성된 testcase중 일부만 coverage를 증가시킨다.
-2. 이러한 testcase는 시간이 지나면 덜 발생한다.
-
-coverage-guided tracking은 coverage를 증가시키는 testcase를 처리한 시간을 높이고 그렇지 않은 것을 처리하는 시간을 줄인다.
-
-우리는 static bainary instrumentator Dyninst에 기반한 Untracer를 만들었다.
-
-실험결과 Untracer의 평균 오버헤드는 1시간동안 1%미만이고 24시간 후에는 0%에 접근한다. 반면 AFL-Clang, AFL-QEMU, AFL-Dyninst로 는 36,612,518%의 오버헤드가 발생한다.
-
-또한 우리는 Untracer를 fuzzerQSYM과 통합하여 24시간의 fuzzing에서 QSYM-Untracer가 QSYM-Clang, QSYM-QEMU보다 79,616% 더 많은 test case를 실행하였다.
-
 
 ## 3. Hybrid fuzzing
 ### Driller: Augmenting Fuzzing Through Selective Symbolic Execution
