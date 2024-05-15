@@ -178,24 +178,39 @@
 ![table2](./image/16_table2.png)
 
 - threshold = 5
+
 ## 5.1. Compared to the State of the Art
-### AFLGo
-### Hawkeye
-### AFL, AFL++
+![table3](./image/16_table3.png)
+
 ## 5.2. Impacts of Path Slicing & Precondition Checking
 
+![figure10](./image/16_figure10.png) 
 ## 5.3. Impacts of Relation Preservation & Bounded Disjunction
 
+![figure11](./image/16_figure11.png)
 ## 5.4. Instrumentation Overhead
+![table6](./image/16_table6.png)
 
 ## 5.5. Case Study
 
+![figure12](./image/16_figure12.png)
+- line 12에서 crash 발생 가능
+- line 5 앞에 precondition 삽입 > 조기 종료 가능
 ## 5.6. Discussion
-
+### Assisting other fuzzers
+- 일반적인 DGF는 input generation, seed prioritization 을 통하여 성능 향상
+- BEACON은 fuzzing의 무작위성을 완화시킴
+### Threats to validity
+- input generation의 무작위성에 의해서 실험 결과에 영향을 미칠 수 있음
+- BEACON이 SE를 지원하는 fuzzer를 지원하기 힘듬 (확장성의 문제)
 # 6. Related Work
-
 ## 6.1. Directed White-box Fuzzing
-
+- DF는 SE, Concolic execution에 의존하는 WF에서 시작됨
+- SE를 통해 탐색할 program path의 priority 정하기 가능
+- SE자체 속도 가속화
 ## 6.2. Coverage-guided Fuzzing
-
+- dynamic taint analysis를 사용하여 input generation optimize 가능
+- SE와 함께 사용하는 hybrid fuzzing
 # 7. Conclusion
+- BEACON은 path pool에서 GF를 유도하여 불필요한 execution을 피하고 시간을 절약
+- 저비용, 정밀한 분석을 통한 infeasible path에 대한 pruning
