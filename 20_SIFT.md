@@ -38,9 +38,9 @@
 - 하지만 무시하는 conditional statement가 safety check를 수행할 수 있음, 이를 무시하면 안전한 input 또한 폐기될 수 있음
 - 하지만 실험 결과 이를 무시한는 것이 큰 정확도 손실을 초례하지 않음
 ## 1.4. Input Fields With Multiple Instantiations
-- input file은 동일한 input field의 여러 instance를 포함함
-- SIFT는 propagated symbolic expression의 free variable이 참조하는 input field의 모든 instance를 추상화함
-- 즉 variable과 동일한 input field와 다른 instance간 대응을 시키지 않음
+- input file은 동일한 input field의 여러 instantiation를 포함함
+- SIFT는 propagated symbolic expression의 free variable이 참조하는 input field의 모든 instantiation를 추상화함
+- 즉 variable과 동일한 input field와 다른 instantiation간 대응을 시키지 않음
 - 동일한 input field를 참조하는 모든 변수는 서로 교환 할 수 있음 > 정확한 대응 관계를 결정할 수 없는 프로그램 또한 분석 가능
 - 교환 가능성은 loop에서 variable을 renumbering 하여 loop invarient expression을 얻는 알고리즘을 가능하게함 [3.2](#32-intraprocedural-analysis)
 ## 1.5. Pointer Analysis and Precondition Generation
@@ -89,19 +89,70 @@
 - 버퍼의 크기를 계산하는 식은 `h_sample, v_sample`의 최대 값인 `max_h_sample, max_v_smaple`을 사용
 - 이 변수가 어떤 instance를 나타내는지 정적으로 결정하는것은 불가능함 > 해당 input field의 모든 instance를 나타내는 추상화 수행
 - 포인터로 input field의 값에 접근하는 load/store 명령이 많음, 이를 처리하기 위해 alias analysis와 통합 할 수 있는 추상화 수행
-- input filed를 읽는 함수와 할당하는 함수가 다름 > interprocedual analysis
+- input field를 읽는 함수와 할당하는 함수가 다름 > interprocedual analysis
 - fixed poinst analysis, 새로운 expression normalization technique을 사용하여 loop invariants를 얻음
 
 ## 2.2. Source Code Annotations
-- SIFT는 어떤 명령이 어떤 input field를 읽는지 지정할 수 있는 인터페이스 지정
-
+- SIFT는 어떤 명령이 어떤 input field를 읽는지 지정할 수 있는 인터페이스 제공
 
 ## 2.3. Compute Symbolic Condition
-- 
+![figure2](./image/20_figure2.png)
+
+- demand-driven interprocedual backward SA를 통해 figure2의 symbolic condition C를 계산함
+- safe(e) : e를 계산하는 과정에 OF 발생하지 않아야함
+- sext(v, w) : v를 w로 확장
+- 실제로는 부호도 추적하지만 figure 2에는 이를 생략
+
 ## 2.4. Generate Input Filter
+- C를 위반하는 input을 버리는 input filter 생성
+- safe(e)을 계산하는 과정에서 OF가 발생하는 경우 이를 거부함
+- h_s_1,2 v_s_1,2의 모든 가능한 조합을 반복함
 # 3. Static Analysis
+- LLVM Compiler Infrastrucutre를 사용
 ## 3.1. Core Language and Notation
+![figure3](./image/20_figure3.png)
+
+> Labels and Pointer Analysis
+
+![figure4](./image/20_figure4.png)
+- firstS(s) : s의 첫번째 statement, firstL(s) : s의 첫번째 label 
+- last(s) : s의 마지막 label
+- labels(s) : s의 label의 집합, load sotre는 LoadLabel, StoreLabel 을 사용하여 표현
+- SA는 load, store 에서 alias를 구분하기 위하여 LLVM pointer analysis pass, DSA pointer pas 사용
+- 이 두 방법은 다음 두 함수를 제공
+1. no_alias : (StoreLabel X Load Label) -> Bool
+- load 명령이 store에서 저장한 값을 절대 retrieve 하지 않음
+2. must_alias : (StoreLabel X Load Label) -> Bool
+- load 명령이 store에서 마지막으로 저장한 값을 항상 retrieve
+
 ## 3.2. Intraprocedural Analysis
+- critical site 에서 변수 v로 시작하여 backward propagation
+- input field value -> v의 값을 계산 하는 방식중 symbolic condition을 계산 > 이 과정에 INT OF 발생 확인
+
+### 3.2.1. Condition Syntax
+![figure5](./image/20_figure5.png)
+- symbolic condition의 정의
+- f\<id> : input field의 값, l\<id> : load statement의 return value
+### 3.2.2. Abstraction for Input Field Instantiations
+- symbolic condition C에서 f\<id>는 input field의 임의의 instantiation를 나타냄, id를 통해 구분 가능
+### 3.2.3. Abstraction for Values Accessed via Pointers
+- l\<id>는 load 명령이 반환한 값 > id를 통해 구별
+- abstraction을 통해 시작 위치에서 propagation 된 지점까지의 label l에서 역참조된 포인터의 모든 alias를 저장
+### 3.2.4. Analysis Framework
+- s : statement sequence
+- l : s 내부의 label
+- C : l 직후의 symbolic condition
+- F(s,l,C)를 계산함 > l의 statement 이후 C가 성립을 보장
+- 따라서 우리는 f(s0, l, safe(v))를 만족하는지 확인하는 input filter (s0는 주어진 프로그램)
+### 3.2.5. Analysis of Assignment, Conditional, and Sequence Statements
+![figure6](./image/20_figure6.png)
+
+- 기본 program statement analysis rule
+- C[e'/e] : 
+
+### 3.2.6. Analysis of Load and Store Statements
+### 3.2.7. Analysis of Loop Statements
+
 ## 3.3. Interprocedural Analysis
 ## 3.4. Extension to C Programs
 ## 3.5. Input Filter Generation
