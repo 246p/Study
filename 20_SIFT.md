@@ -82,6 +82,10 @@
 
 ![figure1](./image/20_figure1.png)
 
+- jpeg_decoder_decode : JPEG 디코딩
+- jpeg_decoder_start_frame : image metadata를 읽음
+- jpeg_decoder_init_decoder : JPEG에 대한 메모리 buffer 할당
+- line 43~47에서 Swftdec
 
 # 3. Static Analysis
 ## 3.1. Core Language and Notation
