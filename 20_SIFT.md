@@ -68,11 +68,21 @@
 - 기존과 다르게 모든 execution path를 고려하기 때문에 sound함
 - execution path constraint를 무시하기 때문에 효율적임 (기존 수만번 -> SIFT 수십번)
 ### 1.8.2. Sound and Efficient Static Analysis
-- input field
+- input field의 함수로 critical expression의 값을 다양한 실행 경로에 따라 계산하는 방법을 자동으로 도출
+- conditional expression을 포함하지 않고 값에 직접 기여하는 arithmetic operation만 사용
 ### 1.8.3. Input Fields With Multiple Instantiations
+- 여러 instance가 있는 input field에 대한 새로운 abstraction 제시
+- 동일한 input field의 다른 instance와 변수간 정확한 대응을 하지 않음
+- 같은 input field를 참조하는 모든 변수를 교환 가능하게 만듬 > loop invariant를 자동으로 도출하는 새로운 정규화 기범 제시
 ### 1.8.4. Pointer Analysis and Precondition Generation
-### 1.8.5. Experimental Results
+- pointer를 통해 값에 접근하는 새로운 abstraction 제시 > pointer가 참조하는 값을 정적으로 결정할 수 없는 프로그램에 대한 분석 가능
+- arbitrary off-the-shelf alias 와 pointer analysis 를 통합한 a precondition generation algorithm 를 최초로 제시
 # 2. Example
+- `Swfdec 0.5.5` 의 예시
+
+![figure1](./image/20_figure1.png)
+
+
 # 3. Static Analysis
 ## 3.1. Core Language and Notation
 ## 3.2. Intraprocedural Analysis
