@@ -39,6 +39,8 @@
 [One Fuzz Doesn’t Fit All: Optimizing Directed Fuzzing via Target-tailored Program State](./17_SIEVFUZZ.md)
 
 [Constraint-guided Directed Greybox Fuzzing](./19_CAFL.md)
+
+[Sound Input Filter Generation for Integer Overflow Errors](./20_SIFT.md)
 ## Smart contract fuzzing
 [Smartian: Enhancing Smart Contract Fuzzing with Static and Dynamic Data-Flow Analyses](./6_smartian.md)
 
