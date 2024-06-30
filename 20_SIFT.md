@@ -79,14 +79,26 @@
 - arbitrary off-the-shelf alias 와 pointer analysis 를 통합한 a precondition generation algorithm 를 최초로 제시
 # 2. Example
 - `Swfdec 0.5.5` 의 예시
-
 ![figure1](./image/20_figure1.png)
-
 - jpeg_decoder_decode : JPEG 디코딩
 - jpeg_decoder_start_frame : image metadata를 읽음
 - jpeg_decoder_init_decoder : JPEG에 대한 메모리 buffer 할당
-- line 43~47에서 Swftdec
+- line 43~47에서 Swftdec에서 INT OF 취약점 존재
 
+## 2.1. Analysis Challenges
+- 버퍼의 크기를 계산하는 식은 `h_sample, v_sample`의 최대 값인 `max_h_sample, max_v_smaple`을 사용
+- 이 변수가 어떤 instance를 나타내는지 정적으로 결정하는것은 불가능함 > 해당 input field의 모든 instance를 나타내는 추상화 수행
+- 포인터로 input field의 값에 접근하는 load/store 명령이 많음, 이를 처리하기 위해 alias analysis와 통합 할 수 있는 추상화 수행
+- input filed를 읽는 함수와 할당하는 함수가 다름 > interprocedual analysis
+- fixed poinst analysis, 새로운 expression normalization technique을 사용하여 loop invariants를 얻음
+
+## 2.2. Source Code Annotations
+- SIFT는 어떤 명령이 어떤 input field를 읽는지 지정할 수 있는 인터페이스 지정
+
+
+## 2.3. Compute Symbolic Condition
+- 
+## 2.4. Generate Input Filter
 # 3. Static Analysis
 ## 3.1. Core Language and Notation
 ## 3.2. Intraprocedural Analysis
