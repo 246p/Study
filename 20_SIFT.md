@@ -142,8 +142,8 @@
 - s : statement sequence
 - l : s 내부의 label
 - C : l 직후의 symbolic condition
-- F(s,l,C)를 계산함 > l의 statement 이후 C가 성립을 보장 > hoare logic과 유사
-- 따라서 우리는 f(s0, l, safe(v))를 만족하는지 확인하는 input filter (s0는 주어진 프로그램)
+- F(s,l,C)를 계산함 > s statement 이후 C가 성립을 보장 > hoare logic과 유사
+- 따라서 우리는 f(s0, l, safe(v))를 만족하는지 확인하는 input filter (s0는 주어진 프로그램, l : critical site)
 ### 3.2.5. Analysis of Assignment, Conditional, and Sequence Statements
 ![figure6](./image/20_figure6.png)
 
@@ -151,8 +151,18 @@
 - C[e'/e] : C에서 e를 e'으로 대체함
 - if 문에서 true, false를 식별하지 못한다면 true, false branch를 합침
 ### 3.2.6. Analysis of Load and Store Statements
-- 
+- `x=*p` : x를 l\<id>로 abstract
+- `*p=x` : aliase analysis를 사용하여 x를 반환 할 수 있는 모든 load와 매칭, 특정 가능하다면 그 값으로 변경
+- DSA algorithm 기반
 ### 3.2.7. Analysis of Loop Statements
+- fixed-point algorithm을 사용
+- $C_0 = \emptyset, C_i = norm(F(s',last(c'), C \cap C_{i-1}))$
+- norm(C) : 각  condition을 normalization and remove duplicate
+- $C_n = C_{n-1}$ 이 되는 순간 (fixed point가 되는 순간) 중지
+
+![figure7](./image/20_figure7.png)
+- normalization algorithm
+-
 
 ## 3.3. Interprocedural Analysis
 ## 3.4. Extension to C Programs
