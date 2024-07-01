@@ -142,15 +142,16 @@
 - s : statement sequence
 - l : s 내부의 label
 - C : l 직후의 symbolic condition
-- F(s,l,C)를 계산함 > l의 statement 이후 C가 성립을 보장
+- F(s,l,C)를 계산함 > l의 statement 이후 C가 성립을 보장 > hoare logic과 유사
 - 따라서 우리는 f(s0, l, safe(v))를 만족하는지 확인하는 input filter (s0는 주어진 프로그램)
 ### 3.2.5. Analysis of Assignment, Conditional, and Sequence Statements
 ![figure6](./image/20_figure6.png)
 
 - 기본 program statement analysis rule
-- C[e'/e] : 
-
+- C[e'/e] : C에서 e를 e'으로 대체함
+- if 문에서 true, false를 식별하지 못한다면 true, false branch를 합침
 ### 3.2.6. Analysis of Load and Store Statements
+- 
 ### 3.2.7. Analysis of Loop Statements
 
 ## 3.3. Interprocedural Analysis
