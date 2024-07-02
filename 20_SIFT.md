@@ -158,19 +158,85 @@
 - fixed-point algorithm을 사용
 - $C_0 = \emptyset, C_i = norm(F(s',last(c'), C \cap C_{i-1}))$
 - norm(C) : 각  condition을 normalization and remove duplicate
-- $C_n = C_{n-1}$ 이 되는 순간 (fixed point가 되는 순간) 중지
+- $C_n = C_{n-1}$ 이 되는 순간 (fixed point가 되는 순간) 중지 : 고정된 반복 loop에서는 가능
+- 반복횟수가 변화는 loop 에서는 fixed-point에 도달할 수 없음, 이때는 10번의 반복 후 분석을 종료함
+- 실제로 변화되는 경우가 많지만 demand-driven이기 때문에 괜찮음, 또한 실험적으로 효과적
 
 ![figure7](./image/20_figure7.png)
-- normalization algorithm
--
+- normalization algorithm : sound함 이유
+1. f\<id_k> : interchangable
+2. 정규하는 사실 id_k의 renumbering만 하기 때문
 
 ## 3.3. Interprocedural Analysis
+### 3.3.1. Analyzing Procedure Calls
+
+1. C에서 v(반환값)가 있는 경우 symbolic expresion으로 대체
+2. function에서 store가 있는 경우 C를 변경
+- 즉 C에서 다음과 같은 l\<id>를 찾음
+1. function이 p에 저장 할 수 있는 값
+2. function call 이후 load 명령으로 p에 접근하는 l을 찾음
+- 이와 같은 l\<id>을 symbolic expression으로 대체함
+
+![figure8](./image/20_figure8.png)
+- caching을 사용하여 procedual에 대한 중복 분석 하지 않음
+- return value에 대한 symbolic expression (line 6) or l\<id>(line 8, 11) 을 얻음
+- 이 분석으로 인한 symbolic expression 에는 argument (a_i)가 포함될 수 있음, 이때 caller의 이름으로 변경해줌 (line 7,9,12)
+- line 13-16 : id renumbering > 기존 c와 중복 X
+### 3.3.2. Propagation to Program Entry
+- CG를 이용해서 현재 procedural을 호출 할 수 있는 모든 call site를 찾음 > 현재 C를 caller에게 전파
+- argument를 caller의 naming context로 변환
+- critical site에서 프로그램의 시작점까지 이를 계속함, 최종 조건 C는 모든 path로 도출한 조건의 합집합
+- /// indirect call은 어떻게 해결 ? + callee를 기준으로 caller을 찾는게 쉬울까?
 ## 3.4. Extension to C Programs
+### 3.4.1. Identify Critical Sites
+- LLVM IR을 scan > 개발자가 지정한 module 내의 alloc, block copy site (크기 포함) 식별 이를 통해 정적분석 수행
+- alloc, calloc, realloc, memcpy, dMalloc을 인식함
+### 3.4.2. Bit Width and Signedness
+- 각 atom들의 bit크기를 식별, 산술 연산 부호 추적, bitvector의 크기를 변경하는 작업을 처리
+### 3.4.3. Function Pointers and Library Calls
+- pointer analysis(context-sensetive point-to analysis)를 사용하여 function pointer 구분
+- SA의 경우 source code가 없는 libarary call을 처리할 수 없음 > memset, strlen과 같은 일부 함수에 대해 사전 정의된 주석을 사용
+- library call에 잠재적으로 저장된 값을 symbolic expression 으로 표현 불가능함 
+- 반환 값이나 매개변수를 통해 접근할 수 있는 값이 symbolic condition에 영향을 미친다면 filter 생성 X
+- 아니라면 생성함 > demand-deriven이기 때문에 영향이 없는한 가능 /// 잘 이해 되지 않음
+### 3.4.4. Command Line Arguments
+- benchmark 56개중 4개가 command line argument의 길이에 의존함
+- SIFT는 input filter를 생성할때 최종 symbolic condition에 이러한 길이를 나타내느 변수를 포함시킴
+- 큰 특정 상수와 비교하거나 동적으로 추출하여 필터에 제공할 수 있음
+### 3.4.5. Annotations for Input Read Statements
+- 어떤 input statement가 어떤 input field를 읽는지 주석을 달아줌
+- SIFT annotation generator는 comment를 스캔하여 input을 찾은 다음 지정된 정보를 LLVM IR에 삽입함
+- `v = SIFT_INPUT("field_name", w)`
+- v = field_name을 저장하는 프로그램 변수, w는 field의 너비
 ## 3.5. Input Filter Generation
+- filter generator는 최종 symbolic condition C에서 l\<id>를 포함하는 모든 조건을 제거, v = 0 으로 변경
+// 4장 읽고 다시
+
+SIFT 필터 생성기는 최종 기호 조건 C에서 추상 구체화된 값 l\<id>의 잔여 발생을 포함하는 모든 결합 조건을 제거합니다. 또한 프로그램 변수v의 잔여 발생을 모두 0으로 대체합니다. 이러한 잔여 발생은 추상 의미론의 프로그램 상태 σ와 h 의 초기 값에 해당합니다(섹션 4.3 조). 가지치기 후 최종 조건 C_Inp​ 에는 f\<id> 형식의 입력 필드 변수와 상수 원자만 포함됩니다.
+실질적으로, 가지치기 알고리즘은 초기화되지 않은 데이터와 관련된 모든 검사를 필터에서 제거합니다. SIFT 필터는 프로그램이 초기화되지 않은 데이터에 접근할 때 발생할 수 있는 오버플로 오류를 무효화하도록 설계되지 않았습니다(C에서는 초기화되지 않은 데이터가 임의의 값을 포함할 수 있음). SIFT의 완전성 정리(Theorem 4)는 이 제한을 반영합니다. Java와 같이 데이터를 특정 값으로 초기화하는 언어의 경우, SIFT 필터 생성기는 초기화되지 않은 데이터에 대한 참조를 포함하는 결합 조건을 가지치기하지 않습니다. 대신, 초기화되지 않은 데이터와 관련된 오버플로를 방지하기 위해 추상 구체화된 값과 프로그램 변수의 잔여 발생을 해당 초기 값으로 대체합니다.
+
+생성된 필터는 다음과 같이 작동합니다. 먼저 입력 형식에 대한 기존 파서를 사용하여 입력을 파싱하고, 입력 조건 C_Inp​ 에서 사용되는 입력 필드를 추출합니다. 오픈 소스 파서는 다양한 입력 파일 형식에 대해 사용할 수 있으며, 우리의 실험 평가에 사용된 모든 형식을 포함합니다. 이러한 파서는 클라이언트가 파싱된 입력 필드에 접근할 수 있도록 표준 API를 제공합니다.
+
+생성된 필터는 표현식의 각 기호 입력 변수를 파싱된 입력의 해당 구체 값으로 대체하여 C_Inp 의 각 결합 표현식을 평가합니다. 
+C_Inp 의 어떤 표현식 평가에서 정수 오버플로가 발생할 수 있으면, 필터는 입력을 폐기하고 선택적으로 경고를 발생시킵니다. Swfdec 예제에서 h_sample 및 v_sample​ 과 같은 입력 필드 배열의 경우(섹션 2 참조), 입력 필터는 모든 가능한 구체 값 조합을 나열합니다(조건 평가의 형식 정의는 그림 11 참조). 어떤 조합이라도 정수 오버플로 오류를 유발할 수 있으면 필터는 입력을 폐기합니다.
+
+여러 중요한 프로그램 지점에서 생성된 여러 기호 조건이 주어지면, SIFT는 입력을 먼저 파싱한 다음, 파싱된 입력을 모든 최종 기호 조건에 대해 순차적으로 검사하는 단일 효율적 필터를 생성할 수 있습니다. 이 접근 방식은 입력을 읽는 데 소요되는 오버헤드를 모든 최종 기호 조건 검사에 걸쳐 분산시킵니다(실제로, 입력을 읽는 데 필터 실행 시간의 거의 모든 시간을 소비함을 그림 14에서 볼 수 있습니다).
 # 4. Soundness of the Static Analysis
+- intra procedual analysis에 중점, inter는 생략
 ## 4.1. Dynamic Semantics of the Core Language
+### 4.1.1. Program State
+![prog1](./image/20_prog1.png)
+
+- 
+### 4.1.2. Small Step Rule
 ## 4.2. Soundness of the Pointer Analysis
 ## 4.3. Abstract Semantics
+### 4.3.1. Abstract Program State
+![prog2](./image/20_prog2.png)
+
+
+### 4.3.2. Small Step Rule
+
 ## 4.4. Relationship of the Original and the Abstract Semantics
 ## 4.5. Evaluation of the Symbolic Condition
 ## 4.6. Soundness of the Analysis
