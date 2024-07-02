@@ -255,7 +255,7 @@ C_Inp 의 어떤 표현식 평가에서 정수 오버플로가 발생할 수 있
 ### 4.3.1. Abstract Program State
 ![prog2](./image/20_prog2.png)
 - h : load label을 memory 에서 얻을 수 있는 value의 집합으로 mapping
-- 초기 상태 : σ = 0 ς = false, h = empty set
+- 초기 상태 : σ = 0, ς = false, h = empty set
 ### 4.3.2. Small Step Rule
 ![figure10](./image/20_figure10.png)
 - if, while, malloc, load ,store에 대해 차이가 있음
@@ -266,14 +266,45 @@ C_Inp 의 어떤 표현식 평가에서 정수 오버플로가 발생할 수 있
 
 ## 4.4. Relationship of the Original and the Abstract Semantics
 ![theorem2](./image/20_th2.png)
-- 
+1. INT로 mapping 되는 것은 값과 boolean condition이 같아야함
+2. load 할때 h_i에 포함되어야 함
 ## 4.5. Evaluation of the Symbolic Condition
+
+![figure11](./image/20_figure11.png)
+
+- abstract program state에 대한 symbolic condition C를 정의하는 방법
+- safe(e1 op e2) : e1 op e2를 계산하기 위한 하위 연산에 OF가 발생하지 않음
+- f\<id> : Inp(f)의 임의의 요소
+- l\<id> : h(l)의 임의의 요소
+- f\<id>와 l\<id>이 교환 가능함, 따라서 id 를 renumbering 해도 동일한 norm(C)를 생성
 ## 4.6. Soundness of the Analysis
+### 4.6.1. Soundness of the Analysis over the Abstract Semantic
+![theorem3](./image/20_th3.png)
+
+- s_i를 실행하기 전 F(si,l,C)를 만족한다면 l 이후 항상 C를 만족함
+
+### 4.6.2. Soundness of the Analysis over the Original Semantics
+- abstract된 공식을 이용하여 original을 증명
+
+![theorem4](./image/20_th4.png)
 # 5. Experimental Results
 ## 5.1. Methodology
-## 5.2. Analysis and Filter Evaluation-
-## 5.3. Filter Confirmation on Vulnerabilities
+### 5.1.1. Input Format and Module Selection
+- 각 프로그램에 대해 INT OF filter를 생성함
+- input을 처리하는 module에 SIFT처리함
+### 5.1.2. Input Statement Annotation
+![figure12](./image/20_figure12.png)
+- ciritical expression의 값에 영향을 미치는 input field를 읽는 statement를 식별하기 위한 annotation
+- Relevant Fields가 훨씬 적음
+- 이러한 주석 작업은 최대 1시간
+### 5.1.3. Filter Generation and Test
+- 6000 개 이상의 실제 input을 사용 > false postive가 없음
+### 5.1.4. Vulnerability and Filter Confirmation
+- 실제 잘못된 input에 대해선 filter가 잘 작동함
+## 5.2. Analysis and Filter Evaluation
+### 5.2.1. Analysis Evaluation
+![figure13](./image/20_figure13.png)
+### 5.2.2. Filter Evaluation
+![figure14](./image/20_figure14.png)
 ## 5.4. Discussion
-# 6. Related Work
-
-# 7. Conclusion
+- overhead가 낮음, 또한 false postive가 없기 때문에 real-world 프로그램에 배포할만 함
