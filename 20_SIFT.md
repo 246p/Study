@@ -227,17 +227,46 @@ C_Inp 의 어떤 표현식 평가에서 정수 오버플로가 발생할 수 있
 ### 4.1.1. Program State
 ![prog1](./image/20_prog1.png)
 
-- 
+- σ : variable
+- ρ : memory location
+- ς, ϱ : boolean overflow flag
+- undef : 초기화 되지 않은 값
+- Inp : 실행중 변경되지 않는 input file
+- Inp(f) : input field f를 f의 모든 nstantitaion value에 mapping
+- 초기 상태에서 σ, ρ는 모든 변수와 위치를 undef로 mapping, ς, ϱ = false
 ### 4.1.2. Small Step Rule
+![figure9](./image/20_figure9.png)
+
+- overflow(a, b, op) : a op b가 overflow를 일으킬때 true
+- read 에서 Inp(f)에서 임의워 요소 c를 선택하여 x를 update
 ## 4.2. Soundness of the Pointer Analysis
+![definition1](./image/20_def1.png)
+- no_alias : s의 load, store에서 variable의 mapping이 모두 다를때
+- must_alias : load 할때 store가 마지막으로 저장한 값을 읽을떄
+```c
+    *p = 10;  // store
+    x = *p;   // load
+```
 ## 4.3. Abstract Semantics
+- soundness를 증명하기 위한 정의
+- 기존 dynamic semantics와 차이점
+1. if, while에 대해 condition을 무시하고 두 control flow중 하나를 nondeterministic하게 실행
+2. load, store 값을 uderlying pointer or alias analysis로 얻는 정보로 equivalence class로 group화 함 > 보수적 모델링
 ### 4.3.1. Abstract Program State
 ![prog2](./image/20_prog2.png)
-
-
+- h : load label을 memory 에서 얻을 수 있는 value의 집합으로 mapping
+- 초기 상태 : σ = 0 ς = false, h = empty set
 ### 4.3.2. Small Step Rule
+![figure10](./image/20_figure10.png)
+- if, while, malloc, load ,store에 대해 차이가 있음
+- if, while의 condition을 무시함
+- store는 alias 정보를 기반으로 h를 유지
+- load : h에서 (c,b)를 nondeterministic 하게 반환
+- store : alias를 기반으로 h를 유지
 
 ## 4.4. Relationship of the Original and the Abstract Semantics
+![theorem2](./image/20_th2.png)
+- 
 ## 4.5. Evaluation of the Symbolic Condition
 ## 4.6. Soundness of the Analysis
 # 5. Experimental Results
