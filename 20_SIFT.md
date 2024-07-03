@@ -125,7 +125,7 @@
 2. must_alias : (StoreLabel X Load Label) -> Bool
 - load 명령이 store에서 마지막으로 저장한 값을 항상 retrieve
 
-## 3.2. Intraprocedural Analysis
+## 3.2. Intra-procedural Analysis
 - critical site 에서 변수 v로 시작하여 backward propagation
 - input field value -> v의 값을 계산 하는 방식중 symbolic condition을 계산 > 이 과정에 INT OF 발생 확인
 
