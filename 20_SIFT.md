@@ -44,7 +44,7 @@
 - 동일한 input field를 참조하는 모든 변수는 서로 교환 할 수 있음 > 정확한 대응 관계를 결정할 수 없는 프로그램 또한 분석 가능
 - 교환 가능성은 loop에서 variable을 renumbering 하여 loop invarient expression을 얻는 알고리즘을 가능하게함 [3.2](#32-intraprocedural-analysis)
 ## 1.5. Pointer Analysis and Precondition Generation
-- SIFT는 potential aliasing relationship을 분석하여 pointer를 equivalence set으로 gouping
+- SIFT는 potential aliasing relationship을 분석하여 pointer를 equivalence set으로 grouping
 - pointer을 통해 값을 load할때 이를 분석하기 위해 load 값을 나타내는 새 변수를 생성함
 - 각 변수가 참조하는 정확한 값을 정적으로 결정할 수 없는 프로그램을 분석할 수 있음
 - 이 논문은 arbitary off-the-shelf alias or pointer analysis와 precondition generation algorithm을 통합하는 첫 논문
