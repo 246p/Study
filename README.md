@@ -13,6 +13,8 @@
 ## Evaluate
 [Evaluating Fuzz Testing](./4_evaluating.md)
 
+[Magma: A Ground-Truth Fuzzing Benchmark](./21_Magma.md)
+
 ## Directed Graybox Fuzzing
 [Directed Graybox Fuzzing](./5_aflgo.md)
 
