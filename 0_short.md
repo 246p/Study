@@ -35,7 +35,7 @@ AFL이 120코어로 실행될때 fork() system call의 scalability로 인해 24�
 
 fuzzing 성능 향상을 위하여 이 문제를 문제를 해결하였다.
 
-새로운 operating primitives specialized를 통하여 120코어를 사용하였고 Google fuzzer test suite를 대상으로 AFL : 6.1~28.9배, LibFuzzer : 1.1~735.7배 향상함을 확인하였다.
+새로운 operating primitives specialized를 통하여 120코어를 사용하였고 Google fuzzer test suite를 대상으로 AFL : 6.1\~ 28.9배, LibFuzzer : 1.1\~735.7배 향상함을 확인하였다.
 
 더 일반적인 설정인 30코어를 할당한 경우에도 AFL의 처리량을 7.7배까지 향상시킨다. 이러한 fuzzer-agnostic primitives는 어떤 fuzzer에도 쉽게 적용할 수 있으며 대규모 fuzzer 및 cloud 기반 fuzzing 서비스에 직접적인 이익이 된다.
 
