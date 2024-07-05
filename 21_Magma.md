@@ -34,13 +34,41 @@
 4. Trial duration (timeout) : timeout이 일관되어야함
 5. number of trial : fuzzer가 확률적이기에 통계적으로 신뢰 있는 비교를 위해 많은 반복이 필요
 ### 2.2.1. Existing Fuzzer Benchmarks
--
+![table1](./image/21_table1.png)
+- LAVA-M : magic value와 관련된 단순한 버그만 삽입함
+- CGC : 작고 단순한 set
+- BugBench, Google FTS : target당 1,2개의 bug만 가지고 있음
+- Google FuzzerBench : coverage profile만 사용
+- UniFuzz : ground-truth 지식 부족, 각 target이 몇개의 bug를 포함한지 불확실함
+- OSS : ground truth 지식 부족, 버전 정보에 대한 명시가 부족
 ### 2.2.2. Crashes as a Performance Metric
+- 대부분의 fuzzer은 crash listener을 사용
+- crash count를 사용하는 것은 duplication (coverage profile, stack hash)를 사용하더라도 over approximate
+- fuzzer가 발견한 bug의 수를 비교하는 것이 더 바람직함
 # 3. Desired Benchmark Properties
+- fuzzing benchmark를 설계할때 다음과 같은 성질을 고려해야함
+1. Diversity : 실제 software test와 유사한 다양한 버그와 프로그램을 포함해야함
+2. Verifiability : 성능을 정확하게 설명하는 검증 가능한 metric을 산출해야함
+3. Usability : 이용과 채택에 있어서 어렵지 않아야함
 ## 3.1. Diversity (P1)
+- bug의 다양성
+1. Class : CWE(Common Weakness Enumeration) bug class에는 memory-based error, type error, concurrency, numeric error등이 있음
+2. Distribution : Depth, fan-in(# of bug execution path), spread (bug/total path ratio)
+3. Complexity : bug와 관련된 input byte의 수
+- target의 다양성
+1. Application domain : file, media, network protocol, document parsing, cryptography primitives, data encoding
+2. Operations performed : parsing, checksum, indirection, transformation, state management, data validation
+3. Input structure : Binary, text, format/grammer, data size
+- 결국 이를 만족 하기 위해서는 real program을 사용해야함
 ## 3.2. Verifiability (P2)
+- fuzzing benchmark는 ground truth를 기반으로 fuzzer의 결과를 검증할 수 있는 bug set을 제공해야함
 ## 3.3. Usability (P3)
+- fuzzer은 다양한 형태 (고유 instrumentation, 특정 execution engine)이기 때문에 이에 범용적으로 사용할 수 있어야함
+- 쉽게 이용할 수 있고 합리적인 시간 내에 완료되어야 함
 # 4. Magma : Approach
+
+- 7개의 real program 에서 118개의 bug를 담고 있음
+- 
 ## 4.1. Target Selection
 ## 4.2. Bug Selection and Insertion
 ## 4.3. Performance Metrics
