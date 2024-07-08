@@ -141,24 +141,15 @@
 - bug report에서 추출하고 없는 경우 fuzzing을 통해 찾음
 ## 5.6. Unknown Bugs
 - oracle이 감지 하지 못하는 (새로운) bug가 존재할 수 있음
-- ㅕㅜㅇ
+- deduplication technique의 불완전성으로 인해 magma의 metric에 포함되지 않을 수 있음
+- 추후 연구를 통해 benchmark에 추가 가능성
 ## 5.7. Fuzzer Compatibility
+- whitebox fuzzer 또한 지원함
 # 6. Evalutaion
-## 6.1. Methodology
-## 6.2. Time to Bug
-## 6.3. Experiimental Results
-### 6.3.1. Bug Count and Statistical Significance
-### 6.3.2. Time to Bug
-### 6.3.3. Achilles’ Heel of Mutational Fuzzing
-### 6.3.4. Magic Value Identification
-### 6.3.5. Semantic Bug Detection
-### 6.3.6. Comparison to LAVA-M
-## 6.4. Discussion
-### 6.4.1. Ground Truth and Confidence
-### 6.4.2. Beyond Crashes
-### 6.4.3 Magma as a Lasting Benchmark
+- skip
 # 7. Conclusions
-
+- forward-porting을 통하여 7개의 프로그램에 118개 bug 생성
+- 7개의 mutation base fuzzer를 비교 함으로 fuzzer 성능의 체계적인 평가 가능
 
 # 8. dfuzz-experiment
 - libpng-read-fuzzer : AAH001,3,7(PNG001,3,6)
