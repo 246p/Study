@@ -86,17 +86,62 @@
 - fuzzer 평가는 bug reach, trigger, detect를 구분해서 평가해야함
 1. reach : 해당 bug 위치에 도달
 2. trigger : trigger condition을 만족
-3. detect :
+3. detect : resource exhaustion, timeout과 같은 bug는 trigger되지 않을때도 있음, 이를 구분
+- instrumentation은 trigger된 bug에 대한 ground-truth knowledge, runtime feedback을 제공
 ## 4.4. Runtime Monitoring
+- reach, trigger된 bug에 대한 데이터 수집
 # 5. Design and Implementation Decisions
 ## 5.1. Forward-porting
 ### 5.1.1. Forward-Porting vs. Back-Porting
+- forward-porting : 공개된 버그의 수정을 통해 Magma가 발전할 수 있게함
+- 물론 새로 도입한 코드가 bug를 재 도입할 가능성이 있음
+- 변경된 코드가 forward-porting된 bug의 trigger되지 못하게 만들 수 있음
+- fuzzer을 이용하여 PoV를 생성하고 trigger가 가능함을 입증
 ### 5.1.2. Manual Forward-Porting
+- 모든 bug는 다음 과정으로 수동으로 도입함
+1. bug report search
+2. core codebase에 영향을 미치는 bug 식별
+3. bug fix commit 찾기
+4. fix commit에서 bug condition 인식
+5. path constraint 수집
+6. boolean expression (bug canary) 모델링
+7. canary 주입
 ## 5.2. Weired State
+- weired state : fuzzer가 탐지되지 않은 bug를 trigger하는 input을 생성하고 이 bug를 넘어 지속되는 경우
+- weired state 이후 수집된 정보는 신뢰할 수 없음 > 처음 bug를 trigger할때까지 수집
+
+![listing1](./image/21_listing1.png)
+- bug 1 : out of bound
+- bug 2 : divide by zero
+- tmp.len =16일때 bug1,2 모두 발생됨, 실제로는 bug2는 발생되지 않아야함 (strcpy로 len field까지 덮어쓰기 때문)
 ## 5.3. A Static Benchmark
+- Magma는 static benchmark
+- overfitting의 위험이 있음 (bench mark에 좋은 성능을 내기 위한 fuzzer의 조작)
+- 이를 위해 Magma는 forward-porting을 통해 실제 환경에 맞게 변화됨
 ## 5.4. Leaky Oracles
+- benchmarkk에 oracle을 도입하는 것도 overfitting을 발생할 수 있음
+- oracle을 if로 구현하면 branch coverage를 최대화 할때 oracle의 branch를 감지하고 해당 input을 생서할 수 있음
+- 이를 위해 Magma는 instrumentation이 주입된 binary와 주입되지 않은 binary를 모두 생성함
+- instrumentation 되지 않은 binary에서 coverage feedback을 수집함
+- instrumentation : canary data를 수집하고 runtime에 보고함
+> but 동기화 측면에서 runtime overhead > 이를 해결하기 위하여 always-evaluate memory write
+- instrumentation된 bug oracle은 bug trigger 조건을 나타내는 boolean expression을 평가, runtime monitor와 공유
+
+![listing2](./image/21_listing2.png)
+- Magma의 canary 구현
+
+![listing3](./image/21_listing3.png)
+- canary가 삽입된 program
+- trigger condition은 compile시 implicit branch를 생성할 수 있음
+- coverage 정보를 누출하지 않기 위해 x86-64 assembly block set을 제공함
+- taint analysis, data flow analysis에 의해 감지될 수 있는 memory 접근 패턴을 도입할 수 있지만 fuzzer가 이런 접근 패턴에 overfitting 한지 확인할 수 있음 > instrumentation 되지 않은 binary로 fuzzing campain을 반복
+
 ## 5.5. Proofs of Vulnerability
+- PoV를 제시해야 신뢰성이 높음
+- bug report에서 추출하고 없는 경우 fuzzing을 통해 찾음
 ## 5.6. Unknown Bugs
+- oracle이 감지 하지 못하는 (새로운) bug가 존재할 수 있음
+- ㅕㅜㅇ
 ## 5.7. Fuzzer Compatibility
 # 6. Evalutaion
 ## 6.1. Methodology
