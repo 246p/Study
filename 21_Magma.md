@@ -154,6 +154,8 @@
 # 8. dfuzz-experiment
 - libpng-read-fuzzer : AAH001,3,7(PNG001,3,6)
 
+- git clone시 private repo가 안됨 (infosec-sogang/magma)
+- /magma/magma/apply_patches.sh 파일이 존재하지 않음
 - docker line 54 : docker-setup/benchmark-project/libpng/build.sh
 ``` bash
 # Build libpng_read_fuzzer.
