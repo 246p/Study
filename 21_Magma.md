@@ -68,10 +68,25 @@
 # 4. Magma : Approach
 
 - 7개의 real program 에서 118개의 bug를 담고 있음
-- 
+- fuzzer와 병렬로 실행되어 실시간 통계를 수집하는 runtime monitor 제공
+- 도달한 bug, trigger한 bug, 감지된 bug의 수를 기준으로 함
+- fatal canaries mode : canary 조건이 충족되면 프로그램 종료 (ideal sanitization)
 ## 4.1. Target Selection
+![table2](./image/21_table2.png)
+
 ## 4.2. Bug Selection and Insertion
+![figure2](./image/21_figure2.png)
+
+- 11개의 CWE에서 118개의 bug
+- 기존에 비해 다양하고 높은 bug density
+- forward porting : 패치된 부분에 버그 조건을 넣어두는것 > 여러 patch로 수정된 bug를 하나의 파일로 볼 수 있음
+- bug가 trigger 되었는지 확인하는 ligth-weight oracle (boolean expression)
+- 이에 맞게 canary 도입
 ## 4.3. Performance Metrics
+- fuzzer 평가는 bug reach, trigger, detect를 구분해서 평가해야함
+1. reach : 해당 bug 위치에 도달
+2. trigger : trigger condition을 만족
+3. detect :
 ## 4.4. Runtime Monitoring
 # 5. Design and Implementation Decisions
 ## 5.1. Forward-porting
@@ -98,3 +113,7 @@
 ### 6.4.2. Beyond Crashes
 ### 6.4.3 Magma as a Lasting Benchmark
 # 7. Conclusions
+
+
+# 8. dfuzz-experiment
+- libpng-read-fuzzer : AAH001,3,7(PNG001,3,6)
