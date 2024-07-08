@@ -153,3 +153,14 @@
 
 # 8. dfuzz-experiment
 - libpng-read-fuzzer : AAH001,3,7(PNG001,3,6)
+
+- docker line 54 : docker-setup/benchmark-project/libpng/build.sh
+``` bash
+# Build libpng_read_fuzzer.
+$CC $CFLAGS -I. \
+     ../libpng_read_fuzzer.c \
+     -o $OUT/libpng_read_fuzzer \
+     $LDFLAGS .libs/libpng16.a $LIBS -lz -lm || exit 1
+
+12.17 clang: error: no such file or directory: '../libpng_read_fuzzer.c'
+```
