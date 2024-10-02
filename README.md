@@ -1,4 +1,4 @@
-# 학부연구생 논문 스터디
+# Software securty paper review
 
 ## Symbolic execution
 [All You Ever Wanted to Know About Dynamic Taint Analysis and Forward Symbolic Execution](./paper/1_DTA_SE.md)
@@ -47,3 +47,5 @@
 [Smartian: Enhancing Smart Contract Fuzzing with Static and Dynamic Data-Flow Analyses](./paper/6_smartian.md)
 
 ## [읽을 논문 list](./paper/0_short.md)
+
+# [Resaearch Assistant activity](./lab)
