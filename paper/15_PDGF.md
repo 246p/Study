@@ -42,7 +42,7 @@
 2. acceptable cost로 완전한 predecessor set을 구하는 방법
 3. predecessor set을 이용하여 효율적이게 target site로 guide하는 방법은 무엇일까?
 # 3. Predecessor-aware DGF
-![figure4](./image/15_figure4.png)
+![figure4](../image/15_figure4.png)
 
 ## 3.1. Framework
 - target reachable area를 식별하여 CGF를 사용하려고 함
@@ -73,11 +73,11 @@
 - PBB가 식별되면 ID(16bit)의 처음 2bit에 00을 할당함, 그렇지 않은 경우에 11을 할당 > 이 값은 bitmap의 PE의 ID와 연관
 - PE를 식별 : GF의 execution feedback 사용 > bitmap에 사용된 index는 hash값으로 사용됨
 
-![formula1](./image/15_formula1.png)
+![formula1](../image/15_formula1.png)
 
 - testcase가 $ID_{BB}^{prev} \rightarrow ID_{BB}^{cur}$ edge를 실행한 경우 edge의 hit수는 bitmap의 $ID_{E}$에 저장됨
 
-![table2](./image/15_table2.png)
+![table2](../image/15_table2.png)
 
 - 위의 전략은 원래 bitmap(64KB)를 4개의 region으로 나눔 (1: 확정, 2: PE 후보, 3,4 : DGF를 벗어남)
 - DGF를 local CGF로 사용할때 1번 영역에서 coverage 정보를 받음
@@ -87,13 +87,13 @@
 - *Untracer*, *HeXcite*에서 사용된 coverage tracing 을 사용함 > 새로운 coverage를 추적하기 위해 추가 binary를 사용
 - PUT를 이용하여 executor (fuzzing), navigator(region 2를 탐색)을 생성함
 
-![figure5](./image/15_figure5.png)
+![figure5](../image/15_figure5.png)
 
 - executor : instrumentation으로 생성됨, NOP operation 삽입, 이미 PBB가 인식되어 있고 labeling 되어있음
 - navigator : NOP이 아닌 INT3 삽입
 - executor에서 region2의 새로운 coverage를 감지하는 시드는 navigator로 절달되어 INT3 > PBB의 정확한 위치 보고
 
-![algorithm1](./image/15_algorithm1.png)
+![algorithm1](../image/15_algorithm1.png)
 - 1-3 : instrumentation을 통하여 PE PN를 생성
 - 4-12 : fuzzing loop
 - 8-11 : predecessor 확장
@@ -109,11 +109,11 @@
 
 > Definition 2 : Regional maturity = 주어진 predecessor area에서 coverage rate
 
-![formula2](./image/15_formula2.png)
+![formula2](../image/15_formula2.png)
 
 > Definition 3 : Seed depth : execution path에서 실행된 predecessor의 수
 
-![formula3](./image/15_formula3.png)
+![formula3](../image/15_formula3.png)
 
 - AFL에서 구현에서는 predecessor = PE
 
@@ -125,11 +125,11 @@
 
 > normalized seed depth
 
-![formula4](./image/15_formula4.png)
+![formula4](../image/15_formula4.png)
 
 > power function
 
-![formula5](./image/15_formula5.png)
+![formula5](../image/15_formula5.png)
 
 - $T_{exp}$ 는 AFLGo의 exponential cooling schedule
 - M : regional maturity
@@ -137,7 +137,7 @@
 
 > seed energy
 
-![formula6](./image/15_formula6.png)
+![formula6](../image/15_formula6.png)
 
 ### 3.4.3. Seed mutation
 - deterministic : sequential함, bitflip, addition, substitution
@@ -162,7 +162,7 @@
 
 ## 5.1. Evaluation setup
 ### 5.1.1. Benchmarks
-![table3](./image/15_table3.png)
+![table3](../image/15_table3.png)
 - UniFuzz에서 채택한 16개의 프로그램
 - IC/C, PBB/BB 비율이 다양함 > PDGF의 일반성을 입증
 
@@ -173,23 +173,23 @@
 - Beacon
 - SleveFuzz reachability-aware
 ## 5.2. Bug reproducing capability (RQ1)
-![table4](./image/15_table4.png)
+![table4](../image/15_table4.png)
 
 ## 5.3. Path diversity (RQ2)
-![table5](./image/15_table5.png)
+![table5](../image/15_table5.png)
 - 모든 target rechable path를 탐색할것을 기대함
 - $P_{benign}$ : 도달 가능한 path의 수
 - $P_{crash}$ : 도달 가능한 crash의 수
 
 ## 5.4. Understanding performance boost (RQ3)
 ### 5.4.1. Seed quality
-![figure7](./image/15_figure7.png)
+![figure7](../image/15_figure7.png)
 - PoC와 seed의 중첩을 시각화함 > PDGF가 고품질 seed에 더 많은 에너지를 할당함
 ### 5.4.2. Coverage tracing
-![figure8](./image/15_figure8.png)
+![figure8](../image/15_figure8.png)
 - SA vs DE로 찾아낸 PBB의 수를 비교 > DE가 더 많음
 ## 5.5. Component investigation (RQ4)
-![table6](./image/15_table6.png)
+![table6](../image/15_table6.png)
 ### 5.6.1. Ablation study
 - Coverage Tracing (CT), Power Scheduling (PS), Seed Muation and Selection (MS)
 ### 5.6.2. Pointer analysis
@@ -197,7 +197,7 @@
 ## 5.6. Bug discovery (RQ5)
 ### 5.6.1. Crashes in benchmark
 ### 5.6.2. New vulnerabilities
-![table8](./image/15_table8.png)
+![table8](../image/15_table8.png)
 # 6. Discussion
 ## 6.1. Hash collision
 Q. Bitmap을 4영역으로 나누고 index로 2bit를 사용하므로 hash collision을 증가시킬 수 있다

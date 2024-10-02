@@ -34,18 +34,18 @@
 # 2. Motivation
 `CVE-2017-7578`
 
-![figure1](./image/12_figure1.png)
+![figure1](../image/12_figure1.png)
 
 - `type == 42`일 때 버그가 발생
 ## 2.1. Challenge 1: Negative Feedback
-![figure2](./image/12_figure2.png)
+![figure2](../image/12_figure2.png)
 - 위의 예시에서 blockParse는 80개 이상의 함수를 호출할 수 있지만 `parseSWF_DEFINEMORPHSHAPE`만이 crash를 유발
 - 기존의 DGF는 새롭지만 무관한 testcase에 많은 에너지를 할당함
 - Beacon은 target에 도달할 수 없는 경롤르 제거하지만 복잡한 프로그램을 처리할 수 없음
 ## 2.2. Challenge 2: Misleading Distance Metrics
 - 현대 DGF는 CGF의 syntatic distance에 기반 > syntatic distance는 semantic적인 측면을 반영 불가
 
-![figure3a](./image/12_figure3.png)
+![figure3a](../image/12_figure3.png)
 
 > sa : 잘못된 format으로 즉시 종료, sb : 형식이 올바르고 target버그와 더 관련이 깊음
 
@@ -54,7 +54,7 @@
 
 - 따라서 loop와 같은 복잡한 control flow가 있는 경우 WindRanger의 DBB도 잘못 될 수 있음 > 우리는 semantic relevance scoring을 이용하여 distance feedback mechanism을 도입
 # 3. Overview
-![figure4](./image/12_figure4.png)
+![figure4](../image/12_figure4.png)
 
 - DAFL은 static analysis, fuzzing 두 단계로 구성됨
 - SA에서 target site를 가진 프로그램을 입력으로 받아 data-dependent가 있는 모든 문장을 식별하기 위하여 inter-procedural static analysis를 수행하여 Def-Use Graph와 target point와 관련된 function set을 반환함
@@ -78,7 +78,7 @@
 - 사장 먼 node에 1을 할당 하고 target으로 부터 가까운 node에 최대 점수를 부여함
 
 # 4. Design
-![algorithm1](./image/12_algorithm1.png)
+![algorithm1](../image/12_algorithm1.png)
 - DAFL은 P(program), t(target program point)를 입력으로 받아 crash test case set을 반환
 1. Static analysis phase
 - P의 data dependency를 분석하여 t에대한 P를 slicing함 (line 1)
@@ -108,16 +108,16 @@ z = x + *p;
 
 다음과 같이 thin slicing strategy를 정의
 
-![formula1](./image/12_formula1.png)
+![formula1](../image/12_formula1.png)
 
 - thin slicing 후에도 pointer가 가리키는 변수를 알고 있어야함 > data depedency를 도출하기 위해 flow-insensitive, context-insensitive pointer analysis가 필요함
 - DUG를 형성 한 이후 t와 관련된 node를 가진 G를 얻기 위하여 pruning 수행 > target node에서 싲가하여 역방향으로 순회하여 sliced graph G = $(C_t, ↪_t )$ 만듬 
 
-![formula2](./image/12_formula2.png)
+![formula2](../image/12_formula2.png)
 
 - sliced graph에서 관련된 모든 ㅎ마수를 수집하여 relevant function을 계산
 
-![formula3](./image/12_formula3.png)
+![formula3](../image/12_formula3.png)
 
 
 ## 4.2. Seed Scheduling

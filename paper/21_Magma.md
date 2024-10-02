@@ -34,7 +34,7 @@
 4. Trial duration (timeout) : timeout이 일관되어야함
 5. number of trial : fuzzer가 확률적이기에 통계적으로 신뢰 있는 비교를 위해 많은 반복이 필요
 ### 2.2.1. Existing Fuzzer Benchmarks
-![table1](./image/21_table1.png)
+![table1](../image/21_table1.png)
 - LAVA-M : magic value와 관련된 단순한 버그만 삽입함
 - CGC : 작고 단순한 set
 - BugBench, Google FTS : target당 1,2개의 bug만 가지고 있음
@@ -72,10 +72,10 @@
 - 도달한 bug, trigger한 bug, 감지된 bug의 수를 기준으로 함
 - fatal canaries mode : canary 조건이 충족되면 프로그램 종료 (ideal sanitization)
 ## 4.1. Target Selection
-![table2](./image/21_table2.png)
+![table2](../image/21_table2.png)
 
 ## 4.2. Bug Selection and Insertion
-![figure2](./image/21_figure2.png)
+![figure2](../image/21_figure2.png)
 
 - 11개의 CWE에서 118개의 bug
 - 기존에 비해 다양하고 높은 bug density
@@ -110,7 +110,7 @@
 - weired state : fuzzer가 탐지되지 않은 bug를 trigger하는 input을 생성하고 이 bug를 넘어 지속되는 경우
 - weired state 이후 수집된 정보는 신뢰할 수 없음 > 처음 bug를 trigger할때까지 수집
 
-![listing1](./image/21_listing1.png)
+![listing1](../image/21_listing1.png)
 - bug 1 : out of bound
 - bug 2 : divide by zero
 - tmp.len =16일때 bug1,2 모두 발생됨, 실제로는 bug2는 발생되지 않아야함 (strcpy로 len field까지 덮어쓰기 때문)
@@ -127,10 +127,10 @@
 > but 동기화 측면에서 runtime overhead > 이를 해결하기 위하여 always-evaluate memory write
 - instrumentation된 bug oracle은 bug trigger 조건을 나타내는 boolean expression을 평가, runtime monitor와 공유
 
-![listing2](./image/21_listing2.png)
+![listing2](../image/21_listing2.png)
 - Magma의 canary 구현
 
-![listing3](./image/21_listing3.png)
+![listing3](../image/21_listing3.png)
 - canary가 삽입된 program
 - trigger condition은 compile시 implicit branch를 생성할 수 있음
 - coverage 정보를 누출하지 않기 위해 x86-64 assembly block set을 제공함

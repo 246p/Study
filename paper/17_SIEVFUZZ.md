@@ -32,7 +32,7 @@
 2. 작은 set을 찾기 위하여 greedy serach
 - distance minimiazation의 cost를 정량화 하기 위하여 실험 진행
 ## 3.1. Experiment Setup
-![lisintg1](./image/17_listing1.png)
+![lisintg1](../image/17_listing1.png)
 
 - DAPRA cyber grand challenge benchmark `KPRCA-00038` 
 - `cgc_program_parse` : NULL pointer referencing 이 포함된 interpreter
@@ -51,7 +51,7 @@
 - 두 Fuzzer 모두 Poc대비 29% 이상의 함수를 실행함
 - distance minimazation은 program state에 대한 greedy search로 인한 대가를 지불함 따라서 non-DF이 더 우수할때가 있음
 # 4. Overcoming the bottlenecks of directedness
-![figure1](./image/17_figure1.png)
+![figure1](../image/17_figure1.png)
 
 -  tripwiring : fuzzer의 program state space의 search가 확률적이며 control flow에 크게 영향을 받는점을 이용 > rechable path의 subset을 serach space에 제한 > subset은 target site에 도달하는데 반드시 필요한 path로 보장됨
 - control flow, path detection으로 target 으로의 path set을 식별
@@ -68,7 +68,7 @@
 - SieveFuzz는 code space가 target rechable path에 있는지 판별해야함
 - SA로 iCFG, CG를 이용하여 target site 로의 path에 있는 모든 space를 표시
 
-![algorithm1](./image/17_algorithm1.png)
+![algorithm1](../image/17_algorithm1.png)
 
 - iCFG는 context insensetive 하기 때문에 target-relevant code region은 over-approximate 
 - CG에서 수행되는 function rechability analysis를 함께 사용함
@@ -87,7 +87,7 @@
 - LLVM 기반 SVF framwork 사용
 - LLVM pass를 사용하여 function level 조기 종료를 위한 intrumentation을 도입
 ## 6.2. High-level Fuzzing Workflow
-![figure2](./image/17_figure2.png)
+![figure2](../image/17_figure2.png)
 ### 6.2.1. Initial Analysis (INIT)
 - initial iCFG, CG analysis에서 도달 여부를 질의함
 - unreachable : indirect call edge가 누락된것으로 판단 > EXP
@@ -125,7 +125,7 @@
 2. RQ2. tripwiring은 DF를 효과성과 속도를 향상시키는가
 3. RQ3. tripwiring에 잘 적용되는 target location의 특성
 ## 7.0.1. Benchmarks
-![table1](./image/17_table1.png)
+![table1](../image/17_table1.png)
 
 - DARPA CGC corpus의 3개의 ground truth memory bug set
 - real world bug 5개
@@ -136,12 +136,12 @@
 3. RQ3. disjoint target 과 SieveFuzz AFLGo의 성능의 상관관계
 - 특이한점 : Debian 사용
 ## 7.1. RQ1: Tripwiring’s Search Space Restriction
-![table2](./image/17_table2.png)
+![table2](../image/17_table2.png)
 1. tripwiring된 code region의 비율
 2. tripwire initialization, on-demand analysis의 cost를 계산
 - 24시간 fuzzing중 overhead는 낮은편임
 ## 7.2. RQ2: Targeted Defect Discovery
-![table3](./image/17_table3.png)
+![table3](../image/17_table3.png)
 1. consistency
 2. speed
 
@@ -149,13 +149,13 @@
 - AFLGo와 비교
 ### 7.2.2. Results: Tripwiring vs. Precondition-directed Fuzzing
 - BEACON과 비교 
-![table4](./image/17_table4.png)
+![table4](../image/17_table4.png)
 - SieveFuzz 대비 BEACON은 path를 과도하게 줄임
 - BEACON은 indirect controlflow를 감지하지 못함 
 ### 7.2.3. Results: Tripwiring vs. Undirected Fuzzing
 - AFL++과 비교
 ## 7.3. RQ3: Target Location Feasibility for Tripwiring
-![figure3](./image/17_figure3.png)
+![figure3](../image/17_figure3.png)
 - disjoint target일때 tripwiring이 distance minimaization 보다 성능이 더 좋아짐 > figure 3의 의미를 잘 모르겠음 (disjointness가 없지않나?)
 # 8. Discussion and Future Work
 ## 8.1. Refinements in Path Analysis

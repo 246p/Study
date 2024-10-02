@@ -20,7 +20,7 @@
 - CAFL을 구현하고 AFLGo에 비해 crash triger 측면에서 우수성을 입증
 # 2. Background and Motivation
 ## 2.1. Directed Greybox Fuzzing
-![figure1](./image/19_figure1.png)
+![figure1](../image/19_figure1.png)
 
 - [a,b,e,f] -> 0.785
 - [a,b,c,d,a,b,e,f] -> 0.85
@@ -40,13 +40,13 @@
 - 공격자의 입장에서 patch changelog를 분석하여 patch된 위치에 target을 설정하여 DGF를 이용한 PoC 생성 가능
 ## 2.3. Limitation
 ### 2.3.1. Independent Target Sites
-![figure2](./image/19_figure2.png)
+![figure2](../image/19_figure2.png)
 - DGF는 모든 target site를 독립적이라고 간주하여 crash site 이전에 precondition site에 도달하는 개면이 없음
 - UAF에서 T1 : TYPE_INT, T2 : ident > 우선 순위가 seed C > B > A 가 바람직함
 - DGF는 T1, T2를 독립적으로 간주하기 때문에 target site 의 average distance를 기준으로 seed distance 계산
 
 ### 2.3.2. No Data Condition
-![figure3](./image/19_figure3.png)
+![figure3](../image/19_figure3.png)
 - DGF는 seed를 원하는 data condition으로 유도할 mechanism이 없음 
 - T1에서 buf를 할당 > t2에서 bound를 넘어서 buf에 접근하는 GRAD를 가져야함 > 우선 순위가 seed C > B > A 가 바람직함
 - DGF는 data condition을 인식하지 못하므로 distance를 기준으로 잘못된 우선순위 부여
@@ -62,7 +62,7 @@
 
 ## 3.2. Example
 ### 3.2.1. Ordered Target Sites
-![figure4](./image/19_figure4.png)
+![figure4](../image/19_figure4.png)
 - figure 2의 `yasm 1.3.0`의 UAF에 대한 constraint
 - T1 > T2  순서로 도달해야함
 
@@ -75,7 +75,7 @@
 
 
 ### 3.2.2. Data Conditions
-![figure5](./image/19_figure5.png)
+![figure5](../image/19_figure5.png)
 - figure 3의 `CVE-2017-7578` 의 constraint
 - T1 에서 buffer allocation
 - T2 : buffer 크기와 offset 사이의 크기를 줄이도록 하여 boundary로 유도 (cond)
@@ -104,11 +104,11 @@
 #### Basic block distance
 - 두 BB가의 거리는 다음과 같이 정의
 
-![formula1](./image/19_formula1.png)
+![formula1](../image/19_formula1.png)
 - $B_s$ : $B_1$의 모든 successor
 
 #### Target site distance
-![formula2](./image/19_formula2.png)
+![formula2](../image/19_formula2.png)
 - target site와 현재 BB간의 BB distance로 정의
 - $B*$ : target site
 - $\overrightarrow{B} = [B_1,B_2,...]$ : 실행된 BB sequence
@@ -116,12 +116,12 @@
 - 앞으로 임의의 변수 #에 대해서 #^n : B^n을 실행하는 순간의 변수의 값
 ### 4.2.2. Data Condition Distance
 #### Distance of an individual data condition
-![table1](./image/19_table1.png)
+![table1](../image/19_table1.png)
 - Angora와 유사
 - 개별 data condition은 $\hat{d}_x(\overrightarrow{n})$를 기반
 - $\hat{d}(\overrightarrow{n})$을 다음과 같이 정의함
 
-![formula3](./image/19_formula3.png)
+![formula3](../image/19_formula3.png)
 
 - $Var^n(Q)$ : $B^n$이 실행될때까지 포착된 변수의 vector set
 
@@ -130,12 +130,12 @@
 - 더 많은 data condition이 만족될때 더 짧아지도록 정의
 - 만약 같은 수의 data condition이 만족 > 첫번째로 만족하지 못하는 data condition의 가능성이 더 가까운 것으로함
 
-![formula4](./image/19_formula4.png)
+![formula4](../image/19_formula4.png)
 -  $c_{data} = 2^{32}$  
 ### 4.2.3. Constraint Distance
 - constraint distance = target site distance + data condition distance
 
-![formula5](./image/19_formula5.png)
+![formula5](../image/19_formula5.png)
 - 다음과 같이 계산됨
 1. Target site 이전 : $D^n = d(B^n,B^*)+c_{data}*N(\overrightarrow{Q})$
 2. Target site 에서 : $D^n= 0 + D^n_{DATA}$
@@ -146,7 +146,7 @@
 - $\overrightarrow{B}^* = [B^*_1, ..., B^*_M]$ : constraint에 포함되는 target site의 sequence
 - $\tau_n$ : 천번째로 만족되지 않은 constraint의 index
 
-![formula6](./image/19_formula6.png)
+![formula6](../image/19_formula6.png)
 
 - $c_{con} = 2^{35}$ = 8개의 data condition 수용 가능 
 - 다음과 같이 계산됨
@@ -166,7 +166,7 @@
 
 ### 5.1.1. Multiple Target Sites (nT)
 
-![figure6](./image/19_figure6.png)
+![figure6](../image/19_figure6.png)
 - nT  : crash dump가 순서대로 도달해야하는 target site를 알려줌
 #### Avoiding wrapper functions
 - alloc, ree, mem과 같은 keyword가 stack fram caller에 있는지 확인하여 memory wrapper 내부의 target이 아닌 하위 stack frame의 location을 선택
@@ -175,7 +175,7 @@
 - %cause(cause 생성) -> %trans(cause 전달) -> %crash (crash 발생)
 ### 5.1.2. Two Target Sites with Data Conditions (2T+D)
 
-![figure7](./image/19_figure7.png)
+![figure7](../image/19_figure7.png)
 
 - BOF를 위한것
 - endaddr는 할당된 memory의 끝 (ret+size)
@@ -187,7 +187,7 @@
 - global-buffer-overflow, buffer underflow를 지원하진 못함
 ### 5.1.3. One Target Site with Data Conditions (1T+D)
 
-![figure8](./image/19_figure8.png)
+![figure8](../image/19_figure8.png)
 #### Constraint description
 - target site와 data condition을 지정
 #### Corresponding bug types
@@ -195,7 +195,7 @@
 - Assertion-failure : target_site : 실패한 assertion, datacond = assertion 조건의 부정
 ## 5.2. Patch Changelog
 
-![figure8](./image/19_figure8.png)
+![figure8](../image/19_figure8.png)
 
 - patch change log에 대한 constraint는 1T+D를 사용
 #### Constraint description
@@ -217,7 +217,7 @@
 
 ## 6.1. System Overview
 
-![figure9](./image/19_figure9.png)
+![figure9](../image/19_figure9.png)
 
 ## 6.2. CAFL Compiler
 ### 6.2.1. Coverage instrumentation
@@ -247,7 +247,7 @@
 - CAFL은 distance에 반비례하여 scoring
 - 일부 seed는 더 줄일 수 없는 local minimum 일 수 있음 > 이를 해결하기위해 stuck depth(fuzzing된 횟수)를 통하여 지수적으로 낮춤
 
-![formula7](./image/19_formula7.png)
+![formula7](../image/19_formula7.png)
 ### 6.4.2. Seed creation
 - 현재 최대 점수보다 높은 점수의 seed를 관찰할때마다 새로운 seed 생성
 - seed가 새로운 control flow edge를 cover할때도 일반적인 방법으로 seed를 생성하여 dtat context를 다양화함
@@ -260,9 +260,9 @@
 - AFLGo와 CAFL을 비교
 - 모든 constraint는 자동으로 생성
 ## 7.1. Microbenchmark: LAVA-1
-![figure10](./image/19_figure10.png)
+![figure10](../image/19_figure10.png)
 
-![table2](./image/19_table2.png)
+![table2](../image/19_table2.png)
 
 
 
@@ -271,15 +271,15 @@
 - AddressSanitizer, MemorySanitizer의 crash dump를 이용한 자동 constraint 생성
 
 
-![table3](./image/19_table3.png)
+![table3](../image/19_table3.png)
 
-![table4](./image/19_table4.png)
+![table4](../image/19_table4.png)
 
 ## 7.3. PoC Generation
 - 12개의 crash에 대한 PoC 생성 시간
 - git, Mercurial의 patch changelog를 사용한 자동 생성
 
-![table5](./image/19_table5.png)
+![table5](../image/19_table5.png)
 
 # 8. Discussion
 ## 8.1. Use-cases with manually written constraints
@@ -300,7 +300,7 @@
 - 현재 산술적 차이로 data condition을 표현함 > 부적절한 경우가 있음
 - 두 포인터가 다른 객체를 가르키는 경우 두 포인터 값의 차이는 의미있는 정보가 아님
 
-![figure11](./image/19_figure11.png)
+![figure11](../image/19_figure11.png)
 - user.addr과 free.arg0 사이의 차이가 UAF를 발생시킬 확률과 관련이 없음
 - double-free와 같은 시간적 pointer bug에서 동일하게 발생
 - 이를 nT로 지정하였고 crash input을 찾기 위한 fuzzy한 특성에 의존함
@@ -335,10 +335,10 @@
 
 # 11. Appendix
 ## 11.C. Constraint Generation Algorithm for Changelogs
-![algorithm1](./image/19_algorithm1.png)
+![algorithm1](../image/19_algorithm1.png)
 - 주어진 patch changelog와 함꼐 적절한 constraint를 찾음
 - 변경된 location set을 통하여 사전에 정의된 사례로 분류 > target site, data condition 생성
 
 ## 11.D. Analysis on Minimum Distance Change
-![figure13](./image/19_figure13.png)
+![figure13](../image/19_figure13.png)
 - fuzzing중 minimum seed distance의 변화

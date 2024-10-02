@@ -12,7 +12,7 @@
 - BEACON : 적은 overhead로 infeasible path를 pruning
 - lightweight SA를 이용하여 infeasible 하게 만드는 variable에 대한 근사치 계산 가능
 
-![figure2](./image/16_figure2.png)
+![figure2](../image/16_figure2.png)
 
 > Contribution
 - cheqp cost SA를 이용하여 target에 도달하기 위한 condition을 계산하고 이를 이용하여 infeasible program state를 filtering
@@ -45,7 +45,7 @@
 1. precondition inference 에서 path condition에 대해 효율적으로 추론하는방법
 2. merging path에서 정밀도 손실을 피하면서 precision loss를 피하는 방법
 # 3. Beacon in a Nutshell
-![figure3](./image/16_figure3.png)
+![figure3](../image/16_figure3.png)
 
 - BEACON은 target code를 입력으로 받음
 - SA를 간소화 하여 명핵한 infeasible path를 pruning > CFG 에서 reachability analysis를 수행하여 제거함
@@ -75,14 +75,14 @@
 
 ## 4.1. Preliminary
 ### 4.1.1. Language
-![figure4](./image/16_figure4.png)
+![figure4](../image/16_figure4.png)
 - 각 함수는 formal parameter $v_i$를 받아 r을 반환
 - non deterministic s1:s2 or atmoic i
 - statement 전 후 program location l, l' 으로 labeling
 - assume : boolean 조건이 성립해야 실행됨 > if b then s1 else s2 > (assume b; s1) ; assume (!b ; s2)
 
 ### 4.1.2. Precondition Inference
-![algorithm1](./image/16_algorithm1.png)
+![algorithm1](../image/16_algorithm1.png)
 - target에 도달하기 위한 weakest condition을 역으로 계산됨 (true로 시작하여  변화함)
 - algorithm1 : predicate transformers : precondition을 정확하게 찾지만 추론에 비용이 많이드는 복잡한 constraint를 출력함 
 - `v:=e` -> $\phi[e/v]$로 변환
@@ -96,13 +96,13 @@
 - target site에서 시작하는 역방향 path를 over-approximate 해야함
 - 이를 위해 모든 active (instruction, postcondition) pair를 포함하는 worklist를 사용함
 
-![algorithm2](./image/16_algorithm2.png)
+![algorithm2](../image/16_algorithm2.png)
 - line3 : target t와 initial postcondition true를 work list에 추가 
 - line 5-6 : work list에서 $(<l,i,l'>,\phi)$를 pop 하여 instruction i에 따라 postcondition $\phi$ 변환
 - 새로 계산된 postcondition $\phi'$은 $\hat{wp}(l)$의 값을 update하기 위하여 역방향 전파
 - predicate transformer 와 worklist가 모든 execution을 추적하여 backworld path를 추론할 수 있음
 
-![figure2](./image/16_figure2.png)
+![figure2](../image/16_figure2.png)
 
 - $l_{18} -> l_{14} backworld analysis$를 진행하여 line 9에서 p1, p2로 분기됨
 - line 8 에서 p1, p2의 condition은 다음과 같음
@@ -114,11 +114,11 @@
 - $\alpha = \Lambda : V -> Interval $, Interval = integear 사이의 집합, $\top$ = Z, $\bot$ = 공집합
 - $\gamma(\Lambda) = \cap_{v\in dom(\Lambda)}cons(v)$ : abstract value를 logical constraint로 mapping
 
-![formula1](./image/16_formula1.png)
+![formula1](../image/16_formula1.png)
 
 - interval abstraction으로 다양한 backword path를 건전하게 결합함
 
-![abstract1](./image/16_abstract1.png)
+![abstract1](../image/16_abstract1.png)
 
 - `joinPath`에서 pc1, pc2의 interval abstraction을 결합
 - interval abstraction은 부정확 할 수 있음 > 정밀도를 향상시키는 두가지 최적화
@@ -131,11 +131,11 @@
 - interavl abstraction $\alpha$는 path condition에 나타내는 변수들의 범위를 추론하는데 사용됨
 - 변수 뿐만 아니라 path condition에 나타나는 expression의 interal 또한 추적 > 이를 child, parent에 전파하여 정밀도 상승
 
-![figure5](./image/16_figure5.png)
+![figure5](../image/16_figure5.png)
 
 - 7,8 : interval abstactionn의 정밀도를 증가시키는 heuristic
 
-![figure6](./image/16_figure6.png)
+![figure6](../image/16_figure6.png)
 - pc2에서 새로운 추론규칙을 사용 : 더 정밀한 결과
 
 ### 4.3.2. Bounded Disjunctions
@@ -144,18 +144,18 @@
 - bound threshold를 사용하여 l에 도달하는 path의 수가 threshold 적을때 condition들을 $\hat{wp}(l)$에서 유지
 - 개별적으로 backword propagate
 
-![figure7](./image/16_figure7.png)
+![figure7](../image/16_figure7.png)
 - interval abstraction을 통해 정밀도 손상이 발생할 수 있음
 - 두 abstract region의 교차는 frechet distance로 측정할 수 있음
 - interval domain에서 각 변수의 interval 에서 distance를 누적하여 정밀도 손실을 계산해야함
 
-![formula2](./image/16_formula2.png)
+![formula2](../image/16_formula2.png)
 - v = path condition $\phi_1, \phi_2$의 공유 변수
 - $v_{\phi_1} = [l_1, u_1], v_{\phi_2} = [l_2, u_2]$
 
-![formula3](./image/16_formula3.png)
+![formula3](../image/16_formula3.png)
 
-![formula4](./image/16_formula4.png)
+![formula4](../image/16_formula4.png)
 
 ## 4.4. Precondition Instrumentation
 - target program location에서 rechable을 위한 precondition을 추론 > 이를 program에 instrumentation 하여 runtime에 infeasible path pruning
@@ -174,25 +174,25 @@
 - Baselines : AFLGo, Hawkeye, AFL, Mopt, AFL++
 - Benchmarks
 
-![table2](./image/16_table2.png)
+![table2](../image/16_table2.png)
 
 - threshold = 5
 
 ## 5.1. Compared to the State of the Art
-![table3](./image/16_table3.png)
+![table3](../image/16_table3.png)
 
 ## 5.2. Impacts of Path Slicing & Precondition Checking
 
-![figure10](./image/16_figure10.png) 
+![figure10](../image/16_figure10.png) 
 ## 5.3. Impacts of Relation Preservation & Bounded Disjunction
 
-![figure11](./image/16_figure11.png)
+![figure11](../image/16_figure11.png)
 ## 5.4. Instrumentation Overhead
-![table6](./image/16_table6.png)
+![table6](../image/16_table6.png)
 
 ## 5.5. Case Study
 
-![figure12](./image/16_figure12.png)
+![figure12](../image/16_figure12.png)
 - line 12에서 crash 발생 가능
 - line 5 앞에 precondition 삽입 > 조기 종료 가능
 ## 5.6. Discussion

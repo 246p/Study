@@ -29,14 +29,14 @@
 - QSYM-UnTracer
 # 2. Background
 ## 2.1. An Overview of Fuzzing
-![figure1](./image/18_figure1.png)
+![figure1](../image/18_figure1.png)
 - fuzzer는 많은 양의 testcase를 생성하고 binary file의 execution을 monitoring, bug, crash를 일으키는 test case를 식별
 > test case를 생성하는 2가지 방법 
 1. Grammar-based > 사전에 정의된 input grammer에 제약을 받는 test case를 생성
 2. Mutational > 다른 test case를 muation하여 test case 생성
 - CGF는 binary file code 전체를 탐색하려고 하므로 새로운 code region에 도달하는 test case mutation 선호
 ## 2.2. Coverage-Guided Fuzzing
-![figure2](./image/18_figure2.png)
+![figure2](../image/18_figure2.png)
 - CGF는 binary intrumentation, system emulation, hardware-assisted mechanism을 통하여 code coverage 추적
 - CGF는 BB, BBE, BBP중 하나를 code coverage 측정 기준에 기반함
 - BBE 는 BB의 tuple로 사용
@@ -58,9 +58,9 @@
 - Driller는 DARPA CGC에서의 benchmark만 지원하므로 사전에 compile된 CGC binary file 8개로 평가
 - fuzzer의 execution/tracing time을 측정하기 위하여 AFL의 testcase execution function `run_target()`에 timing code 삽입
 ## 3.2. Results
-![table1](./image/18_table1.png)
+![table1](../image/18_table1.png)
 
-![table2](./image/18_table2.png)
+![table2](../image/18_table2.png)
 
 - 대부분의 시간을 coverage가 증가하지 않는 testcase의 execution/tracing에 사용함
 # 4. Coverage-guided Tracing
@@ -73,7 +73,7 @@
 - Oracle에서 INT가 발생한 test case는 coverage increasing이 표시되고 이때만 추적함
 - BB가 cover됨에 따라 Oracle binary에서 INT는 제거됨
 
-![figure4](./image/18_figure4.png)
+![figure4](../image/18_figure4.png)
 1. Determine Interesting : Interst Oracle에서 test case를 실행하여 INT를 발생하면 coverage increasing을 표시
 2. Full Tracing : Coverage Increasing test case에 대해 전체 code coverage 추적
 3. Unmodify Oracle : Oracle에서 새로 방문한 모든 BB에 대해 INT 제거
@@ -89,7 +89,7 @@
 ## 4.4. Unmodifying
 - Oracle에서 INT를 제거해야함 > 각 BB의 INT를 원래 Binary file 의 instruction으로 overwrite
 ## 4.5. Theoretical Performance Impact
-![figure5](./image/18_figure5.png)
+![figure5](../image/18_figure5.png)
 
 - 시간이 지남에 따라 coverage increasing test case 수가 증가하면 oracle의 BB가 점점 수정됨
 - Interst Oracle이 PUT와 유사해짐에 따라 coverage guide tracing은 0% overhead에 접근함
@@ -99,8 +99,8 @@
 - UnTracer는 target binary를 2가지 버전으로 instrumentation
 - Coverage increasing을 식별하는 Interest Oracle, 새로운 coverage를 식별하는 tracer
 - AFL의 forkserver을 사용하여 UnTracer의 Oracle과 Tracer binary를 이로 사용함
-![algorithm1](./image/18_algorithm1.png)
-![figure6](./image/18_figure6.png)
+![algorithm1](../image/18_algorithm1.png)
+![figure6](../image/18_figure6.png)
 
 ## 5.2. Forkwerver Instrumentation
 - Tracer, Oracle binary의 실행 속도를 최적화 해야함
@@ -125,7 +125,7 @@
 2. UnTracer의 overhead에 기여하는 요인
 3. Untracer의 overhead는 coverage increasing test case의 비율에 어떤 영향을 받는가
 ## 6.1. Evaluation Overview
-![table3](./image/18_table3.png)
+![table3](../image/18_table3.png)
 - 8개의 open source benchmark
 - AFL-Clang(White box), AFL-QEMU(Black box), AFL-Dyninst(Black box)와 비교함
 ## 6.2. Experiment Infrastructure
@@ -140,13 +140,13 @@
 - fuzzing tracer의 benchmark별 overhead를 검토
 - coverage agnostic tarcing 방법에 대한 UnTracer의 성능을 비교함
 
-![figure7](./image/18_figure7.png)
+![figure7](../image/18_figure7.png)
 
-![figure8](./image/18_figure8.png)
+![figure8](../image/18_figure8.png)
 
 ## 6.6. Dissecting UnTracer's Overhead
 
-![figure11](./image/18_figure11.png)
+![figure11](../image/18_figure11.png)
 
 ### 6.6.1. Tracing
 - UnTracer의 overhead의 80%

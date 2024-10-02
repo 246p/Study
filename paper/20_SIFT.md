@@ -79,7 +79,7 @@
 - arbitrary off-the-shelf alias 와 pointer analysis 를 통합한 a precondition generation algorithm 를 최초로 제시
 # 2. Example
 - `Swfdec 0.5.5` 의 예시
-![figure1](./image/20_figure1.png)
+![figure1](../image/20_figure1.png)
 - jpeg_decoder_decode : JPEG 디코딩
 - jpeg_decoder_start_frame : image metadata를 읽음
 - jpeg_decoder_init_decoder : JPEG에 대한 메모리 buffer 할당
@@ -96,7 +96,7 @@
 - SIFT는 어떤 명령이 어떤 input field를 읽는지 지정할 수 있는 인터페이스 제공
 
 ## 2.3. Compute Symbolic Condition
-![figure2](./image/20_figure2.png)
+![figure2](../image/20_figure2.png)
 
 - demand-driven interprocedual backward SA를 통해 figure2의 symbolic condition C를 계산함
 - safe(e) : e를 계산하는 과정에 OF 발생하지 않아야함
@@ -110,11 +110,11 @@
 # 3. Static Analysis
 - LLVM Compiler Infrastrucutre를 사용
 ## 3.1. Core Language and Notation
-![figure3](./image/20_figure3.png)
+![figure3](../image/20_figure3.png)
 
 > Labels and Pointer Analysis
 
-![figure4](./image/20_figure4.png)
+![figure4](../image/20_figure4.png)
 - firstS(s) : s의 첫번째 statement, firstL(s) : s의 첫번째 label 
 - last(s) : s의 마지막 label
 - labels(s) : s의 label의 집합, load sotre는 LoadLabel, StoreLabel 을 사용하여 표현
@@ -130,7 +130,7 @@
 - input field value -> v의 값을 계산 하는 방식중 symbolic condition을 계산 > 이 과정에 INT OF 발생 확인
 
 ### 3.2.1. Condition Syntax
-![figure5](./image/20_figure5.png)
+![figure5](../image/20_figure5.png)
 - symbolic condition의 정의
 - f\<id> : input field의 값, l\<id> : load statement의 return value
 ### 3.2.2. Abstraction for Input Field Instantiations
@@ -145,7 +145,7 @@
 - F(s,l,C)를 계산함 > s statement 이후 C가 성립을 보장 > hoare logic과 유사
 - 따라서 우리는 f(s0, l, safe(v))를 만족하는지 확인하는 input filter (s0는 주어진 프로그램, l : critical site)
 ### 3.2.5. Analysis of Assignment, Conditional, and Sequence Statements
-![figure6](./image/20_figure6.png)
+![figure6](../image/20_figure6.png)
 
 - 기본 program statement analysis rule
 - C[e'/e] : C에서 e를 e'으로 대체함
@@ -162,7 +162,7 @@
 - 반복횟수가 변화는 loop 에서는 fixed-point에 도달할 수 없음, 이때는 10번의 반복 후 분석을 종료함
 - 실제로 변화되는 경우가 많지만 demand-driven이기 때문에 괜찮음, 또한 실험적으로 효과적
 
-![figure7](./image/20_figure7.png)
+![figure7](../image/20_figure7.png)
 - normalization algorithm : sound함 이유
 1. f\<id_k> : interchangable
 2. 정규하는 사실 id_k의 renumbering만 하기 때문
@@ -177,7 +177,7 @@
 2. function call 이후 load 명령으로 p에 접근하는 l을 찾음
 - 이와 같은 l\<id>을 symbolic expression으로 대체함
 
-![figure8](./image/20_figure8.png)
+![figure8](../image/20_figure8.png)
 - caching을 사용하여 procedual에 대한 중복 분석 하지 않음
 - return value에 대한 symbolic expression (line 6) or l\<id>(line 8, 11) 을 얻음
 - 이 분석으로 인한 symbolic expression 에는 argument (a_i)가 포함될 수 있음, 이때 caller의 이름으로 변경해줌 (line 7,9,12)
@@ -221,7 +221,7 @@
 - intra procedual analysis에 중점, inter는 생략
 ## 4.1. Dynamic Semantics of the Core Language
 ### 4.1.1. Program State
-![prog1](./image/20_prog1.png)
+![prog1](../image/20_prog1.png)
 
 - σ : variable
 - ρ : memory location
@@ -231,12 +231,12 @@
 - Inp(f) : input field f를 f의 모든 nstantitaion value에 mapping
 - 초기 상태에서 σ, ρ는 모든 변수와 위치를 undef로 mapping, ς, ϱ = false
 ### 4.1.2. Small Step Rule
-![figure9](./image/20_figure9.png)
+![figure9](../image/20_figure9.png)
 
 - overflow(a, b, op) : a op b가 overflow를 일으킬때 true
 - read 에서 Inp(f)에서 임의워 요소 c를 선택하여 x를 update
 ## 4.2. Soundness of the Pointer Analysis
-![definition1](./image/20_def1.png)
+![definition1](../image/20_def1.png)
 - no_alias : s의 load, store에서 variable의 mapping이 모두 다를때
 - must_alias : load 할때 store가 마지막으로 저장한 값을 읽을떄
 ```c
@@ -249,11 +249,11 @@
 1. if, while에 대해 condition을 무시하고 두 control flow중 하나를 nondeterministic하게 실행
 2. load, store 값을 uderlying pointer or alias analysis로 얻는 정보로 equivalence class로 group화 함 > 보수적 모델링
 ### 4.3.1. Abstract Program State
-![prog2](./image/20_prog2.png)
+![prog2](../image/20_prog2.png)
 - h : load label을 memory 에서 얻을 수 있는 value의 집합으로 mapping
 - 초기 상태 : σ = 0, ς = false, h = empty set
 ### 4.3.2. Small Step Rule
-![figure10](./image/20_figure10.png)
+![figure10](../image/20_figure10.png)
 - if, while, malloc, load ,store에 대해 차이가 있음
 - if, while의 condition을 무시함
 - store는 alias 정보를 기반으로 h를 유지
@@ -261,12 +261,12 @@
 - store : alias를 기반으로 h를 유지
 
 ## 4.4. Relationship of the Original and the Abstract Semantics
-![theorem2](./image/20_th2.png)
+![theorem2](../image/20_th2.png)
 1. INT로 mapping 되는 것은 값과 boolean condition이 같아야함
 2. load 할때 h_i에 포함되어야 함
 ## 4.5. Evaluation of the Symbolic Condition
 
-![figure11](./image/20_figure11.png)
+![figure11](../image/20_figure11.png)
 
 - abstract program state에 대한 symbolic condition C를 정의하는 방법
 - safe(e1 op e2) : e1 op e2를 계산하기 위한 하위 연산에 OF가 발생하지 않음
@@ -275,21 +275,21 @@
 - f\<id>와 l\<id>이 교환 가능함, 따라서 id 를 renumbering 해도 동일한 norm(C)를 생성
 ## 4.6. Soundness of the Analysis
 ### 4.6.1. Soundness of the Analysis over the Abstract Semantic
-![theorem3](./image/20_th3.png)
+![theorem3](../image/20_th3.png)
 
 - s_i를 실행하기 전 F(si,l,C)를 만족한다면 l 이후 항상 C를 만족함
 
 ### 4.6.2. Soundness of the Analysis over the Original Semantics
 - abstract된 공식을 이용하여 original을 증명
 
-![theorem4](./image/20_th4.png)
+![theorem4](../image/20_th4.png)
 # 5. Experimental Results
 ## 5.1. Methodology
 ### 5.1.1. Input Format and Module Selection
 - 각 프로그램에 대해 INT OF filter를 생성함
 - input을 처리하는 module에 SIFT처리함
 ### 5.1.2. Input Statement Annotation
-![figure12](./image/20_figure12.png)
+![figure12](../image/20_figure12.png)
 - ciritical expression의 값에 영향을 미치는 input field를 읽는 statement를 식별하기 위한 annotation
 - Relevant Fields가 훨씬 적음
 - 이러한 주석 작업은 최대 1시간
@@ -299,8 +299,8 @@
 - 실제 잘못된 input에 대해선 filter가 잘 작동함
 ## 5.2. Analysis and Filter Evaluation
 ### 5.2.1. Analysis Evaluation
-![figure13](./image/20_figure13.png)
+![figure13](../image/20_figure13.png)
 ### 5.2.2. Filter Evaluation
-![figure14](./image/20_figure14.png)
+![figure14](../image/20_figure14.png)
 ## 5.4. Discussion
 - overhead가 낮음, 또한 false postive가 없기 때문에 real-world 프로그램에 배포할만 함

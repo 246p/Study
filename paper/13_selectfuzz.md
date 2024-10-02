@@ -50,9 +50,9 @@
 - relevant code : target에 도달(control flow condition), vulnerability에 사용 (data flow condition) 하는 코드
 - 이는 target에 접근하는지 분석하는 것과 다름 > 유일한 successor 라면 실행에 더 가까이 도달하는데 도움이 되지 않음
 
-![listing1](./image/13_listing1.png)
+![listing1](../image/13_listing1.png)
 
-![figure1](./image/13_figure1.png)
+![figure1](../image/13_figure1.png)
 
 - 14~15 에서 rechability를 결정 할 수 있음
 - control flow condition을 고려하면 항상 line 11에 도달할 수 있기 때문에 2~10 line의 code는 관련이 없음
@@ -75,7 +75,7 @@
 - 관련 없는 코드를 삭제하는ㄴ 것은 오류를 일으킬 수 있고 유효한 PoC가 아닐 수 있음
 
 # 4. SelectFuzz
-![figure2](./image/13_figure2.png)
+![figure2](../image/13_figure2.png)
 
 - relevant code만 식별하고 탐색함
 - 새로운 distance metric을 활용하여 모든 rechable code를 식별, input prioritization에 사용됨
@@ -86,7 +86,7 @@
 1. 모든 가능한 path를 고려하여 BB에서 target에 도달할 확률을 평가 가능
 2. inter procedural analysis, call target analysis를 통하여 cross-fuction distance 측정
 ### 4.1.1. Block Distance
-![algorithm1](./image/13_algorithm1.png)
+![algorithm1](../image/13_algorithm1.png)
 
 - BB에 3가지 labeling ( 0 : initial, 1 : distance 계산중, @: distance 계산 완료)
 - cal_prob()에서 reaching probability $P_b$ : b에서 target에 도달할 확률 추정
@@ -101,8 +101,8 @@
 - distance matric에서 input distance는 cover된 모든 BB의 최단 block distance (다른 것은 평균을 사용함)
 - 최단 거리가 상황을 잘 반영하는지 보여줄 수 있다.
 ### 4.1.3. Example
-![listing2](./image/13_listing2.png)
-![figure3](./image/13_figure3.png)
+![listing2](../image/13_listing2.png)
+![figure3](../image/13_figure3.png)
 
 $SelcF : d_{bb}(a,T) = 2, d_{bb}(h,T)=2, d_{bb}(h,T)=4$
 
@@ -113,14 +113,14 @@ $SelcF : d_{bb}(a,T) = 2, d_{bb}(h,T)=2, d_{bb}(h,T)=4$
 - target을 향하는 input을 구별할 수 있는 중요한 feedback을 제공
 - 따라서 intrumentation 되지 않고 coverage나 distance feedback을 제공하지 않는 irrelevant code는 인식하지 못함
 
-![listing1](./image/13_listing1.png)
+![listing1](../image/13_listing1.png)
 - line 14, 15의 path divergent code는 line 13에서 생략된 code block의 data에 의존적일 수 있음
 - 하지만 이를 무시함으로 더 작은 explore space를 갖을 수 있다. 그리고 line 13 에서 y,z값을 변경 하는것은 fuzzer에 의해 방문될 것이다. > WindRanger와 비슷함
 
 > data dependent code : target에서 사용되는 중요 변수에 영향을 미치는 code
 - target에 도달하는데 도움이 되지 않지만 exploitation 단계에서 도움이 될 수 있음
 
-![figure1](./image/13_figure1.png)
+![figure1](../image/13_figure1.png)
 - e, f : path divergent code, b, g : data dependent code
 
 ### 4.2.2. Input Prioritization and Power Scheduling
@@ -159,10 +159,10 @@ $SelcF : d_{bb}(a,T) = 2, d_{bb}(h,T)=2, d_{bb}(h,T)=4$
 - RQ4 : 표준 bnechmark에서 어떤 결과를 갖는가
 - RQ5 : 실제 프로그램에서 새로운 bculnerability를 발견할 수 있는가
 ## 6.1. Triggering Known Vulnerabilities (RQ1)
-![table1](./image/13_table1.png)
+![table1](../image/13_table1.png)
 
 ## 6.2. Ablation Study (RQ2)
-![figure4](./image/13_figure4.png)
+![figure4](../image/13_figure4.png)
 
 - distance matric, selective path exploration으로 DGF르 개선하므로 이 효과를 평가하기 위하여 AFLGo의 방식을 적용하여 개선을 비교
 ## 6.3.  Understanding Performance Boost (RQ3)
@@ -171,11 +171,11 @@ $SelcF : d_{bb}(a,T) = 2, d_{bb}(h,T)=2, d_{bb}(h,T)=4$
 ### 6.3.2. Exploring Relevant code 
 - trigger와 관련 없는 코드의 비율에 크게 영향을 받음 다른 DGF는 전체/도달 : 1.96/12.33
 ## 6.4. Benchmarking (RQ4)
-![table2](./image/13_table2.png)
+![table2](../image/13_table2.png)
 
 - 복잡한 branch constraint를 충족시키는 input을 생성하지 못함
 ## 6.5. Detecting New Vulnerabilities (RQ5)
-![table3](./image/13_table3.png)
+![table3](../image/13_table3.png)
 
 # 7. Discussion
 ## 7.1. False Positives in Relevant Code Identification

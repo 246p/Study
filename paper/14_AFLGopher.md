@@ -8,7 +8,7 @@
 # 1. Introduction
 - 기존 DGF의 근본적인 문제는 distance calculation이 feasibility를 인식하지 못한다는것
 
-![listing1](./image/14_listing1.png)
+![listing1](../image/14_listing1.png)
 
 - 대부분의 경우 malloc은 NULL을 반환하지 않음 > 두 branch에 동일한 feasibility를 할당하는 것은 distance calculate에 편향을 줌
 - if 이외에도 indirect-call, return 등 ougoing edge가 있는 statment를 branch statment라고 하겠다.
@@ -31,16 +31,16 @@
 # 2. Motivation
 - `CVE-2015-8317`
 
-![table1](./image/14_table1.png)
+![table1](../image/14_table1.png)
 
-![figure1](./image/14_figure1.png)
+![figure1](../image/14_figure1.png)
 
 - AFLGo 에서 T1 = 1.6 < T2 = 2.43
 - AFLGo에서 p1, p2 거리를 동일하게 계산함 > 실제 실행해서는 2번째 trace가 target에 도달할 확률이 더 높음 > 거리에 가중치를 주어야함
 
 # 3. Approach
 ## 3.1. Overview
-![figure2](./image/14_figure2.png)
+![figure2](../image/14_figure2.png)
 1. dynamic analysis
 - LLVM IR, MLTA를 기반으로 indirect-call을 포함한 CFG 구성
 - CFG와 CG의 call site를 수집하여 inter-procedural flow graph 생성
@@ -80,10 +80,10 @@
 ### 3.4.3. Distance Calculation
 - AFLGo와 Hawkeye에서 CG, CFG에 대해서 동일한 가중치를 주었지만 우리는 달라야 한다고 생각
 #### BB level - CFG
-![formula2,3](./image/14_formula2,3.png)
+![formula2,3](../image/14_formula2,3.png)
 
 #### Function level - CG
-![formualt4,5](./image/14_formula4,5.png)
+![formualt4,5](../image/14_formula4,5.png)
 
 - direct-call : LLVM IR에서 찾을 수 있음 : function call이 될  확률 계산
 - indirect-call : MLTA를 통해 잠재적 indirec-call 대상을 예측하고 LSTM을 사용하여 feasibility prediction 수행
@@ -104,4 +104,4 @@
 ### 3.5.1. Error Monitor
 - feasability가 충분하지 않을때 update > feasabjility가 정확한지 판단하는 error monitor 도입
 
-![algorithm1](./image/14_algorithm1.png)
+![algorithm1](../image/14_algorithm1.png)
